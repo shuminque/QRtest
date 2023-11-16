@@ -2,10 +2,10 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>com.dreamchaser</groupId>
-    <artifactId>depository_manage</artifactId>
+    <groupId>com</groupId>
+    <artifactId>QR_test</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>depository_manage</name>
+    <name>qr_test</name>
     <description>work of school</description>
 
     <properties>
