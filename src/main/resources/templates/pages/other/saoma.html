@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>扫描二维码</title>
+    <!-- 引入qrcode-generator库 -->
+    <script type="text/javascript" src="/static/js/http_cdn.jsdelivr.net_npm_qrcode-generator.js" charset="utf-8"></script>
+    <script type="text/javascript" src="/static/js/http_unpkg.com_html5-qrcode.js" charset="utf-8"></script>
+</head>
+<body>
+
+<h2>生成二维码</h2>
+<div id="qrcode"></div>
+<button onclick="generateQRCode()">生成二维码</button>
+
+<body>
+<h2>操作选择</h2>
+<button onclick="prepareStockIn()">入库</button>
+<button onclick="prepareStockOut()">出库</button>
+
+<div id="scanner-container" style="display:none;">
+    <h2>扫描二维码</h2>
+    <div id="qr-reader" style="width:500px"></div>
+</div>
+
+<div id="operation-result" style="display:none;"></div>
+</body>
+
+
+<script>
+    function generateQRCode() {
+        // 清除之前的二维码
+        document.getElementById("qrcode").innerHTML = "";
+
+        // 发起 AJAX 请求以获取所有数据
+        fetch('http://localhost:6060/bearings/all')
+            .then(response => response.json())
+            .then(dataArray => {
+                dataArray.forEach(data => {
+                    var qrData = JSON.stringify(data);
+                    var base64Data = btoa(unescape(encodeURIComponent(qrData)));
+                    try {
+                        var typeNumber = 0;
+                        var errorCorrectionLevel = 'H';
+                        var qr = qrcode(typeNumber, errorCorrectionLevel);
+                        qr.addData(base64Data);
+                        qr.make();
+                        var imgTag = qr.createImgTag();
+                        var div = document.createElement("div");
+                        div.innerHTML = imgTag;
+                        document.getElementById('qrcode').appendChild(div);
+                    } catch(e) {
+                        console.error('生成二维码时发生错误：', e);
+                    }
+                });
+            })
+            .catch(error => console.error('Error:', error));
+    }
+    var currentOperation = null;
+
+    function prepareStockIn() {
+        currentOperation = "stockIn";
+        document.getElementById("scanner-container").style.display = "block";
+        html5QrcodeScanner.clear(); // 清除之前的扫描结果
+        html5QrcodeScanner.render(onScanSuccess);
+    }
+
+    function prepareStockOut() {
+        currentOperation = "stockOut";
+        document.getElementById("scanner-container").style.display = "block";
+        html5QrcodeScanner.clear(); // 清除之前的扫描结果
+        html5QrcodeScanner.render(onScanSuccess);
+    }
+
+    function onScanSuccess(decodedText, decodedResult) {
+        try {
+            var base64DecodedData = atob(decodedText);
+            var decodedData = decodeURIComponent(escape(base64DecodedData));
+            var jsonData = JSON.parse(decodedData);
+            displayScanResult(jsonData);
+            if (currentOperation === "stockIn") {
+                stockIn(jsonData.boxNumber, jsonData.productId, jsonData.quantity);
+            } else if (currentOperation === "stockOut") {
+                stockOut(jsonData.boxNumber, jsonData.productId, jsonData.quantity);
+            }
+        } catch (e) {
+            console.error('扫描错误:', e);
+        }
+    }
+
+    function stockIn(boxNumber, productId, quantity) {
+        // 发送入库请求到后端
+        var inventoryDto = { boxNumber: boxNumber, productId: productId, quantityInStock: quantity };
+        fetch('/bearingInventory/stockIn', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(inventoryDto),
+        }).then(response => {
+            showResult('入库成功');
+            resetScanner(); // 重置扫描器
+        }).catch(error => {
+            console.error('入库失败:', error);
+            showResult('入库失败');
+            resetScanner(); // 重置扫描器
+        });
+    }
+
+    function stockOut(boxNumber, productId, quantity) {
+        // 发送出库请求到后端
+        var inventoryDto = { boxNumber: boxNumber, productId: productId, quantityInStock: quantity };
+        fetch('/bearingInventory/stockOut', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(inventoryDto),
+        }).then(response => {
+            showResult('出库成功');
+            resetScanner(); // 重置扫描器
+        }).catch(error => {
+            console.error('出库失败:', error);
+            showResult('出库失败');
+            resetScanner(); // 重置扫描器
+        });
+    }
+    function displayScanResult(result) {
+        var resultContainer = document.getElementById('operation-result');
+        resultContainer.innerHTML = `扫描结果: ${JSON.stringify(result)}`;
+        resultContainer.style.display = "block";
+    }
+
+    function showResult(message) {
+        var resultContainer = document.getElementById('operation-result');
+        resultContainer.innerHTML = message + ' <button onclick="resetScanner()">关闭</button>';
+        resultContainer.style.display = "block";
+    }
+
+    function resetScanner() {
+        document.getElementById("scanner-container").style.display = "none";
+        currentOperation = null;
+        var resultContainer = document.getElementById('operation-result');
+        resultContainer.style.display = "none";
+        html5QrcodeScanner.clear(); // 清除扫描器的结果和状态
+    }
+
+    var html5QrcodeScanner = new Html5QrcodeScanner(
+        "qr-reader", { fps: 60, qrbox: 250 });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.depository_manage.mapper.BearingMapper">
+    <resultMap id="bearingMap" type="com.depository_manage.entity.Bearing">
+        <result property="boxNumber" column="box_number"/>
+        <result property="productId" column="product_id"/>
+        <result property="model" column="model"/>
+        <result property="customer" column="customer"/>
+        <result property="quantity" column="quantity"/>
+    </resultMap>
+
+    <select id="selectBearingByBoxNumber" resultMap="bearingMap">
+        SELECT * FROM bearings WHERE box_number = #{boxNumber}
+    </select>
+    <select id="selectAllBearings" resultMap="bearingMap">
+        SELECT * FROM bearings
+    </select>
+
+</mapper>
