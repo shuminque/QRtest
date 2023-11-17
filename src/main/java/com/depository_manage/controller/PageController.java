@@ -47,7 +47,7 @@ public class PageController {
         return "pages/other/saoma1";
     }//测试页面1
 //    public String login() {
-//        return "pages/other/saoma1";
+//        return "pages/other/saoma2";
 //    }//测试页面2
 
 //    @GetMapping("/index")

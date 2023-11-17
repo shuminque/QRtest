@@ -39,6 +39,4 @@ public class BearingInventoryController {
         bearingInventoryService.stockOut(inventory);
         return ResponseEntity.ok().build();
     }
-
-
 }

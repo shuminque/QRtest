@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <title>扫描二维码</title>
@@ -13,7 +13,6 @@
 <div id="qrcode"></div>
 <button onclick="generateQRCode()">生成二维码</button>
 
-<body>
 <h2>操作选择</h2>
 <button onclick="prepareStockIn()">入库</button>
 <button onclick="prepareStockOut()">出库</button>
@@ -146,7 +145,7 @@
     }
 
     var html5QrcodeScanner = new Html5QrcodeScanner(
-        "qr-reader", { fps: 30, qrbox: 250 });
+        "qr-reader", { fps: 30, qrbox: 350 });
 </script>
 
 </body>
