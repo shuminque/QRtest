@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <title>扫描二维码</title>
-    <!-- 引入qrcode-generator库 -->
-    <script type="text/javascript" src="/static/js/http_cdn.jsdelivr.net_npm_qrcode-generator.js" charset="utf-8"></script>
     <script type="text/javascript" src="/static/js/http_unpkg.com_html5-qrcode.js" charset="utf-8"></script>
+    <script type="text/javascript" src="/static/js/jquery-2.1.0.js" charset="utf-8"></script>
+    <script type="text/javascript" src="/static/js/jquery.qrcode.js" charset="utf-8"></script>
 </head>
 <body>
 
@@ -23,22 +23,28 @@
         document.getElementById("qrcode").innerHTML = "";
 
         // 发起 AJAX 请求以获取所有数据
-        fetch('http://localhost:6060/bearings/all')
+        fetch('/bearings/all')
             .then(response => response.json())
             .then(dataArray => {
                 dataArray.forEach(data => {
                     var qrData = JSON.stringify(data);
-                    var base64Data = btoa(unescape(encodeURIComponent(qrData)));
                     try {
-                        var typeNumber = 0;
-                        var errorCorrectionLevel = 'H';
-                        var qr = qrcode(typeNumber, errorCorrectionLevel);
-                        qr.addData(base64Data);
-                        qr.make();
-                        var imgTag = qr.createImgTag();
-                        var div = document.createElement("div");
-                        div.innerHTML = imgTag;
-                        document.getElementById('qrcode').appendChild(div);
+                        // 为二维码创建一个容器
+                        var qrContainer = $('<div></div>').css({
+                            margin: '10px', // 添加外边距
+                        });
+
+                        // 在容器中生成二维码
+                        qrContainer.qrcode({
+                            text: qrData,
+                            render: 'canvas',
+                            width: 150,
+                            height: 150,
+                            quietZone: 10
+                        });
+
+                        // 将容器添加到页面
+                        $('#qrcode').append(qrContainer);
                     } catch(e) {
                         console.error('生成二维码时发生错误：', e);
                     }
@@ -46,6 +52,8 @@
             })
             .catch(error => console.error('Error:', error));
     }
+
+    var currentOperation = null;
     // 扫描二维码的功能
     var resultContainer = document.getElementById('qr-reader-results');
     var lastResult, countResults = 0;
@@ -66,12 +74,23 @@
 
     function displayScanResult(result) {
         ++countResults;
-        // 显示扫描结果和操作按钮
-        var resultHtml = `<div>扫描结果 [${countResults}]: ${JSON.stringify(result)}`;
-        resultHtml += `<button onclick='stockIn("${result.boxNumber}", "${result.productId}", ${result.quantity})'>入库</button>`;
-        resultHtml += `<button onclick='stockOut("${result.boxNumber}", "${result.productId}", ${result.quantity})'>出库</button></div>`;
+
+        // 确保result是一个对象
+        var parsedResult = (typeof result === 'string') ? JSON.parse(result) : result;
+
+        // 提取所需的属性
+        var boxNumber = parsedResult.boxNumber || '未知';
+        var productId = parsedResult.productId || '未知';
+        var quantity = parsedResult.quantity || 0;
+
+        // 构建HTML
+        var resultHtml = `<div>扫描结果 [${countResults}]: ${JSON.stringify(parsedResult)}`;
+        resultHtml += `<button onclick='stockIn("${boxNumber}", "${productId}", ${quantity})'>入库</button>`;
+        resultHtml += `<button onclick='stockOut("${boxNumber}", "${productId}", ${quantity})'>出库</button></div>`;
+
         resultContainer.innerHTML = resultHtml + resultContainer.innerHTML;
     }
+
 
     function stockIn(boxNumber, productId, quantity) {
         // 发送入库请求到后端

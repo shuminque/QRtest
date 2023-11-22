@@ -3,19 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <title>扫描二维码</title>
-    <!-- 引入qrcode-generator库 -->
-    <script type="text/javascript" src="/static/js/http_cdn.jsdelivr.net_npm_qrcode-generator.js" charset="utf-8"></script>
     <script type="text/javascript" src="/static/js/http_unpkg.com_html5-qrcode.js" charset="utf-8"></script>
+    <script type="text/javascript" src="/static/js/jquery-2.1.0.js" charset="utf-8"></script>
+    <script type="text/javascript" src="/static/js/jquery.qrcode.js" charset="utf-8"></script>
 </head>
 <body>
-
-<h2>生成二维码</h2>
+<div>
+    <div>
+        <input type="text" id="boxNumberInput" placeholder="请输入" class="layui-input">
+    </div>
+    <div>
+        <button class="layui-btn" onclick="generateQRCodeByBoxNumber()">生成二维码</button>
+        <button class="layui-btn" onclick="printQRCode()">打印二维码</button>
+    </div>
+</div>
+<h3>二维码:</h3>
 <div id="qrcode"></div>
-<button onclick="generateQRCode()">生成二维码</button>
-
-<h2>操作选择</h2>
-<button onclick="prepareStockIn()">入库</button>
-<button onclick="prepareStockOut()">出库</button>
+<!--<button onclick="generateQRCode()">生成全部二维码</button>-->
+<button onclick="prepareOperation('stockIn')">入库扫码</button>
+<button onclick="prepareOperation('stockOut')">出库扫码</button>
 
 <div id="scanner-container" style="display:none;">
     <h2>扫描二维码</h2>
@@ -23,10 +29,48 @@
 </div>
 
 <div id="operation-result" style="display:none;"></div>
-</body>
-
 
 <script>
+    var currentOperation = null;
+    var html5QrcodeScanner;
+
+    document.addEventListener("DOMContentLoaded", function() {
+        html5QrcodeScanner = new Html5QrcodeScanner(
+            "qr-reader", { fps: 30, qrbox: 350 });
+    });
+    function generateQRCodeByBoxNumber() {
+        var boxNumber = document.getElementById("boxNumberInput").value;
+        if (!boxNumber) {
+            alert("请输入box_number");
+            return;
+        }
+
+        fetch('/bearings/' + boxNumber, { method: 'POST' }) // 使用POST请求
+            .then(response => response.json())
+            .then(data => {
+                // 清除之前的二维码
+                document.getElementById("qrcode").innerHTML = "";
+
+                // 为二维码创建一个容器
+                var qrContainer = $('<div></div>').css({
+                    margin: '10px', // 添加外边距
+                });
+
+                // 在容器中生成二维码
+                qrContainer.qrcode({
+                    text: JSON.stringify(data),
+                    render: 'canvas',
+                    width: 150,
+                    height: 150,
+                    quietZone: 10
+                });
+
+                // 将容器添加到页面
+                $('#qrcode').append(qrContainer);
+            })
+            .catch(error => console.error('生成二维码时发生错误：', error));
+    }
+
     function generateQRCode() {
         // 清除之前的二维码
         document.getElementById("qrcode").innerHTML = "";
@@ -37,17 +81,23 @@
             .then(dataArray => {
                 dataArray.forEach(data => {
                     var qrData = JSON.stringify(data);
-                    var base64Data = btoa(unescape(encodeURIComponent(qrData)));
                     try {
-                        var typeNumber = 0;
-                        var errorCorrectionLevel = 'H';
-                        var qr = qrcode(typeNumber, errorCorrectionLevel);
-                        qr.addData(base64Data);
-                        qr.make();
-                        var imgTag = qr.createImgTag();
-                        var div = document.createElement("div");
-                        div.innerHTML = imgTag;
-                        document.getElementById('qrcode').appendChild(div);
+                        // 为二维码创建一个容器
+                        var qrContainer = $('<div></div>').css({
+                            margin: '10px', // 添加外边距
+                        });
+
+                        // 在容器中生成二维码
+                        qrContainer.qrcode({
+                            text: qrData,
+                            render: 'canvas',
+                            width: 150,
+                            height: 150,
+                            quietZone: 10
+                        });
+
+                        // 将容器添加到页面
+                        $('#qrcode').append(qrContainer);
                     } catch(e) {
                         console.error('生成二维码时发生错误：', e);
                     }
@@ -55,17 +105,9 @@
             })
             .catch(error => console.error('Error:', error));
     }
-    var currentOperation = null;
 
-    function prepareStockIn() {
-        currentOperation = "stockIn";
-        document.getElementById("scanner-container").style.display = "block";
-        html5QrcodeScanner.clear(); // 清除之前的扫描结果
-        html5QrcodeScanner.render(onScanSuccess);
-    }
-
-    function prepareStockOut() {
-        currentOperation = "stockOut";
+    function prepareOperation(operation) {
+        currentOperation = operation;
         document.getElementById("scanner-container").style.display = "block";
         html5QrcodeScanner.clear(); // 清除之前的扫描结果
         html5QrcodeScanner.render(onScanSuccess);
@@ -73,22 +115,36 @@
 
     function onScanSuccess(decodedText, decodedResult) {
         try {
-            var base64DecodedData = atob(decodedText);
-            var decodedData = decodeURIComponent(escape(base64DecodedData));
-            var jsonData = JSON.parse(decodedData);
-            displayScanResult(jsonData);
-            if (currentOperation === "stockIn") {
-                stockIn(jsonData.boxNumber, jsonData.productId, jsonData.quantity);
-            } else if (currentOperation === "stockOut") {
-                stockOut(jsonData.boxNumber, jsonData.productId, jsonData.quantity);
+            var jsonData;
+            try {
+                jsonData = JSON.parse(decodedText);
+            } catch (jsonError) {
+                var base64DecodedData = atob(decodedText);
+                var decodedData = decodeURIComponent(escape(base64DecodedData));
+                jsonData = JSON.parse(decodedData);
             }
+
+            // 显示扫描成功消息
+            showResult('扫描成功: ' + JSON.stringify(jsonData));
+
+            // 一定时间后执行操作
+            setTimeout(function() {
+                if (currentOperation === "stockIn") {
+                    stockIn(jsonData.boxNumber, jsonData.productId, jsonData.quantity);
+                } else if (currentOperation === "stockOut") {
+                    stockOut(jsonData.boxNumber, jsonData.productId, jsonData.quantity);
+                }
+            }, 2000); // 等待2秒后再执行操作
+
         } catch (e) {
             console.error('扫描错误:', e);
+            showResult('扫描失败: ' + e.message);
         }
     }
 
+
+    // 入库操作
     function stockIn(boxNumber, productId, quantity) {
-        // 发送入库请求到后端
         var inventoryDto = { boxNumber: boxNumber, productId: productId, quantityInStock: quantity };
         fetch('/bearingInventory/stockIn', {
             method: 'POST',
@@ -96,18 +152,27 @@
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify(inventoryDto),
-        }).then(response => {
-            showResult('入库成功');
-            resetScanner(); // 重置扫描器
-        }).catch(error => {
-            console.error('入库失败:', error);
-            showResult('入库失败');
-            resetScanner(); // 重置扫描器
-        });
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('网络响应错误');
+                }
+                return response.json();
+            })
+            .then(data => {
+                showResult('入库成功: ' + JSON.stringify(data));
+            })
+            .catch(error => {
+                console.error('入库失败:', error);
+                showResult('入库失败: ' + error.message);
+            })
+            .finally(() => {
+                resetScanner(); // 无论成功或失败，重置扫描器
+            });
     }
 
+    // 出库操作
     function stockOut(boxNumber, productId, quantity) {
-        // 发送出库请求到后端
         var inventoryDto = { boxNumber: boxNumber, productId: productId, quantityInStock: quantity };
         fetch('/bearingInventory/stockOut', {
             method: 'POST',
@@ -115,21 +180,33 @@
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify(inventoryDto),
-        }).then(response => {
-            showResult('出库成功');
-            resetScanner(); // 重置扫描器
-        }).catch(error => {
-            console.error('出库失败:', error);
-            showResult('出库失败');
-            resetScanner(); // 重置扫描器
-        });
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('网络响应不是OK');
+                }
+                return response.json();
+            })
+            .then(data => {
+                showResult('出库成功: ' + JSON.stringify(data));
+            })
+            .catch(error => {
+                console.error('出库失败:', error);
+                showResult('出库失败: ' + error.message);
+            })
+            .finally(() => {
+                resetScanner(); // 无论成功或失败，重置扫描器
+            });
     }
+
+    // 显示扫描结果
     function displayScanResult(result) {
         var resultContainer = document.getElementById('operation-result');
         resultContainer.innerHTML = `扫描结果: ${JSON.stringify(result)}`;
         resultContainer.style.display = "block";
     }
 
+    // 显示操作结果（入库或出库）
     function showResult(message) {
         var resultContainer = document.getElementById('operation-result');
         resultContainer.innerHTML = message + ' <button onclick="resetScanner()">关闭</button>';
@@ -143,10 +220,42 @@
         resultContainer.style.display = "none";
         html5QrcodeScanner.clear(); // 清除扫描器的结果和状态
     }
+    function printQRCode() {
+        var qrCodeDiv = document.getElementById('qrcode');
+        if (qrCodeDiv.innerHTML.trim() !== '') {
+            var printWindow = window.open('', '_blank');
 
-    var html5QrcodeScanner = new Html5QrcodeScanner(
-        "qr-reader", { fps: 30, qrbox: 350 });
+            // 创建一个新的 div 元素并复制二维码内容
+            var newDiv = printWindow.document.createElement('div');
+            newDiv.innerHTML = qrCodeDiv.innerHTML;
+
+            // 将新的 div 元素添加到新窗口的 body 中
+            printWindow.document.body.appendChild(newDiv);
+
+            // 添加延迟确保内容加载
+            setTimeout(function() {
+                printWindow.print();
+                printWindow.close();
+            }, 250);
+        } else {
+            alert('请先生成二维码！');
+        }
+    }
+    // function downloadQRCode() {
+    //     var qrCodeCanvas = document.querySelector('#qrcode canvas');
+    //     if (qrCodeCanvas) {
+    //         var image = qrCodeCanvas.toDataURL("image/png").replace("image/png", "image/octet-stream");
+    //         var link = document.createElement('a');
+    //         link.download = 'qrcode.png';
+    //         link.href = image;
+    //         link.click();
+    //     } else {
+    //         alert('请先生成二维码！');
+    //     }
+    // }
+
+
+
 </script>
-
 </body>
 </html>

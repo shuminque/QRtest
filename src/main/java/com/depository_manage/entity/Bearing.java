@@ -5,11 +5,15 @@ import lombok.Data;
 @Data
 public class Bearing {
     private String boxNumber;
-    private String productId;
     private String model;
     private String customer;
     private Integer quantity;
+    private String outerInnerRing;   // 外/内轮
+    private String productCategory;  // 制品分类
+    private String steelType;        // 钢种
+    private String steelGrade;       // 钢材等级
+    private String depository;       // 厂区
+    private String storageLocation;  // 库位
 
-    // 构造函数、getter和setter省略
+    // Lombok 的 @Data 注解会自动生成构造函数、getter 和 setter 方法
 }
-

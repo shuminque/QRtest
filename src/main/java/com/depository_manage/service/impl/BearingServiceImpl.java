@@ -22,4 +22,12 @@ public class BearingServiceImpl implements BearingService {
     public List<Bearing> getAllBearings() {
         return bearingMapper.selectAllBearings();
     }
+    @Override
+    public Bearing getLatestBearingByBoxNumber(String boxNumber) {
+        return bearingMapper.selectLatestBearingByBoxNumber(boxNumber);
+    }
+    @Override
+    public void saveBearing(Bearing bearing) {
+        bearingMapper.insertBearing(bearing);
+    }
 }

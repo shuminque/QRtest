@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.depository_manage.mapper.ProductIdMapper">
+    <resultMap id="productIdMap" type="com.depository_manage.entity.ProductId">
+        <result property="boxNumber" column="box_number"/>
+        <result property="productId" column="product_id"/>
+    </resultMap>
+
+    <select id="selectProductIdByBoxNumber" resultType="com.depository_manage.entity.ProductId">
+        SELECT * FROM product_ids
+        WHERE box_number = #{boxNumber}
+        ORDER BY CAST(product_id as UNSIGNED ) DESC
+            LIMIT 1
+    </select>
+    <select id="selectAllProductIds" resultMap="productIdMap">
+        SELECT * FROM product_ids
+    </select>
+    <insert id="insertOrUpdateProductId">
+        INSERT INTO product_ids (box_number, product_id)
+        VALUES (#{boxNumber}, #{productId})
+            ON DUPLICATE KEY UPDATE product_id = VALUES(product_id)
+    </insert>
+</mapper>

@@ -4,10 +4,15 @@
 <mapper namespace="com.depository_manage.mapper.BearingMapper">
     <resultMap id="bearingMap" type="com.depository_manage.entity.Bearing">
         <result property="boxNumber" column="box_number"/>
-        <result property="productId" column="product_id"/>
         <result property="model" column="model"/>
         <result property="customer" column="customer"/>
         <result property="quantity" column="quantity"/>
+        <result property="outerInnerRing" column="outer_inner_ring"/>
+        <result property="productCategory" column="product_category"/>
+        <result property="steelType" column="steel_type"/>
+        <result property="steelGrade" column="steel_grade"/>
+        <result property="depository" column="depository"/>
+        <result property="storageLocation" column="storage_location"/>
     </resultMap>
 
     <select id="selectBearingByBoxNumber" resultMap="bearingMap">
@@ -16,5 +21,37 @@
     <select id="selectAllBearings" resultMap="bearingMap">
         SELECT * FROM bearings
     </select>
-
+    <select id="selectLatestBearingByBoxNumber" resultMap="bearingMap">
+        SELECT * FROM bearings
+        WHERE box_number = #{boxNumber}
+        ORDER BY box_number DESC
+            LIMIT 1
+    </select>
+    <insert id="insertBearing">
+        INSERT INTO bearings (
+            box_number,
+            model,
+            customer,
+            quantity,
+            outer_inner_ring,
+            product_category,
+            steel_type,
+            steel_grade,
+            depository,
+            storage_location
+        ) VALUES (
+                     #{boxNumber},
+                     #{model},
+                     #{customer},
+                     #{quantity},
+                     #{outerInnerRing},
+                     #{productCategory},
+                     #{steelType},
+                     #{steelGrade},
+                     #{depository},
+                     #{storageLocation}
+                 )
+    </insert>
+    <!-- Add additional SQL statements for update, delete, etc. as needed -->
 </mapper>
+
