@@ -14,45 +14,55 @@ public class ProductIdServiceImpl implements ProductIdService {
     private ProductIdMapper productIdMapper;
 
     @Override
-    public ProductId getProductIdByBoxNumber(String boxNumber) {
-        return productIdMapper.selectProductIdByBoxNumber(boxNumber);
+    public ProductId getBoxNumberByBoxText(String boxText) {
+        return productIdMapper.selectBoxNumberByBoxText(boxText);
     }
 
     @Override
-    public List<ProductId> getAllProductIds() {
-        return productIdMapper.selectAllProductIds();
+    public List<ProductId> getAllBoxNumbers() {
+        return productIdMapper.selectAllBoxNumbers();
     }
 
     @Override
-    public ProductId saveOrUpdateProductId(ProductId productId) {
-        productIdMapper.insertOrUpdateProductId(productId);
-        return productId;
+    public ProductId saveOrUpdateBoxNumber(ProductId boxNumber) {
+        productIdMapper.insertOrUpdateBoxNumber(boxNumber);
+        return boxNumber;
     }
 
     @Override
-    public String incrementAndSaveProductId(String boxNumber) {
-        // 获取当前的 product_id
-        ProductId current = productIdMapper.selectProductIdByBoxNumber(boxNumber);
-        // 计算新的 product_id
-        String newProductId;
+    public String incrementAndSaveBoxNumber(String boxText) {
+        // 获取当前的 BoxNumber
+        ProductId current = productIdMapper.selectBoxNumberByBoxText(boxText);
+        // 计算新的 BoxNumber
+        String newBoxNumber;
         if (current != null) {
-            newProductId = incrementProductId(current.getProductId());
+            newBoxNumber = incrementBoxNumber(current.getBoxNumber());
         } else {
-            newProductId = "001"; // 如果不存在当前 product_id，从 "001" 开始
+            newBoxNumber = "001"; // 如果不存在当前 BoxNumber，从 "001" 开始
         }
-
         // 创建新的 ProductId 对象并保存
         ProductId newProductIdEntry = new ProductId();
-        newProductIdEntry.setBoxNumber(boxNumber);
-        newProductIdEntry.setProductId(newProductId);
-        productIdMapper.insertOrUpdateProductId(newProductIdEntry);
-
-        return newProductId;
+        newProductIdEntry.setBoxText(boxText);
+        newProductIdEntry.setBoxNumber(newBoxNumber);
+        productIdMapper.insertOrUpdateBoxNumber(newProductIdEntry);
+        return newBoxNumber;
     }
-
-    private String incrementProductId(String productId) {
+    @Override
+    public String calculateNextBoxNumber(String boxText) {
+        // 获取当前的 BoxNumber
+        ProductId current = productIdMapper.selectBoxNumberByBoxText(boxText);
+        // 计算新的 BoxNumber
+        String newBoxNumber;
+        if (current != null) {
+            newBoxNumber = incrementBoxNumber(current.getBoxNumber());
+        } else {
+            newBoxNumber = "001"; // 如果不存在当前 Box_number，从 "001" 开始
+        }
+        return newBoxNumber;
+    }
+    private String incrementBoxNumber(String BoxNumber) {
         try {
-            int num = Integer.parseInt(productId);
+            int num = Integer.parseInt(BoxNumber);
             num++; // 递增 product_id
             if (num <= 999) {
                 // 如果是三位数或更少，则保持三位数格式
@@ -62,7 +72,7 @@ public class ProductIdServiceImpl implements ProductIdService {
                 return Integer.toString(num);
             }
         } catch (NumberFormatException e) {
-            throw new IllegalArgumentException("Invalid productId format: " + productId);
+            throw new IllegalArgumentException("Invalid productId format: " + BoxNumber);
         }
     }
 }

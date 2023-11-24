@@ -4,6 +4,7 @@ import lombok.Data;
 
 @Data
 public class Bearing {
+    private String boxText;
     private String boxNumber;
     private String model;
     private String customer;

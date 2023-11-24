@@ -14,8 +14,8 @@ public class BearingServiceImpl implements BearingService {
     private BearingMapper bearingMapper;
 
     @Override
-    public Bearing getBearingByBoxNumber(String boxNumber) {
-        return bearingMapper.selectBearingByBoxNumber(boxNumber);
+    public Bearing getBearingByBoxText(String boxText) {
+        return bearingMapper.selectBearingByBoxText(boxText);
     }
 
     @Override
@@ -23,11 +23,16 @@ public class BearingServiceImpl implements BearingService {
         return bearingMapper.selectAllBearings();
     }
     @Override
-    public Bearing getLatestBearingByBoxNumber(String boxNumber) {
-        return bearingMapper.selectLatestBearingByBoxNumber(boxNumber);
+    public Bearing getLatestBearingByBoxText(String boxText) {
+        return bearingMapper.selectLatestBearingByBoxText(boxText);
     }
     @Override
     public void saveBearing(Bearing bearing) {
         bearingMapper.insertBearing(bearing);
+    }
+    @Override
+    public Integer calculateQuantity(String boxText) {
+        // 调用 mapper 方法来获取特定 boxNumber 的 quantity 总和
+        return bearingMapper.calculateTotalQuantityByBoxText(boxText);
     }
 }

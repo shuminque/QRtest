@@ -23,7 +23,7 @@ spring:
 #    password: xuriroot!@Xuri
 #    url: jdbc:mysql://localhost:3306/bp_depository?serverTimezone=Asia/Shanghai&zeroDateTimeBehavior=convertToNull
     password: 123456
-    url: jdbc:mysql://localhost:3308/springbootv2?serverTimezone=Asia/Shanghai&zeroDateTimeBehavior=convertToNull
+    url: jdbc:mysql://localhost:3308/springbootv1?serverTimezone=Asia/Shanghai&zeroDateTimeBehavior=convertToNull
     driver-class-name: com.mysql.cj.jdbc.Driver
     type: com.alibaba.druid.pool.DruidDataSource
     initialSize: 5

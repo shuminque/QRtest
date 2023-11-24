@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
+
 @RestController
 @RequestMapping("/bearingInventory")
 public class BearingInventoryController {
@@ -19,9 +21,9 @@ public class BearingInventoryController {
         bearingInventoryService.addBearingInventory(bearingInventory);
         return ResponseEntity.ok().build();
     }
-    @GetMapping("/{boxNumber}")
-    public ResponseEntity<BearingInventory> getBearingInventory(@PathVariable String boxNumber) {
-        BearingInventory bearingInventory = bearingInventoryService.getBearingInventory(boxNumber);
+    @GetMapping("/{boxText}")
+    public ResponseEntity<BearingInventory> getBearingInventory(@PathVariable String boxText) {
+        BearingInventory bearingInventory = bearingInventoryService.getBearingInventory(boxText);
         if (bearingInventory != null) {
             return ResponseEntity.ok(bearingInventory);
         } else {
@@ -31,8 +33,9 @@ public class BearingInventoryController {
     @PostMapping("/stockIn")
     public ResponseEntity<?> stockIn(@RequestBody BearingInventory inventory) {
         bearingInventoryService.stockIn(inventory);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(Collections.singletonMap("message", "Stock-in successful"));
     }
+
 
     @PostMapping("/stockOut")
     public ResponseEntity<?> stockOut(@RequestBody BearingInventory inventory) {

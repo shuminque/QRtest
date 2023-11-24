@@ -7,7 +7,7 @@ import java.util.List;
 
 @Mapper
 public interface ProductIdMapper {
-    ProductId selectProductIdByBoxNumber(String boxNumber);
-    List<ProductId> selectAllProductIds();
-    void insertOrUpdateProductId(ProductId productId);
+    ProductId selectBoxNumberByBoxText(String boxText);
+    List<ProductId> selectAllBoxNumbers();
+    void insertOrUpdateBoxNumber(ProductId productId);
 }

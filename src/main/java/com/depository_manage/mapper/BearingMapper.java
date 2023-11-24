@@ -7,9 +7,11 @@ import java.util.List;
 
 @Mapper
 public interface BearingMapper {
-    Bearing selectBearingByBoxNumber(String boxNumber);
+    Bearing selectBearingByBoxText(String boxText);
     List<Bearing> selectAllBearings();
-    Bearing selectLatestBearingByBoxNumber(String boxNumber);
+    Bearing selectLatestBearingByBoxText(String boxText);
     void insertBearing(Bearing bearing);
+
+    Integer calculateTotalQuantityByBoxText(String boxText);
 
 }

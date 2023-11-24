@@ -18,12 +18,12 @@ public class BearingInventoryServiceImpl implements BearingInventoryService {
     }
 
     @Override
-    public BearingInventory getBearingInventory(String boxNumber) {
-        return bearingInventoryMapper.selectBearingInventory(boxNumber);
+    public BearingInventory getBearingInventory(String boxText) {
+        return bearingInventoryMapper.selectBearingInventory(boxText);
     }
     @Override
     public void stockIn(BearingInventory inventory) {
-        BearingInventory existingInventory = bearingInventoryMapper.selectBearingInventory(inventory.getBoxNumber());
+        BearingInventory existingInventory = bearingInventoryMapper.selectBearingInventory(inventory.getBoxText());
         if (existingInventory != null) {
             // 更新库存数量
             int newQuantity = existingInventory.getQuantityInStock() + inventory.getQuantityInStock();
@@ -37,7 +37,7 @@ public class BearingInventoryServiceImpl implements BearingInventoryService {
 
     @Override
     public void stockOut(BearingInventory inventory) {
-        BearingInventory existingInventory = bearingInventoryMapper.selectBearingInventory(inventory.getBoxNumber());
+        BearingInventory existingInventory = bearingInventoryMapper.selectBearingInventory(inventory.getBoxText());
         if (existingInventory != null && existingInventory.getQuantityInStock() >= inventory.getQuantityInStock()) {
             // 更新库存数量
             int newQuantity = existingInventory.getQuantityInStock() - inventory.getQuantityInStock();

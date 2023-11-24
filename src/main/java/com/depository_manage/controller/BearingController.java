@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,42 +22,59 @@ public class BearingController {
     @Autowired
     private ProductIdService productIdService;
 
-    @GetMapping("/{boxNumber}")
-    public ResponseEntity<Bearing> getBearingByBoxNumber(@PathVariable String boxNumber) {
-        Bearing bearing = bearingService.getBearingByBoxNumber(boxNumber);
+    @GetMapping("/{boxText}")
+    public ResponseEntity<Bearing> getBearingByBoxText(@PathVariable String boxText) {
+        Bearing bearing = bearingService.getBearingByBoxText(boxText);
         if (bearing != null) {
             return ResponseEntity.ok(bearing);
         } else {
             return ResponseEntity.notFound().build();
         }
     }
-    @PostMapping("/{boxNumber}")
-    public ResponseEntity<?> createAndReturnNewProductId(@PathVariable String boxNumber) {
+    @PostMapping("/{boxText}")
+    public ResponseEntity<?> createAndReturnNewProductId(@PathVariable String boxText) {
         // 1. 获取与boxNumber相关的Bearing数据
-        Bearing bearing = bearingService.getBearingByBoxNumber(boxNumber);
+        Bearing bearing = bearingService.getBearingByBoxText(boxText);
         if (bearing == null) {
             return ResponseEntity.notFound().build();
         }
-
         // 2. 递增product_id并保存到product_ids表中
-        String newProductId = productIdService.incrementAndSaveProductId(boxNumber);
-        if (newProductId == null) {
+        String newBoxNumber = productIdService.incrementAndSaveBoxNumber(boxText);
+        if (newBoxNumber == null) {
+            // 在发生错误时返回JSON对象
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Unable to generate new Product ID for box number: " + boxNumber);
+                    .body(Collections.singletonMap("error", "Unable to generate new Product ID for box number: " + boxText));
         }
+        // 3. 创建包含Bearing数据和新product_id的响应
+        Map<String, Object> response = getStringObjectMap(boxText, newBoxNumber, bearing);
 
-// 3. 创建包含Bearing数据和新product_id的响应
-        Map<String, Object> response = getStringObjectMap(boxNumber, newProductId, bearing);
-
-// 4. 返回包含Bearing数据和新product_id的响应
+        // 4. 返回包含Bearing数据和新product_id的响应
         return ResponseEntity.ok(response);
+    }
+    @GetMapping("/preGenerate/{boxText}")
+    public ResponseEntity<?> preGenerateNewProductId(@PathVariable String boxText) {
+        // 获取与boxNumber相关的Bearing数据，但不从数据库中保存或更新
+        Bearing bearing = bearingService.getBearingByBoxText(boxText);
+        if (bearing == null) {
+            return ResponseEntity.notFound().build();
+        }
+        // 逻辑来模拟新的product_id的生成，但实际上并不保存它
+        String mockNewProductId = productIdService.calculateNextBoxNumber(boxText); // 不实际递增数据库中的值
+        Integer mockQuantity = bearingService.calculateQuantity(boxText);
 
+        // 构建响应
+        Map<String, Object> response = new HashMap<>();
+        response.put("boxNumber", mockNewProductId);
+        response.put("quantity", mockQuantity);
+
+        // 返回即将生成的数据
+        return ResponseEntity.ok(response);
     }
 
-    private static Map<String, Object> getStringObjectMap(String boxNumber, String newProductId, Bearing bearing) {
+    private static Map<String, Object> getStringObjectMap(String boxText, String newBoxNumber, Bearing bearing) {
         Map<String, Object> response = new HashMap<>();
-        response.put("boxNumber", boxNumber);
-        response.put("productId", newProductId);
+        response.put("boxText", boxText);
+        response.put("boxNumber", newBoxNumber);
         response.put("model", bearing.getModel());
         response.put("customer", bearing.getCustomer());
         response.put("quantity", bearing.getQuantity());

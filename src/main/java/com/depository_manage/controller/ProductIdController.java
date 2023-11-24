@@ -15,9 +15,9 @@ public class ProductIdController {
     @Autowired
     private ProductIdService productIdService;
 
-    @GetMapping("/{boxNumber}")
-    public ResponseEntity<ProductId> getProductIdByBoxNumber(@PathVariable String boxNumber) {
-        ProductId productId = productIdService.getProductIdByBoxNumber(boxNumber);
+    @GetMapping("/{boxText}")
+    public ResponseEntity<ProductId> getBoxNumberByBoxText(@PathVariable String boxText) {
+        ProductId productId = productIdService.getBoxNumberByBoxText(boxText);
         if (productId != null) {
             return ResponseEntity.ok(productId);
         } else {
@@ -26,20 +26,20 @@ public class ProductIdController {
     }
 
     @PostMapping("/")
-    public ResponseEntity<ProductId> createOrUpdateProductId(@RequestBody ProductId productId) {
-        ProductId updatedProductId = productIdService.saveOrUpdateProductId(productId);
-        if (updatedProductId != null) {
-            return ResponseEntity.ok(updatedProductId);
+    public ResponseEntity<ProductId> createOrUpdateProductId(@RequestBody ProductId boxNumber) {
+        ProductId updatedBoxNumber = productIdService.saveOrUpdateBoxNumber(boxNumber);
+        if (updatedBoxNumber != null) {
+            return ResponseEntity.ok(updatedBoxNumber);
         } else {
             return ResponseEntity.badRequest().build();
         }
     }
 
     @GetMapping("/all")
-    public ResponseEntity<List<ProductId>> getAllProductIds() {
-        List<ProductId> productIds = productIdService.getAllProductIds();
-        if (productIds != null && !productIds.isEmpty()) {
-            return ResponseEntity.ok(productIds);
+    public ResponseEntity<List<ProductId>> getAllBoxNumbers() {
+        List<ProductId> boxNumbers = productIdService.getAllBoxNumbers();
+        if (boxNumbers != null && !boxNumbers.isEmpty()) {
+            return ResponseEntity.ok(boxNumbers);
         } else {
             return ResponseEntity.notFound().build();
         }

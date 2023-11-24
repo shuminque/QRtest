@@ -3,6 +3,8 @@
 
 <mapper namespace="com.depository_manage.mapper.BearingMapper">
     <resultMap id="bearingMap" type="com.depository_manage.entity.Bearing">
+
+        <result property="boxText" column="box_text"/>
         <result property="boxNumber" column="box_number"/>
         <result property="model" column="model"/>
         <result property="customer" column="customer"/>
@@ -15,20 +17,21 @@
         <result property="storageLocation" column="storage_location"/>
     </resultMap>
 
-    <select id="selectBearingByBoxNumber" resultMap="bearingMap">
-        SELECT * FROM bearings WHERE box_number = #{boxNumber}
+    <select id="selectBearingByBoxText" resultMap="bearingMap">
+        SELECT * FROM bearings WHERE box_text = #{boxText}
     </select>
     <select id="selectAllBearings" resultMap="bearingMap">
         SELECT * FROM bearings
     </select>
-    <select id="selectLatestBearingByBoxNumber" resultMap="bearingMap">
+    <select id="selectLatestBearingByBoxText" resultMap="bearingMap">
         SELECT * FROM bearings
-        WHERE box_number = #{boxNumber}
-        ORDER BY box_number DESC
+        WHERE box_text = #{boxText}
+        ORDER BY box_text DESC
             LIMIT 1
     </select>
     <insert id="insertBearing">
         INSERT INTO bearings (
+            box_text,
             box_number,
             model,
             customer,
@@ -40,6 +43,7 @@
             depository,
             storage_location
         ) VALUES (
+                     #{boxText},
                      #{boxNumber},
                      #{model},
                      #{customer},
@@ -52,6 +56,10 @@
                      #{storageLocation}
                  )
     </insert>
+    <select id="calculateTotalQuantityByBoxText" resultType="java.lang.Integer">
+        SELECT SUM(quantity) FROM bearings WHERE box_text = #{boxText}
+    </select>
+
     <!-- Add additional SQL statements for update, delete, etc. as needed -->
 </mapper>
 

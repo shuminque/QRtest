@@ -7,11 +7,11 @@ import org.apache.ibatis.annotations.Mapper;
 public interface BearingInventoryMapper {
     void insertBearingInventory(BearingInventory bearingInventory);
 
-    BearingInventory selectBearingInventory(String boxNumber);
+    BearingInventory selectBearingInventory(String boxText);
 
     // 新添加的更新库存方法
     void updateBearingInventory(BearingInventory bearingInventory);
 
     // 如果需要，添加删除库存方法
-    void deleteBearingInventory(String boxNumber);
+    void deleteBearingInventory(String boxText);
 }
