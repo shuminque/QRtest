@@ -32,10 +32,11 @@
     <!-- 预生成信息的模态框 -->
     <div id="preGenerateModal" style="display:none;">
         <p>即将生成的 Number号: <span id="previewBoxNumber"></span></p>
-        <p>数量: <span id="previewQuantity"></span></p>
+        <p>数量: <input type="number" id="editQuantity" /></p> <!-- 替换为输入框 -->
         <button onclick="confirmGenerateQRCode()">确认</button>
         <button onclick="cancelGenerateQRCode()">取消</button>
     </div>
+
 </div>
 <h3>二维码:</h3>
 <div id="qrcode"></div>
@@ -82,7 +83,7 @@
                     boxText: boxText // 添加 boxText
                 };
                 document.getElementById('previewBoxNumber').textContent = data.boxNumber;
-                document.getElementById('previewQuantity').textContent = data.quantity;
+                document.getElementById('editQuantity').value = data.quantity; // 设置输入框的初始值
                 document.getElementById('preGenerateModal').style.display = 'block';
             })
             .catch(error => console.error('预生成二维码时发生错误：', error));
@@ -91,8 +92,9 @@
     // 当用户点击“确认”按钮时执行
     function confirmGenerateQRCode() {
         console.log(preGenerateData);
+        preGenerateData.quantity = document.getElementById('editQuantity').value;
         // 使用存储的数据调用原先的API端点保存数据并生成二维码
-        fetch('/bearings/' + preGenerateData.boxText, {
+        fetch('/bearings/' + preGenerateData.boxText , {
             method: 'POST',
             body: JSON.stringify(preGenerateData),
             headers: {
@@ -209,7 +211,7 @@
 
 
     // 入库操作
-    function stockIn(boxText, quantity) {
+    function stockIn(boxText, boxNumber, quantity) {
         var inventoryDto = { boxText: boxText,  quantityInStock: quantity };
         fetch('/bearingInventory/stockIn', {
             method: 'POST',

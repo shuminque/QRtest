@@ -12,10 +12,11 @@ public interface ProductIdService {
     /**
      * 递增并保存特定 box_number 的 product_id。
      *
-     * @param boxText 要递增 product_id 的 box_number。
+     * @param boxText  要递增 product_id 的 box_number。
+     * @param quantity
      * @return 新的 product_id。
      */
-    String incrementAndSaveBoxNumber(String boxText);
+    String incrementAndSaveBoxNumber(String boxText, int quantity);
 
     String calculateNextBoxNumber(String boxText);
     // 根据需要可以添加更多方法

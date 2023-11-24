@@ -30,7 +30,7 @@ public class ProductIdServiceImpl implements ProductIdService {
     }
 
     @Override
-    public String incrementAndSaveBoxNumber(String boxText) {
+    public String incrementAndSaveBoxNumber(String boxText, int quantity) {
         // 获取当前的 BoxNumber
         ProductId current = productIdMapper.selectBoxNumberByBoxText(boxText);
         // 计算新的 BoxNumber
@@ -44,6 +44,7 @@ public class ProductIdServiceImpl implements ProductIdService {
         ProductId newProductIdEntry = new ProductId();
         newProductIdEntry.setBoxText(boxText);
         newProductIdEntry.setBoxNumber(newBoxNumber);
+        newProductIdEntry.setQuantity(quantity);
         productIdMapper.insertOrUpdateBoxNumber(newProductIdEntry);
         return newBoxNumber;
     }
