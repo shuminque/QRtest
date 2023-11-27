@@ -1,50 +1,26 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8" />
-    <script type="text/javascript" src="/static/js/jquery-2.1.0.js" charset="utf-8"></script>
-    <script type="text/javascript" src="/static/js/jquery.qrcode.js" charset="utf-8"></script>
-    <title>Web Bluetooth 打印示例</title>
-</head>
-<body>
-<div class="output"></div>
-<button id="btnPrint">打印</button>
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="utf-8" />
+        <script type="text/javascript" src="/static/js/jquery-2.1.0.js" charset="utf-8"></script>
+        <script type="text/javascript" src="/static/js/jquery.qrcode.js" charset="utf-8"></script>
+        <title>Web Bluetooth 打印示例</title>
+    </head>
+    <body>
+    <div class="output"></div>
+    <button id="btnPrint">打印</button>
 
-<script>
-    $(function() {
-        $(".output").qrcode({width: 128, height: 128, text: "http://中文中asjdlajdlajsdlancasncla11文"});
-    });
+    <script>
+        function printBluetooth() {
+            // 调用Android桥接类的打印方法
+            if (window.AndroidBridge) {
+                window.AndroidBridge.printText($(".output").text());
+            } else {
+                console.log("Android bridge is not available");
+            }
+        }
 
-    document.getElementById('btnPrint').addEventListener('click', function() {
-        printBluetooth();
-    });
 
-    function printBluetooth() {
-        let chosenDevice;
-
-        navigator.bluetooth.requestDevice({
-            acceptAllDevices: true,
-            optionalServices: ['print_service'] // 替换为打印机的实际服务UUID
-        })
-            .then(device => {
-                chosenDevice = device;
-                return device.gatt.connect();
-            })
-            .then(server => {
-                // 获取需要的服务和特征
-                // 这里需要根据打印机的具体情况来获取相应的服务和特征
-            })
-            .then(service => {
-                // 获取打印特征
-            })
-            .then(characteristic => {
-                // 向特征写入数据，即发送数据到打印机
-                // 这里的数据格式需要根据打印机的要求来确定
-            })
-            .catch(error => {
-                console.log('Error: ' + error);
-            });
-    }
-</script>
-</body>
-</html>
+    </script>
+    </body>
+    </html>

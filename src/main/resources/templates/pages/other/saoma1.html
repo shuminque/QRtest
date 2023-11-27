@@ -318,8 +318,14 @@
     //     }
     // }
     function printQRCode() {
-        window.print();
+        if (window.AndroidBridge) {
+            var qrCodeData = document.getElementById("qrcode").innerHTML;
+            window.AndroidBridge.printQRCode(qrCodeData);
+        } else {
+            console.log("Android bridge is not available");
+        }
     }
+
     function downloadQRCode() {
         var qrCodeCanvas = document.querySelector('#qrcode canvas');
         if (qrCodeCanvas) {
