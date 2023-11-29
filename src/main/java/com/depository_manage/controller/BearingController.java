@@ -96,9 +96,9 @@ public class BearingController {
         response.put("customer", bearing.getCustomer());
         response.put("quantity", quantity);  // 使用传递的 quantity 值
         response.put("outerInnerRing", bearing.getOuterInnerRing());   // 外/内轮
-        response.put("productCategory", bearing.getProductCategory()); // 制品分类
-        response.put("steelType", bearing.getSteelType());             // 钢种
-        response.put("steelGrade", bearing.getSteelGrade());           // 钢材等级
+//        response.put("productCategory", bearing.getProductCategory()); // 制品分类
+//        response.put("steelType", bearing.getSteelType());             // 钢种
+//        response.put("steelGrade", bearing.getSteelGrade());           // 钢材等级
         response.put("depository", bearing.getDepository());           // 厂区
         response.put("storageLocation", bearing.getStorageLocation()); // 库位
         return response;

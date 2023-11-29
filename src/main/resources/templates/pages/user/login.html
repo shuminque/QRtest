@@ -82,7 +82,7 @@
                     <div class="department-logo"></div>
                     <h1>生产管理部</h1>
                     <div class="department-title">
-                        综合仓库系统
+                        成品仓库系统
                     </div>
                 </div>
 
@@ -153,9 +153,15 @@
                             time: 1000
                         }, function(){
                             cookieUtil.createCookie("token",data.data)
-                            window.location = '/index';
+                            window.location = '/s1';
                         });
                     }
+                },
+                error:function () {
+                    layer.msg("登录失败,请检查账号密码", {
+                        icon: 5,
+                        time: 1000
+                    });
                 },
                 complete: function () {
                     layer.close(this.layerIndex);

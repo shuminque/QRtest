@@ -10,12 +10,11 @@ public class WebMvcConfig implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-//        registry.addInterceptor(new UserInterceptor())
-//                .addPathPatterns("/**")
-//                .excludePathPatterns("/login", "/register", "/sendCode", "/error")
-//                .excludePathPatterns("/static/**");
+        registry.addInterceptor(new UserInterceptor())
+                .addPathPatterns("/**")
+                .excludePathPatterns("/login", "/register", "/sendCode", "/error")
+                .excludePathPatterns("/static/**");
     }
-
     //    private static final String[] CLASSPATH_RESOURCE_LOCATIONS = {
 //            "classpath:/META-INF/resources/", "classpath:/resources/",
 //            "classpath:/static/", "classpath:/public/" };

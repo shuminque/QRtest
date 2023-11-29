@@ -38,15 +38,18 @@ public class PageController {
     private MaterialTypeService materialTypeService;
     @Autowired
     private CategoryService categoryService;
-//    @GetMapping("/login")
-//    public String login() {
-//        return "pages/user/login";
-//    }
     @GetMapping("/login")
     public String login() {
+        return "pages/user/login";
+    }
+    @GetMapping("/s1")
+    public String s1() {
         return "pages/other/saoma1";
     }//测试页面2
-
+    @GetMapping("/a")
+    public String a() {
+        return "pages/other/a";
+    }//测试页面2
 //    @GetMapping("/index")
 //    public ModelAndView index(HttpServletRequest request) {
 //        ModelAndView mv = new ModelAndView();

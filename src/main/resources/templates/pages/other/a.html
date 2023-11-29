@@ -1,26 +1,114 @@
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <meta charset="utf-8" />
-        <script type="text/javascript" src="/static/js/jquery-2.1.0.js" charset="utf-8"></script>
-        <script type="text/javascript" src="/static/js/jquery.qrcode.js" charset="utf-8"></script>
-        <title>Web Bluetooth 打印示例</title>
-    </head>
-    <body>
-    <div class="output"></div>
-    <button id="btnPrint">打印</button>
-
-    <script>
-        function printBluetooth() {
-            // 调用Android桥接类的打印方法
-            if (window.AndroidBridge) {
-                window.AndroidBridge.printText($(".output").text());
-            } else {
-                console.log("Android bridge is not available");
-            }
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <script type="text/javascript" src="/static/js/jquery-2.1.0.js" charset="utf-8"></script>
+    <script type="text/javascript" src="/static/js/jquery.qrcode.js" charset="utf-8"></script>
+    <title>Web Bluetooth 打印示例</title>
+</head>
+<style>
+    @media print {
+        body * {
+            display: none;  /* 隐藏页面上所有内容 */
         }
+        #qrcode, #qrcode * {
+            display: block; /* 只显示 #qrcode 内的内容 */
+        }
+        #qrcode {
+            position: absolute;
+            left: 0;
+            top: 0;
+        }
+    }
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+        padding: 20px;
+        color: #333;
+    }
 
+    .layui-input, .layui-btn {
+        margin-bottom: 10px;
+    }
 
-    </script>
-    </body>
-    </html>
+    #preGenerateModal {
+        background-color: white;
+        padding: 15px;
+        border-radius: 5px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 1000;
+    }
+
+    #qrcode {
+        margin-top: 20px;
+        padding: 10px;
+        background-color: white;
+        text-align: center;
+        border: 1px solid #ddd;
+    }
+
+    button.layui-btn {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    button.layui-btn:hover {
+        background-color: #0056b3;
+    }
+
+    #operation-result {
+        margin-top: 20px;
+    }
+
+</style>
+<body>
+<div class="output">
+    <!-- 在这里添加您想打印的信息 -->
+    <p>打印测试打印测试</p>
+    <div id="qrcode"></div>
+</div>
+<button id="btnPrint" onclick="printBluetooth()">打印</button>
+<input type="button"  value="打印文本" onclick="window.android.printText(document.getElementById('output').value)" />
+<div class="item-content">
+    <div class="item-media"><i class="icon icon-form-comment"></i></div>
+    <div class="item-inner">
+        <div class="item-title label">输入打印内容</div>
+        <div class="item-input">
+            <textarea id="inputtxt">http://park.szzkc.com/Content/logo.png</textarea>
+        </div>
+    </div>
+</div>
+<button class="layui-btn" onclick="printQRCode()">打印测试</button>
+
+<div class="col-50">
+    <input type="button" class="button button-fill" value="打印文本" onclick="window.android.printText(document.getElementById('inputtxt').value)" />
+
+</div>
+<script>
+    function printBluetooth() {
+        // 调用Android桥接类的打印方法
+        if (window.AndroidBridge) {
+            // 获取output div的内容
+            var contentToPrint = document.querySelector('.output').innerHTML;
+            window.AndroidBridge.printText(contentToPrint);
+        } else {
+            console.log("Android bridge is not available");
+        }
+    }
+    function printQRCode() {
+        window.print();
+    }
+    // 示例：生成二维码
+    $('#qrcode').qrcode({width: 128, height: 128, text: "示例二维码内容"});
+</script>
+</body>
+</html>

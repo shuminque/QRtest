@@ -3,25 +3,108 @@
 <head>
     <meta charset="UTF-8">
     <title>扫描二维码</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <script type="text/javascript" src="/static/js/http_unpkg.com_html5-qrcode.js" charset="utf-8"></script>
     <script type="text/javascript" src="/static/js/jquery-2.1.0.js" charset="utf-8"></script>
     <script type="text/javascript" src="/static/js/jquery.qrcode.js" charset="utf-8"></script>
+
 </head>
 <style>
     @media print {
-        /* 打印时隐藏所有元素，除了二维码 */
         body * {
-            display: none;
+            display: none;  /* 隐藏页面上所有内容 */
         }
-
-        /* 显示二维码容器 */
+        #qrcode, #qrcode * {
+            display: block; /* 只显示 #qrcode 内的内容 */
+        }
         #qrcode {
-            display: block;
+            position: absolute;
+            left: 0;
+            top: 0;
         }
     }
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+        padding: 20px;
+        color: #333;
+    }
+
+    .layui-input, .layui-btn {
+        margin-bottom: 10px;
+    }
+
+    #preGenerateModal {
+        background-color: white;
+        padding: 15px;
+        border-radius: 5px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 1000;
+    }
+
+    #qrcode {
+        margin-top: 20px;
+        padding: 10px;
+        background-color: white;
+        text-align: left;
+        border: 1px solid #ddd;
+    }
+
+    button.layui-btn {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    button.layui-btn:hover {
+        background-color: #0056b3;
+    }
+
+    #operation-result {
+        margin-top: 20px;
+    }
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+    }
+     .info-container {
+         display: flex;
+         flex-direction: column;
+         flex-wrap: wrap;
+         max-width: 400px; /* 调整宽度以适应您的设计 */
+     }
+    .info-item {
+        flex-basis: 50%; /* 每个项目占据容器宽度的50% */
+        box-sizing: border-box;
+        padding: 4px; /* 减少这个值可以减小列之间的空间 */
+        margin-right: 8px; /* 减少这个值可以减小列之间的空间 */
+    }
+    /* 确保最后一个项目不具有右边距 */
+    .info-item:last-child {
+        margin-right: 0;
+    }
+    .info-row {
+        display: flex;
+        justify-content: space-between; /* This will space out the <p> tags evenly */
+    }
+    .info-row p {
+        margin: 0 0 0 0 ; /* Remove default paragraph margin */
+        flex: 1; /* Each <p> element will take up equal space */
+        padding: 0 10px; /* Add some padding */
+    }
 </style>
+
 <body>
 <div>
+
     <div>
         <input type="text" id="boxTextInput" placeholder="请输入" class="layui-input">
     </div>
@@ -36,17 +119,19 @@
         <button onclick="confirmGenerateQRCode()">确认</button>
         <button onclick="cancelGenerateQRCode()">取消</button>
     </div>
-
 </div>
-<h3>二维码:</h3>
-<div id="qrcode"></div>
 <!--<button onclick="generateQRCode()">生成全部二维码</button>-->
-<button onclick="prepareOperation('stockIn')">入库扫码</button>
-<button onclick="prepareOperation('stockOut')">出库扫码</button>
-
+<button onclick="prepareOperation('stockIn')">入库</button>
+<button onclick="prepareOperation('stockOut')">出库</button>
+<button onclick="prepareOperation('stockOut')">返库</button>
+<button onclick="prepareOperation('stockIn')">转入</button>
+<button onclick="prepareOperation('stockOut')">转出</button>
 <div id="scanner-container" style="display:none;">
     <h2>扫描二维码</h2>
     <div id="qr-reader" style="width:500px"></div>
+</div>
+<h3>二维码:</h3>
+<div id="qrcode">
 </div>
 
 <div id="operation-result" style="display:none;"></div>
@@ -110,25 +195,57 @@
             .then(data => {
                 // 在这里生成二维码
                 var qrCodeElement = document.getElementById("qrcode");
-                // 清除之前的二维码
+
+                // 清除之前的二维码和信息
                 qrCodeElement.innerHTML = "";
-                // 为二维码创建一个容器
+
+                // 使用获取的数据生成二维码
+                var qrData = JSON.stringify(data);
+
+                // 创建二维码
                 var qrContainer = $('<div></div>').css({
-                    margin: '10px', // 添加外边距
+                    margin: '10px' // 添加外边距
                 });
-                // 在容器中生成二维码
                 qrContainer.qrcode({
-                    text: JSON.stringify(data), // 使用确认后的数据生成二维码
+                    text: qrData, // The data for the QR code
                     render: 'canvas',
-                    width: 300,
-                    height: 300,
+                    width: 150,
+                    height: 150
                 });
-                // 将容器添加到页面
+
+                // Create the information HTML
+                var infoHtml = `
+                    <div class="info-container">
+                        <div class="info-row">
+                            <p>箱号:<span id="boxText">${data.boxText}</span></p>
+                            <p>序号:<span id="boxNumber">${data.boxNumber}</span></p>
+                        </div>
+                        <div class="info-row">
+                            <p>客户:<span id="customer">${data.customer}</span></p>
+                            <p>型号:<span id="model">${data.model}</span></p>
+                        </div>
+                        <div class="info-row">
+                            <p>装箱数:<span id="quantity">${data.quantity}</span></p>
+                            <p>内外轮:<span id="outerInnerRing">${data.outerInnerRing}</span></p>
+                        </div>
+                        <div class="info-row">
+                            <p>库位:<span id="storageLocation">${data.storageLocation}</span></p>
+                            <p>仓库:<span id="depository">${data.depository}</span></p>
+                        </div>
+                    </div>
+                `;
+                // Append the information HTML to the QR code container
+                qrContainer.append(infoHtml);
+                // Append the QR code container to the page
                 $(qrCodeElement).append(qrContainer);
+                // 显示二维码元素
+                document.getElementById('qrcode').style.display = 'block';
                 // 隐藏预览模态框
                 document.getElementById('preGenerateModal').style.display = 'none';
             })
-            .catch(error => console.error('生成二维码时发生错误：', error));
+            .catch(error => {
+                console.error('生成二维码时发生错误：', error);
+            });
     }
     // 当用户点击“取消”按钮时执行
     function cancelGenerateQRCode() {
@@ -136,44 +253,8 @@
         document.getElementById('preGenerateModal').style.display = 'none';
         document.getElementById('qrcode').style.display = 'none';
     }
-
-
-    function generateQRCode() {
-        // 清除之前的二维码
-        document.getElementById("qrcode").innerHTML = "";
-
-        // 发起 AJAX 请求以获取所有数据
-        fetch('/bearings/all')
-            .then(response => response.json())
-            .then(dataArray => {
-                dataArray.forEach(data => {
-                    var qrData = JSON.stringify(data);
-                    try {
-                        // 为二维码创建一个容器
-                        var qrContainer = $('<div></div>').css({
-                            margin: '10px', // 添加外边距
-                        });
-
-                        // 在容器中生成二维码
-                        qrContainer.qrcode({
-                            text: qrData,
-                            render: 'canvas',
-                            width: 150,
-                            height: 150,
-                            quietZone: 10
-                        });
-
-                        // 将容器添加到页面
-                        $('#qrcode').append(qrContainer);
-                    } catch(e) {
-                        console.error('生成二维码时发生错误：', e);
-                    }
-                });
-            })
-            .catch(error => console.error('Error:', error));
-    }
-
     function prepareOperation(operation) {
+        console.log("开始切换")
         currentOperation = operation;
         document.getElementById("scanner-container").style.display = "block";
         html5QrcodeScanner.clear(); // 清除之前的扫描结果
@@ -208,7 +289,6 @@
             showResult('扫描失败: ' + e.message);
         }
     }
-
 
     // 入库操作
     function stockIn(boxText, boxNumber, quantity) {
@@ -318,14 +398,8 @@
     //     }
     // }
     function printQRCode() {
-        if (window.AndroidBridge) {
-            var qrCodeData = document.getElementById("qrcode").innerHTML;
-            window.AndroidBridge.printQRCode(qrCodeData);
-        } else {
-            console.log("Android bridge is not available");
-        }
+        window.print();
     }
-
     function downloadQRCode() {
         var qrCodeCanvas = document.querySelector('#qrcode canvas');
         if (qrCodeCanvas) {
@@ -338,9 +412,6 @@
             alert('请先生成二维码！');
         }
     }
-
-
-
 </script>
 </body>
 </html>
