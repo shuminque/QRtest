@@ -1,24 +1,10 @@
 package com.depository_manage.controller;
 
-import com.depository_manage.entity.Category;
-import com.depository_manage.entity.Notice;
-import com.depository_manage.exception.MyException;
-import com.depository_manage.service.*;
-import com.depository_manage.pojo.DepositoryRecordP;
-import com.depository_manage.security.bean.UserToken;
 import com.depository_manage.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.servlet.ModelAndView;
 
-import javax.servlet.http.HttpServletRequest;
-import java.math.BigDecimal;
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 @Controller
 public class PageController {
 
