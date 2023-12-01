@@ -30,11 +30,11 @@ public class PageController {
     }
     @GetMapping("/s1")
     public String s1() {
-        return "pages/other/saoma1";
+        return "pages/qr/saoma1";
     }//测试页面2
     @GetMapping("/a")
     public String a() {
-        return "pages/other/a";
+        return "pages/qr/a";
     }//测试页面2
 //    @GetMapping("/index")
 //    public ModelAndView index(HttpServletRequest request) {
