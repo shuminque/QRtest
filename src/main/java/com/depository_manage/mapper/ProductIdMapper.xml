@@ -6,22 +6,26 @@
         <result property="boxText" column="box_text"/>
         <result property="boxNumber" column="box_number"/>
         <result property="quantity" column="quantity"/>
+        <result property="depositoryId" column="depository_id"/>
     </resultMap>
 
-    <select id="selectBoxNumberByBoxText" resultType="com.depository_manage.entity.ProductId">
+    <select id="selectBoxNumberByBoxTextAndDepositoryId" resultType="com.depository_manage.entity.ProductId">
         SELECT * FROM product_ids
-        WHERE box_text = #{boxText}
-        ORDER BY CAST(box_number as UNSIGNED ) DESC
+        WHERE box_text = #{boxText} AND depository_id = #{depositoryId}
+        ORDER BY CAST(box_number as UNSIGNED) DESC
             LIMIT 1
     </select>
+
     <select id="selectAllBoxNumbers" resultMap="productIdMap">
         SELECT * FROM product_ids
     </select>
     <insert id="insertOrUpdateBoxNumber">
-        INSERT INTO product_ids (box_text, box_number, quantity)
-        VALUES (#{boxText}, #{boxNumber}, #{quantity})
+        <!-- 这里是插入或更新 product_ids 表的 SQL 语句 -->
+        INSERT INTO product_ids (box_text, box_number, quantity, depository_id)
+        VALUES (#{boxText}, #{boxNumber}, #{quantity}, #{depositoryId})
         ON DUPLICATE KEY UPDATE
         box_number = VALUES(box_number),
-        quantity = VALUES(quantity)
+        quantity = VALUES(quantity),
+        depository_id = VALUES(depository_id);
     </insert>
 </mapper>

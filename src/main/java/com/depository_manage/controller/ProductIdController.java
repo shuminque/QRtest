@@ -15,15 +15,18 @@ public class ProductIdController {
     @Autowired
     private ProductIdService productIdService;
 
-    @GetMapping("/{boxText}")
-    public ResponseEntity<ProductId> getBoxNumberByBoxText(@PathVariable String boxText) {
-        ProductId productId = productIdService.getBoxNumberByBoxText(boxText);
+    @GetMapping("/")
+    public ResponseEntity<ProductId> getBoxNumberByBoxTextAndDepositoryId(
+            @RequestParam String boxText,
+            @RequestParam int depositoryId) {
+        ProductId productId = productIdService.getBoxNumberByBoxTextAndDepositoryId(boxText, depositoryId);
         if (productId != null) {
             return ResponseEntity.ok(productId);
         } else {
             return ResponseEntity.notFound().build();
         }
     }
+
 
     @PostMapping("/")
     public ResponseEntity<ProductId> createOrUpdateProductId(@RequestBody ProductId boxNumber) {

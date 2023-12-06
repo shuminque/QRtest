@@ -14,8 +14,8 @@ public class ProductIdServiceImpl implements ProductIdService {
     private ProductIdMapper productIdMapper;
 
     @Override
-    public ProductId getBoxNumberByBoxText(String boxText) {
-        return productIdMapper.selectBoxNumberByBoxText(boxText);
+    public ProductId getBoxNumberByBoxTextAndDepositoryId(String boxText, int depositoryId) {
+        return productIdMapper.selectBoxNumberByBoxTextAndDepositoryId(boxText, depositoryId);
     }
 
     @Override
@@ -30,9 +30,9 @@ public class ProductIdServiceImpl implements ProductIdService {
     }
 
     @Override
-    public String incrementAndSaveBoxNumber(String boxText, int quantity) {
+    public String incrementAndSaveBoxNumber(String boxText, int depositoryId, int quantity) {
         // 获取当前的 BoxNumber
-        ProductId current = productIdMapper.selectBoxNumberByBoxText(boxText);
+        ProductId current = productIdMapper.selectBoxNumberByBoxTextAndDepositoryId(boxText, depositoryId);
         // 计算新的 BoxNumber
         String newBoxNumber;
         if (current != null) {
@@ -45,13 +45,15 @@ public class ProductIdServiceImpl implements ProductIdService {
         newProductIdEntry.setBoxText(boxText);
         newProductIdEntry.setBoxNumber(newBoxNumber);
         newProductIdEntry.setQuantity(quantity);
+        newProductIdEntry.setDepositoryId(depositoryId);
         productIdMapper.insertOrUpdateBoxNumber(newProductIdEntry);
         return newBoxNumber;
     }
+
     @Override
-    public String calculateNextBoxNumber(String boxText) {
+    public String calculateNextBoxNumber(String boxText, int depositoryId) {
         // 获取当前的 BoxNumber
-        ProductId current = productIdMapper.selectBoxNumberByBoxText(boxText);
+        ProductId current = productIdMapper.selectBoxNumberByBoxTextAndDepositoryId(boxText, depositoryId);
         // 计算新的 BoxNumber
         String newBoxNumber;
         if (current != null) {
@@ -61,9 +63,10 @@ public class ProductIdServiceImpl implements ProductIdService {
         }
         return newBoxNumber;
     }
-    private String incrementBoxNumber(String BoxNumber) {
+
+    private String incrementBoxNumber(String boxNumber) {
         try {
-            int num = Integer.parseInt(BoxNumber);
+            int num = Integer.parseInt(boxNumber);
             num++; // 递增 product_id
             if (num <= 999) {
                 // 如果是三位数或更少，则保持三位数格式
@@ -73,7 +76,7 @@ public class ProductIdServiceImpl implements ProductIdService {
                 return Integer.toString(num);
             }
         } catch (NumberFormatException e) {
-            throw new IllegalArgumentException("Invalid productId format: " + BoxNumber);
+            throw new IllegalArgumentException("Invalid boxNumber format: " + boxNumber);
         }
     }
 }

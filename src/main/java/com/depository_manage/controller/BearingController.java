@@ -31,8 +31,8 @@ public class BearingController {
             return ResponseEntity.notFound().build();
         }
     }
-    @PostMapping("/{boxText}")
-    public ResponseEntity<?> createAndReturnNewProductId(@PathVariable String boxText, @RequestBody Map<String, Object> requestData) {
+    @PostMapping("/{boxText}/{depositoryId}")
+    public ResponseEntity<?> createAndReturnNewProductId(@PathVariable String boxText, @PathVariable int depositoryId, @RequestBody Map<String, Object> requestData) {
         // 提取 quantity 和其他需要的信息
         int quantity = Integer.parseInt((String) requestData.get("quantity"));
         // 1. 获取与boxNumber相关的Bearing数据
@@ -41,7 +41,7 @@ public class BearingController {
             return ResponseEntity.notFound().build();
         }
         // 2. 递增product_id并保存到product_ids表中
-        String newBoxNumber = productIdService.incrementAndSaveBoxNumber(boxText,quantity);
+        String newBoxNumber = productIdService.incrementAndSaveBoxNumber(boxText, depositoryId, quantity);
         if (newBoxNumber == null) {
             // 在发生错误时返回JSON对象
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -53,15 +53,15 @@ public class BearingController {
         // 4. 返回包含Bearing数据和新product_id的响应
         return ResponseEntity.ok(response);
     }
-    @GetMapping("/preGenerate/{boxText}")
-    public ResponseEntity<?> preGenerateNewProductId(@PathVariable String boxText) {
+    @GetMapping("/preGenerate/{boxText}/{depositoryId}")
+    public ResponseEntity<?> preGenerateNewProductId(@PathVariable String boxText, @PathVariable int depositoryId) {
         // 获取与boxNumber相关的Bearing数据，但不从数据库中保存或更新
         Bearing bearing = bearingService.getBearingByBoxText(boxText);
         if (bearing == null) {
             return ResponseEntity.notFound().build();
         }
         // 逻辑来模拟新的product_id的生成，但实际上并不保存它
-        String mockNewProductId = productIdService.calculateNextBoxNumber(boxText); // 不实际递增数据库中的值
+        String mockNewProductId = productIdService.calculateNextBoxNumber(boxText, depositoryId);
         Integer mockQuantity = bearingService.calculateQuantity(boxText);
 
         // 构建响应
@@ -72,6 +72,7 @@ public class BearingController {
         // 返回即将生成的数据
         return ResponseEntity.ok(response);
     }
+
 
     private static Map<String, Object> getStringObjectMap(String boxText, String newBoxNumber, Bearing bearing) {
         Map<String, Object> response = new HashMap<>();

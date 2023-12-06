@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.depository_manage.mapper.BearingRecordMapper">
+
+    <resultMap id="bearingRecordMap" type="com.depository_manage.entity.BearingRecord">
+        <result property="id" column="id"/>
+        <result property="transactionType" column="transaction_type"/>
+        <result property="boxText" column="box_text"/>
+        <result property="boxNumber" column="box_number"/>
+        <result property="quantity" column="quantity"/>
+        <result property="time" column="time"/>
+        <result property="operator" column="operator"/>
+        <result property="depository" column="depository"/>
+        <result property="storageLocation" column="storage_location"/>
+        <result property="customer" column="customer"/>
+        <result property="outerInnerRing" column="outer_inner_ring"/>
+        <result property="model" column="model"/>
+        <result property="productCategory" column="product_category"/>
+        <result property="steelType" column="steel_type"/>
+        <result property="steelGrade" column="steel_grade"/>
+        <result property="remarks" column="remarks"/>
+    </resultMap>
+
+    <insert id="insertBearingRecord">
+        INSERT INTO bearing_records
+        (transaction_type, box_text, box_number, quantity, time, operator, depository, storage_location, customer, outer_inner_ring, model, product_category, steel_type, steel_grade, remarks)
+        VALUES
+            (#{transactionType}, #{boxText}, #{boxNumber}, #{quantity}, #{time}, #{operator}, #{depository}, #{storageLocation}, #{customer}, #{outerInnerRing}, #{model}, #{productCategory}, #{steelType}, #{steelGrade}, #{remarks})
+    </insert>
+    <update id="updateBearingRecord">
+        UPDATE bearing_records
+        <set>
+            <if test="transactionType != null">
+                transaction_type = #{transactionType},
+            </if>
+            <if test="boxText != null">
+                box_text = #{boxText},
+            </if>
+            <if test="boxNumber != null">
+                box_number = #{boxNumber},
+            </if>
+            <if test="quantity != null">
+                quantity = #{quantity},
+            </if>
+            <if test="time != null">
+                time = #{time},
+            </if>
+            <if test="operator != null">
+                operator = #{operator},
+            </if>
+            <if test="depository != null">
+                depository = #{depository},
+            </if>
+            <if test="storageLocation != null">
+                storage_location = #{storageLocation},
+            </if>
+            <if test="customer != null">
+                customer = #{customer},
+            </if>
+            <if test="outerInnerRing != null">
+                outer_inner_ring = #{outerInnerRing},
+            </if>
+            <if test="model != null">
+                model = #{model},
+            </if>
+            <if test="productCategory != null">
+                product_category = #{productCategory},
+            </if>
+            <if test="steelType != null">
+                steel_type = #{steelType},
+            </if>
+            <if test="steelGrade != null">
+                steel_grade = #{steelGrade},
+            </if>
+            <if test="remarks != null">
+                remarks = #{remarks}
+            </if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteBearingRecordById">
+        DELETE FROM bearing_records WHERE id = #{id}
+    </delete>
+
+    <select id="selectBearingRecordById" resultMap="bearingRecordMap">
+        SELECT * FROM bearing_records WHERE id = #{id}
+    </select>
+
+    <select id="selectAllBearingRecords" resultMap="bearingRecordMap">
+        SELECT * FROM bearing_records
+    </select>
+
+</mapper>
