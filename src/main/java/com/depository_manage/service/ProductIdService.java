@@ -27,5 +27,9 @@ public interface ProductIdService {
      * @return 预计的下一个 product_id。
      */
     String calculateNextBoxNumber(String boxText, int depositoryId);
+
+    ProductId getProductIdByBoxTextAndDepositoryId(String boxText, String boxNumber, int depositoryId);
+
     // 根据需要可以添加更多方法
+
 }

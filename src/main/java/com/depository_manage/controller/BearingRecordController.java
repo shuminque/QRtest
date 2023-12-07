@@ -42,7 +42,7 @@ public class BearingRecordController {
 
             // 添加记录
             bearingRecordService.addBearingRecord(record);
-            return ResponseEntity.ok(Collections.singletonMap("message", "Record added successfully"));
+            return ResponseEntity.ok(Collections.singletonMap("message", record));
         } else {
             // 如果找不到对应的Bearing信息，返回错误响应
             return ResponseEntity.status(HttpStatus.NOT_FOUND)

@@ -14,4 +14,6 @@ public interface ProductIdMapper {
     );
     List<ProductId> selectAllBoxNumbers();
     void insertOrUpdateBoxNumber(ProductId productId);
+    ProductId selectProductIdByBoxTextAndDepositoryId(@Param("boxText") String boxText, @Param("boxNumber") String boxNumber, @Param("depositoryId") int depositoryId);
+
 }

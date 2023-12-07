@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>扫描二维码</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+<!--    <link rel="stylesheet" href="/static/lib/layui-v2.8.17/css/layui.css" media="all">-->
     <script type="text/javascript" src="/static/js/http_unpkg.com_html5-qrcode.js" charset="utf-8"></script>
     <script type="text/javascript" src="/static/js/jquery-2.1.0.js" charset="utf-8"></script>
     <script type="text/javascript" src="/static/js/jquery.qrcode.js" charset="utf-8"></script>
@@ -208,7 +209,6 @@
             font-size: 38px; /* Smaller font size for mobile devices */
         }
     }
-
 </style>
 
 <body>
@@ -221,6 +221,12 @@
             <button class="layui-btn" onclick="preGenerateQRCodeByBoxText()">生成二维码</button>
             <button class="layui-btn" onclick="printQRCode()">打印二维码</button>
         </div>
+<!--        <div class="button-row">-->
+<!--            <input type="text" id="existingBoxTextInput" placeholder="请输入现有的boxText" class="layui-input">-->
+<!--            <input type="text" id="existingBoxNumberInput" placeholder="请输入现有的boxNumber" class="layui-input">-->
+<!--            <button class="layui-btn" onclick="generateExistingQRCode()">生成现有二维码</button>-->
+<!--        </div>-->
+
     </div>
     <!-- 预生成信息的模态框 -->
     <div id="preGenerateModal" style="display:none;">
@@ -233,19 +239,23 @@
 <!--<button onclick="generateQRCode()">生成全部二维码</button>-->
 <div class="button-container">
     <div class="button-row">
-        <button class="inout" onclick="prepareOperation('stockIn')">入库</button>
-        <button class="inout" onclick="prepareOperation('stockOut')">出库</button>
+        <button class="inout" onclick="showModal('stockIn')">入库</button>
+        <button class="inout" onclick="showModal('stockOut')">出库</button>
     </div>
     <div class="button-row">
-        <button class="inout" onclick="prepareOperation('stockOut')">返库</button>
-        <button class="inout" onclick="prepareOperation('stockOut')">盘库</button>
+        <button class="inout" onclick="showModal('stockOut')">返库</button>
+        <button class="inout" onclick="showModal('stockOut')">盘库</button>
     </div>
     <div class="button-row">
-        <button class="inout" onclick="prepareOperation('stockIn')">转入</button>
-        <button class="inout" onclick="prepareOperation('stockOut')">转出</button>
+        <button class="inout" onclick="showModal('stockIn')">转入</button>
+        <button class="inout" onclick="showModal('stockOut')">转出</button>
     </div>
 </div>
-<input type="text" id="scanInput" placeholder="扫描二维码">
+<!-- 模态框的内容，放在页面的某个位置 -->
+<div id="scanModalContent" style="display: none;">
+    <input type="text" id="modalScanInput" placeholder="扫描数据" class="layui-input">
+    <button class="layui-btn layui-btn-normal" onclick="processScannedData()">确认</button>
+</div>
 
 <div id="scanner-container" style="display:none;">
     <h2>扫描二维码</h2>
@@ -262,7 +272,7 @@
 </div>
 
 <div id="operation-result" style="display:none;"></div>
-
+<script src="/static/lib/layui-v2.8.17/layui.js" charset="utf-8"></script>
 <script>
     var currentOperation = null;
     var html5QrcodeScanner;
@@ -303,7 +313,55 @@
             "qr-reader", { fps: 60, qrbox: 400 });
         getUserDepository(); // 获取用户厂区信息
     });
+    function generateExistingQRCode() {
+        var existingBoxText = document.getElementById("existingBoxTextInput").value;
+        var existingBoxNumber = document.getElementById("existingBoxNumberInput").value;
+        var existingDepositoryId = depositoryId;
+        if (!existingBoxText || !existingBoxNumber) {
+            alert("请输入现有的boxText和boxNumber");
+            return;
+        }
 
+        // 向后端请求获取与现有boxText和boxNumber相关的数据
+        fetch('/bearings/' + existingBoxText + '/' + existingBoxNumber + '/' + existingDepositoryId)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                // 使用获取的数据生成二维码
+                var qrCodeElement = document.getElementById("qrcode");
+                qrCodeElement.innerHTML = ""; // 清除之前的二维码
+                var qrData = JSON.stringify(data);
+                $('<div></div>').qrcode({
+                    text: qrData,
+                    render: 'canvas',
+                    width: 200,
+                    height: 200
+                }).appendTo(qrCodeElement);
+
+                // 显示信息和元素
+                updateInfoAndDisplayElements(data);
+            })
+            .catch(error => {
+                console.error('生成现有二维码时发生错误：', error);
+            });
+    }
+    // 显示信息和元素的共用函数
+    function updateInfoAndDisplayElements(data) {
+        var infoHtml = `
+        <div class="info-row">
+            <p><span>${data.boxText}-${data.boxNumber}</span></p>
+        </div>
+    `;
+        var infoContainer = document.querySelector("#printSection .info-container");
+        infoContainer.innerHTML = infoHtml;
+
+        document.getElementById('qrcodeContainer').style.display = 'block';
+        document.getElementById('printSection').style.display = 'block';
+    }
     var preGenerateData; // 用于存储即将生成的数据
     // 当用户点击“生成二维码”时执行
     function preGenerateQRCodeByBoxText() {
@@ -394,30 +452,56 @@
         html5QrcodeScanner.clear(); // 清除之前的扫描结果
         html5QrcodeScanner.render(onScanSuccess);
     }
-    document.getElementById('scanInput').addEventListener('input', function(e) {
-        var scannedData = e.target.value;
-
+    function showModal(operation) {
+        currentOperation = operation;
+        openModal();
+        document.getElementById('modalScanInput').focus(); // 自动聚焦到输入框
+    }
+    function openModal() {
+        layer.open({
+            type: 1, // 弹出层类型，1 表示页面层
+            title: '扫描二维码', // 标题
+            content: $('#scanModalContent'), // 弹出层内容
+            shadeClose: true, // 设置点击遮罩层关闭弹出层
+            area: ['80%', '60%'], // 设置弹出层大小
+            // 弹出层关闭时的回调
+            cancel: function() {
+                document.getElementById('modalScanInput').value = ''; // 清空输入框
+            },
+            // 弹出层销毁时的回调
+            end: function() {
+                document.getElementById('modalScanInput').value = ''; // 清空输入框
+            }
+        });
+    }
+    function processScannedData() {
+        var scannedData = document.getElementById('modalScanInput').value;
         try {
-            // 将 JavaScript 对象字面量转换为合法的 JSON 字符串
             var correctedJson = scannedData.replace(/(\w+:)|(\w+ :)/g, function(matchedString) {
                 return '"' + matchedString.substring(0, matchedString.length - 1) + '":';
             });
-            console.log(correctedJson);
-            // 解析修正后的JSON数据
             var data = JSON.parse(correctedJson);
-
-            // 执行操作
             console.log("箱号: ", data.boxText);
             console.log("数量: ", data.quantity);
-            stockIn(data.boxText,data.boxNumber,data.quantity);
-            // 清空输入框以便下次扫描
-            e.target.value = '';
+            switch (currentOperation) {
+                case 'stockIn':
+                    stockIn(data.boxText, data.boxNumber, data.quantity);
+                    break;
+                case 'stockOut':
+                    stockOut(data.boxText, data.boxNumber, data.quantity);
+                    break;
+                // ...处理其他操作...
+            }
+            layer.closeAll(); // 关闭弹出层
         } catch (error) {
             console.error('解析扫描数据时出错: ', error);
-            e.target.value = '';
+            layer.closeAll(); // 关闭弹出层
         }
-    });
-
+    }
+    function closeScanModal() {
+        document.getElementById('scanModal').style.display = 'none';
+        document.getElementById('modalScanInput').value = ''; // 清空输入框
+    }
     function onScanSuccess(decodedText, decodedResult) {
         try {
             var jsonData;
@@ -508,7 +592,7 @@
                 if (response.ok) {
                     return response.json();
                 } else {
-                    throw new Error('记录入库操作失败');
+                    throw new Error('记录库操作失败');
                 }
             });
     }
@@ -523,13 +607,26 @@
             body: JSON.stringify(inventoryDto),
         })
             .then(response => {
+                console.log("响应状态: ", response.status); // 打印响应状态
+                console.log("响应头: ", response.headers.get("content-type")); // 打印响应头的内容类型
                 if (!response.ok) {
-                    throw new Error('网络响应不是OK');
+                    throw new Error('网络响应错误');
                 }
-                return response.json();
+                if (response.headers.get("content-type")?.includes("application/json")) {
+                    return response.json();
+                } else {
+                    return null; // 或者返回一个默认的对象，比如 {}
+                }
             })
             .then(data => {
-                showResult('出库成功: ' + JSON.stringify(data));
+                console.log("响应数据: ", data); // 打印解析后的数据
+                if (data) {
+                    showResult('出库成功: ' + JSON.stringify(data));
+                    return addBearingRecord('出库', boxText, boxNumber, quantity);
+                } else {
+                    showResult('出库成功');
+                    return addBearingRecord('出库', boxText, boxNumber, quantity);
+                }
             })
             .catch(error => {
                 console.error('出库失败:', error);
@@ -575,6 +672,7 @@
             alert('请先生成二维码！');
         }
     }
+
 </script>
 </body>
 </html>

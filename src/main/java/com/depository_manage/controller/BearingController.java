@@ -1,6 +1,7 @@
 package com.depository_manage.controller;
 
 import com.depository_manage.entity.Bearing;
+import com.depository_manage.entity.ProductId;
 import com.depository_manage.service.BearingService;
 import com.depository_manage.service.ProductIdService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,6 +54,37 @@ public class BearingController {
         // 4. 返回包含Bearing数据和新product_id的响应
         return ResponseEntity.ok(response);
     }
+    @GetMapping("/{boxText}/{boxNumber}/{depositoryId}")
+    public ResponseEntity<?> getExistingProductInfo(@PathVariable String boxText, @PathVariable String boxNumber, @PathVariable int depositoryId) {
+        // 查询 product_ids 表获取数量
+        ProductId productId = productIdService.getProductIdByBoxTextAndDepositoryId(boxText, boxNumber, depositoryId);
+        if (productId == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        // 查询 bearings 表获取其他信息
+        Bearing bearing = bearingService.getBearingByBoxText(boxText);
+        if (bearing == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        // 构建响应数据
+        Map<String, Object> response = new HashMap<>();
+        response.put("boxText", boxText);
+        response.put("boxNumber", boxNumber);
+        response.put("quantity", productId.getQuantity());
+        // 添加其他必要的数据从 bearing 对象
+        response.put("model", bearing.getModel());
+        response.put("customer", bearing.getCustomer());
+        response.put("outerInnerRing", bearing.getOuterInnerRing());
+        response.put("depository", bearing.getDepository());
+        response.put("storageLocation", bearing.getStorageLocation());
+        // ...
+
+        return ResponseEntity.ok(response);
+    }
+
+
     @GetMapping("/preGenerate/{boxText}/{depositoryId}")
     public ResponseEntity<?> preGenerateNewProductId(@PathVariable String boxText, @PathVariable int depositoryId) {
         // 获取与boxNumber相关的Bearing数据，但不从数据库中保存或更新

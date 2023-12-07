@@ -79,4 +79,8 @@ public class ProductIdServiceImpl implements ProductIdService {
             throw new IllegalArgumentException("Invalid boxNumber format: " + boxNumber);
         }
     }
+    @Override
+    public ProductId getProductIdByBoxTextAndDepositoryId(String boxText, String boxNumber, int depositoryId) {
+        return productIdMapper.selectProductIdByBoxTextAndDepositoryId(boxText, boxNumber, depositoryId);
+    }
 }
