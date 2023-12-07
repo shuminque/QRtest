@@ -245,6 +245,7 @@
         <button class="inout" onclick="prepareOperation('stockOut')">转出</button>
     </div>
 </div>
+<input type="text" id="scanInput" placeholder="扫描二维码">
 
 <div id="scanner-container" style="display:none;">
     <h2>扫描二维码</h2>
@@ -386,6 +387,14 @@
         preGenerateData = null;
         document.getElementById('preGenerateModal').style.display = 'none';
     }
+    document.getElementById('scanInput').addEventListener('input', function(e) {
+        var scannedData = e.target.value;
+        // TODO: 处理扫描数据
+        console.log("扫描到的数据: ", scannedData);
+        // 可以在这里根据扫描到的数据执行相应操作，如调用入库或出库函数等
+        // 清空输入框以便下次扫描
+        e.target.value = '';
+    });
     function prepareOperation(operation) {
         console.log("开始切换")
         currentOperation = operation;
@@ -393,7 +402,27 @@
         html5QrcodeScanner.clear(); // 清除之前的扫描结果
         html5QrcodeScanner.render(onScanSuccess);
     }
+    document.getElementById('scanInput').addEventListener('input', function(e) {
+        var scannedData = e.target.value;
+        try {
+            // 解析扫描到的JSON数据
+            var data = JSON.parse(scannedData);
 
+            // TODO: 根据解析出的数据执行操作
+            console.log("箱号: ", data.boxText);
+            console.log("数量: ", data.quantity);
+
+            // 例如，执行入库操作
+            stockIn(data.boxText, data.boxNumber, data.quantity);
+
+            // 清空输入框以便下次扫描
+            e.target.value = '';
+        } catch (error) {
+            console.error('解析扫描数据时出错: ', error);
+            // 清空输入框以便下次扫描
+            e.target.value = '';
+        }
+    });
     function onScanSuccess(decodedText, decodedResult) {
         try {
             var jsonData;
@@ -425,6 +454,8 @@
 
     // 入库操作
     function stockIn(boxText, boxNumber, quantity) {
+        console.log("执行入库操作: ", boxText, boxNumber, quantity);
+
         var inventoryDto = { boxText: boxText, quantityInStock: quantity };
         fetch('/bearingInventory/stockIn', {
             method: 'POST',
