@@ -387,14 +387,6 @@
         preGenerateData = null;
         document.getElementById('preGenerateModal').style.display = 'none';
     }
-    document.getElementById('scanInput').addEventListener('input', function(e) {
-        var scannedData = e.target.value;
-        // TODO: 处理扫描数据
-        console.log("扫描到的数据: ", scannedData);
-        // 可以在这里根据扫描到的数据执行相应操作，如调用入库或出库函数等
-        // 清空输入框以便下次扫描
-        e.target.value = '';
-    });
     function prepareOperation(operation) {
         console.log("开始切换")
         currentOperation = operation;
@@ -404,25 +396,28 @@
     }
     document.getElementById('scanInput').addEventListener('input', function(e) {
         var scannedData = e.target.value;
-        try {
-            // 解析扫描到的JSON数据
-            var data = JSON.parse(scannedData);
 
-            // TODO: 根据解析出的数据执行操作
+        try {
+            // 将 JavaScript 对象字面量转换为合法的 JSON 字符串
+            var correctedJson = scannedData.replace(/(\w+:)|(\w+ :)/g, function(matchedString) {
+                return '"' + matchedString.substring(0, matchedString.length - 1) + '":';
+            });
+            console.log(correctedJson);
+            // 解析修正后的JSON数据
+            var data = JSON.parse(correctedJson);
+
+            // 执行操作
             console.log("箱号: ", data.boxText);
             console.log("数量: ", data.quantity);
-
-            // 例如，执行入库操作
-            stockIn(data.boxText, data.boxNumber, data.quantity);
-
+            stockIn(data.boxText,data.boxNumber,data.quantity);
             // 清空输入框以便下次扫描
             e.target.value = '';
         } catch (error) {
             console.error('解析扫描数据时出错: ', error);
-            // 清空输入框以便下次扫描
             e.target.value = '';
         }
     });
+
     function onScanSuccess(decodedText, decodedResult) {
         try {
             var jsonData;
@@ -451,11 +446,9 @@
             showResult('扫描失败: ' + e.message);
         }
     }
-
     // 入库操作
     function stockIn(boxText, boxNumber, quantity) {
         console.log("执行入库操作: ", boxText, boxNumber, quantity);
-
         var inventoryDto = { boxText: boxText, quantityInStock: quantity };
         fetch('/bearingInventory/stockIn', {
             method: 'POST',
@@ -465,10 +458,11 @@
             body: JSON.stringify(inventoryDto),
         })
             .then(response => {
+                console.log("响应状态: ", response.status); // 打印响应状态
+                console.log("响应头: ", response.headers.get("content-type")); // 打印响应头的内容类型
                 if (!response.ok) {
                     throw new Error('网络响应错误');
                 }
-                // 检查响应是否有内容
                 if (response.headers.get("content-type")?.includes("application/json")) {
                     return response.json();
                 } else {
@@ -476,18 +470,16 @@
                 }
             })
             .then(data => {
+                console.log("响应数据: ", data); // 打印解析后的数据
                 if (data) {
                     showResult('入库成功: ' + JSON.stringify(data));
-                    // 入库成功，现在添加记录
                     return addBearingRecord('入库', boxText, boxNumber, quantity);
                 } else {
-                    // 入库操作返回了空数据，可能是成功了但是没有返回数据
                     showResult('入库成功');
                     return addBearingRecord('入库', boxText, boxNumber, quantity);
                 }
             })
             .then(recordResponse => {
-                // 这里处理添加记录后的操作
                 console.log('记录已添加:', recordResponse);
             })
             .catch(error => {
@@ -498,6 +490,7 @@
                 resetScanner(); // 无论成功或失败，重置扫描器
             });
     }
+
     function addBearingRecord(transactionType, boxText, boxNumber, quantity) {
         var recordDto = {
             transactionType: transactionType,

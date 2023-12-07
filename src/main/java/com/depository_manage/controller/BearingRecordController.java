@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -41,7 +42,7 @@ public class BearingRecordController {
 
             // 添加记录
             bearingRecordService.addBearingRecord(record);
-            return ResponseEntity.ok().build();
+            return ResponseEntity.ok(Collections.singletonMap("message", "Record added successfully"));
         } else {
             // 如果找不到对应的Bearing信息，返回错误响应
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
