@@ -254,7 +254,10 @@
 <!-- 模态框的内容，放在页面的某个位置 -->
 <div id="scanModalContent" style="display: none;">
     <input type="text" id="modalScanInput" placeholder="扫描数据" class="layui-input">
-    <button class="layui-btn layui-btn-normal" onclick="processScannedData()">确认</button>
+    <div style="text-align: center; margin-top: 20px;">
+        <button class="layui-btn layui-btn-normal" onclick="processScannedData()">确认</button>
+        <button class="layui-btn layui-btn-primary" onclick="closeModal()">取消</button>
+    </div>
 </div>
 
 <div id="scanner-container" style="display:none;">
@@ -445,6 +448,7 @@
         preGenerateData = null;
         document.getElementById('preGenerateModal').style.display = 'none';
     }
+
     function prepareOperation(operation) {
         console.log("开始切换")
         currentOperation = operation;
@@ -502,6 +506,13 @@
         document.getElementById('scanModal').style.display = 'none';
         document.getElementById('modalScanInput').value = ''; // 清空输入框
     }
+    function closeModal() {
+        // 清空输入框
+        document.getElementById('modalScanInput').value = '';
+        // 关闭当前打开的层（假设它是最新打开的）
+        layer.close(layer.index);
+    }
+
     function onScanSuccess(decodedText, decodedResult) {
         try {
             var jsonData;
