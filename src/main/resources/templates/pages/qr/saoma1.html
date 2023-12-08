@@ -238,12 +238,12 @@
         <button class="inout" onclick="showModal('stockOut')">出库</button>
     </div>
     <div class="button-row">
-        <button class="inout" onclick="showModal('stockOut')">返库</button>
-        <button class="inout" onclick="showModal('stockOut')">盘库</button>
+        <button class="inout" onclick="showModal('return')">返库</button>
+        <button class="inout" onclick="showModal('panKu')">盘库</button>
     </div>
     <div class="button-row">
-        <button class="inout" onclick="showModal('stockIn')">转入</button>
-        <button class="inout" onclick="showModal('stockOut')">转出</button>
+        <button class="inout" onclick="showModal('transferIn')">转入</button>
+        <button class="inout" onclick="showModal('transferOut')">转出</button>
     </div>
 </div>
 <!-- 模态框的内容，放在页面的某个位置 -->
@@ -273,6 +273,7 @@
 <script src="/static/lib/layui-v2.8.17/layui.js" charset="utf-8"></script>
 <script>
     var currentOperation = null;
+    var currentOperationType = ''; // 全局变量，存储当前操作类型
     var html5QrcodeScanner;
     var userReviewGroupId;
     var userAuthority;
@@ -416,8 +417,8 @@
                 $('<div></div>').qrcode({
                     text: qrData,
                     render: 'canvas',
-                    width: 150,
-                    height: 150
+                    width: 130,
+                    height: 130
                 }).appendTo(qrCodeElement);
 
                 // 显示信息
@@ -450,6 +451,34 @@
         document.getElementById("scanner-container").style.display = "block";
         html5QrcodeScanner.clear(); // 清除之前的扫描结果
         html5QrcodeScanner.render(onScanSuccess);
+    }
+    function onScanSuccess(decodedText, decodedResult) {
+        try {
+            var jsonData;
+            try {
+                jsonData = JSON.parse(decodedText);
+            } catch (jsonError) {
+                var base64DecodedData = atob(decodedText);
+                var decodedData = decodeURIComponent(escape(base64DecodedData));
+                jsonData = JSON.parse(decodedData);
+            }
+
+            // 显示扫描成功消息
+            showResult('扫描成功: ' + JSON.stringify(jsonData));
+
+            // 一定时间后执行操作
+            setTimeout(function() {
+                if (currentOperation === "stockIn") {
+                    stockIn(jsonData.boxText, jsonData.boxNumber, jsonData.quantity);
+                } else if (currentOperation === "stockOut") {
+                    stockOut(jsonData.boxText, jsonData.boxNumber, jsonData.quantity);
+                }
+            }, 2000); // 等待2秒后再执行操作
+
+        } catch (e) {
+            console.error('扫描错误:', e);
+            showResult('扫描失败: ' + e.message);
+        }
     }
     function showModal(operation) {
         currentOperation = operation;
@@ -484,12 +513,23 @@
             console.log("数量: ", data.quantity);
             switch (currentOperation) {
                 case 'stockIn':
-                    stockIn(data.boxText, data.boxNumber, data.quantity);
+                    stockIn(data.boxText, data.boxNumber, data.quantity, currentOperation);
                     break;
                 case 'stockOut':
-                    stockOut(data.boxText, data.boxNumber, data.quantity);
+                    stockOut(data.boxText, data.boxNumber, data.quantity, currentOperation);
                     break;
-                // ...处理其他操作...
+                case 'transferIn':
+                    stockIn(data.boxText, data.boxNumber, data.quantity, currentOperation);
+                    break;
+                case 'transferOut':
+                    stockOut(data.boxText, data.boxNumber, data.quantity, currentOperation);
+                    break;
+                case 'return':
+                    stockOut(data.boxText, data.boxNumber, data.quantity, currentOperation);
+                    break;
+                case 'panKu':
+                    stockOut(data.boxText, data.boxNumber, data.quantity, currentOperation);
+                    break;
             }
             layer.closeAll(); // 关闭弹出层
         } catch (error) {
@@ -508,37 +548,10 @@
         layer.close(layer.index);
     }
 
-    function onScanSuccess(decodedText, decodedResult) {
-        try {
-            var jsonData;
-            try {
-                jsonData = JSON.parse(decodedText);
-            } catch (jsonError) {
-                var base64DecodedData = atob(decodedText);
-                var decodedData = decodeURIComponent(escape(base64DecodedData));
-                jsonData = JSON.parse(decodedData);
-            }
-
-            // 显示扫描成功消息
-            showResult('扫描成功: ' + JSON.stringify(jsonData));
-
-            // 一定时间后执行操作
-            setTimeout(function() {
-                if (currentOperation === "stockIn") {
-                    stockIn(jsonData.boxText, jsonData.boxNumber, jsonData.quantity);
-                } else if (currentOperation === "stockOut") {
-                    stockOut(jsonData.boxText, jsonData.boxNumber, jsonData.quantity);
-                }
-            }, 2000); // 等待2秒后再执行操作
-
-        } catch (e) {
-            console.error('扫描错误:', e);
-            showResult('扫描失败: ' + e.message);
-        }
-    }
     // 入库操作
-    function stockIn(boxText, boxNumber, quantity) {
-        console.log("执行入库操作: ", boxText, boxNumber, quantity);
+    function stockIn(boxText, boxNumber, quantity, operationType) {
+        console.log("执行操作: ", operationType, boxText, boxNumber, quantity);
+        const operationTypeChinese = getOperationTypeInChinese(operationType);
         var inventoryDto = { boxText: boxText, quantityInStock: quantity };
         fetch('/bearingInventory/stockIn', {
             method: 'POST',
@@ -559,22 +572,24 @@
                     return null; // 或者返回一个默认的对象，比如 {}
                 }
             })
+            // .then(response => {
+            //     // 处理响应
+            //     if (!response.ok) {
+            //         throw new Error('网络响应错误');
+            //     }
+            //     return response.json();
+            // })
             .then(data => {
-                console.log("响应数据: ", data); // 打印解析后的数据
-                if (data) {
-                    showResult('入库成功: ' + JSON.stringify(data));
-                    return addBearingRecord('入库', boxText, boxNumber, quantity);
-                } else {
-                    showResult('入库成功');
-                    return addBearingRecord('入库', boxText, boxNumber, quantity);
-                }
+                // 显示操作结果
+                showResult(`${operationTypeChinese}成功: ` + JSON.stringify(data));
+                return addBearingRecord(operationTypeChinese, boxText, boxNumber, quantity);
             })
             .then(recordResponse => {
                 console.log('记录已添加:', recordResponse);
             })
             .catch(error => {
-                console.error('入库失败:', error);
-                showResult('入库失败: ' + error.message);
+                console.error(`${operationTypeChinese}失败:`, error);
+                showResult(`${operationTypeChinese}失败: ` + error.message);
             })
             .finally(() => {
                 resetScanner(); // 无论成功或失败，重置扫描器
@@ -603,7 +618,9 @@
             });
     }
     // 出库操作
-    function stockOut(boxText, boxNumber, quantity) {
+    function stockOut(boxText, boxNumber, quantity, operationType) {
+        console.log("执行操作: ", operationType, boxText, boxNumber, quantity);
+        const operationTypeChinese = getOperationTypeInChinese(operationType);
         var inventoryDto = { boxText: boxText, boxNumber: boxNumber, quantityInStock: quantity };
         fetch('/bearingInventory/stockOut', {
             method: 'POST',
@@ -618,25 +635,21 @@
                 if (!response.ok) {
                     throw new Error('网络响应错误');
                 }
-                if (response.headers.get("content-type")?.includes("application/json")) {
-                    return response.json();
-                } else {
-                    return null; // 或者返回一个默认的对象，比如 {}
-                }
+                return response.json();
             })
             .then(data => {
                 console.log("响应数据: ", data); // 打印解析后的数据
                 if (data) {
-                    showResult('出库成功: ' + JSON.stringify(data));
-                    return addBearingRecord('出库', boxText, boxNumber, quantity);
+                    showResult(`${operationTypeChinese}成功: ` + JSON.stringify(data));
+                    return addBearingRecord(operationTypeChinese, boxText, boxNumber, quantity);
                 } else {
-                    showResult('出库成功');
-                    return addBearingRecord('出库', boxText, boxNumber, quantity);
+                    showResult(`${operationTypeChinese}成功`);
+                    return addBearingRecord(operationTypeChinese, boxText, boxNumber, quantity);
                 }
             })
             .catch(error => {
-                console.error('出库失败:', error);
-                showResult('出库失败: ' + error.message);
+                console.error(`${operationTypeChinese}失败:`, error);
+                showResult(`${operationTypeChinese}失败: ` + error.message);
             })
             .finally(() => {
                 resetScanner(); // 无论成功或失败，重置扫描器
@@ -678,7 +691,18 @@
             alert('请先生成二维码！');
         }
     }
+    function getOperationTypeInChinese(operationType) {
+        const operationTypeMap = {
+            'stockIn': '入库',
+            'stockOut': '出库',
+            'transferIn': '转入',
+            'transferOut': '转出',
+            'return': '返库',
+            'panKu': '盘库'
+        };
 
+        return operationTypeMap[operationType] || operationType;
+    }
 </script>
 </body>
 </html>

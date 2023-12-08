@@ -40,6 +40,6 @@ public class BearingInventoryController {
     @PostMapping("/stockOut")
     public ResponseEntity<?> stockOut(@RequestBody BearingInventory inventory) {
         bearingInventoryService.stockOut(inventory);
-        return ResponseEntity.ok(Collections.singletonMap("message", "Stock-in successful"));
+        return ResponseEntity.ok(Collections.singletonMap("message", "Stock-out successful"));
     }
 }
