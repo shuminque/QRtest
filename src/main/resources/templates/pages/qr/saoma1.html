@@ -36,7 +36,7 @@
         #qrcode {
             width: 150px;
             height: 150px; /* 保持与宽度一致 */
-            margin: 0; /* 移除外边距 */
+            margin: 0 0 0 0; /* 移除外边距 */
             position: absolute; /* 绝对定位 */
             left: 60px; /* 对齐到左边 */
             top: 0; /* 对齐到顶部 */
@@ -49,8 +49,7 @@
         /* 设置信息容器的样式 */
         .info-container {
             transform: rotate(90deg); /* 顺时针旋转90度 */
-            width: 100%;
-            margin-top: 10px; /* 确保信息区域在二维码下方 */
+            width: 50%;
             position: absolute; /* 绝对定位 */
             text-align: left;
             top: 130px; /* 放置在二维码下方 */
@@ -104,8 +103,8 @@
         padding: 10px; /* 输入框内边距 */
     }
     #qrcode {
-        margin-top: 10px;
-        padding: 10px;
+        margin-top: 5px;
+        padding: 5px;
         background-color: white;
         text-align: left;
         border: 1px solid #ddd;
@@ -147,11 +146,7 @@
         padding: 0 10px; /* Keep existing padding */
         font-size: 14px; /* Adjust the font size as needed */
     }
-    .info-row p {
-        margin: 0 0 0 0 ; /* Remove default paragraph margin */
-        flex: 1; /* Each <p> element will take up equal space */
-        padding: 0 10px; /* Add some padding */
-    }
+
     button.inout {
         background-color: #938f8f;
         color: white;
