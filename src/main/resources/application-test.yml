@@ -21,9 +21,9 @@ spring:
   datasource:
     username: root
 #    password: xuriroot!@Xuri
-#    url: jdbc:mysql://localhost:3306/bp_depository?serverTimezone=Asia/Shanghai&zeroDateTimeBehavior=convertToNull
+#    url: jdbc:mysql://localhost:3306/cpck?serverTimezone=Asia/Shanghai&zeroDateTimeBehavior=convertToNull
     password: 123456
-    url: jdbc:mysql://localhost:3308/springbootv1?serverTimezone=Asia/Shanghai&zeroDateTimeBehavior=convertToNull
+    url: jdbc:mysql://localhost:3308/cpck?serverTimezone=Asia/Shanghai&zeroDateTimeBehavior=convertToNull
     driver-class-name: com.mysql.cj.jdbc.Driver
     type: com.alibaba.druid.pool.DruidDataSource
     initialSize: 5
@@ -38,7 +38,7 @@ spring:
     testOnReturn: false
     testOnBorrow: false
     poolPreparedStatements: true
-    maxPoolPreparedStatementPerConnectionSize: 20
+    maxPoolPreparedStatementPerConnectionSize: 206
     filters: stat, wall, log4j
     connectionProperties: druid.stat.mergeSql=true;druid.stat.slowSqlMillis=5000
     removeAbandoned: true
