@@ -34,8 +34,8 @@
 
         /* 设置二维码的大小和位置 */
         #qrcode {
-            width: 200px;
-            height: 200px; /* 保持与宽度一致 */
+            width: 150px;
+            height: 150px; /* 保持与宽度一致 */
             margin: 0; /* 移除外边距 */
             position: absolute; /* 绝对定位 */
             left: 60px; /* 对齐到左边 */
@@ -52,8 +52,9 @@
             width: 100%;
             margin-top: 10px; /* 确保信息区域在二维码下方 */
             position: absolute; /* 绝对定位 */
-            left: -150px; /* 对齐到左边 */
-            top: 150px; /* 放置在二维码下方 */
+            text-align: left;
+            left: -170px; /* 对齐到左边 */
+            top: 130px; /* 放置在二维码下方 */
         }
     }
     body {
@@ -421,8 +422,8 @@
                 $('<div></div>').qrcode({
                     text: qrData,
                     render: 'canvas',
-                    width: 200,
-                    height: 200
+                    width: 150,
+                    height: 150
                 }).appendTo(qrCodeElement);
 
                 // 显示信息
