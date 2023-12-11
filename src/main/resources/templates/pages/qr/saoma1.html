@@ -112,6 +112,7 @@
         padding: 1px;
         background-color: white;
         text-align: left;
+        width: 30%;
         border: 1px solid #ddd;
     }
 
@@ -429,7 +430,7 @@
                 // 显示信息
                 var infoHtml = `
                     <div class="info-row">
-                        <p><span>${data.boxText}-${data.boxNumber}</span></p>
+                        <p><span>${data.boxText}${data.boxNumber}</span></p>
                     </div>
                 `;
                 var infoContainer = document.querySelector("#printSection .info-container");
@@ -557,7 +558,7 @@
     function stockIn(boxText, boxNumber, quantity, operationType) {
         console.log("执行操作: ", operationType, boxText, boxNumber, quantity);
         const operationTypeChinese = getOperationTypeInChinese(operationType);
-        var inventoryDto = { boxText: boxText, quantityInStock: quantity };
+        var inventoryDto = { boxText: boxText, boxNumber: boxNumber,quantityInStock: quantity };
         fetch('/bearingInventory/stockIn', {
             method: 'POST',
             headers: {
@@ -593,8 +594,9 @@
                 console.log('记录已添加:', recordResponse);
             })
             .catch(error => {
-                console.error(`${operationTypeChinese}失败:`, error);
-                showResult(`${operationTypeChinese}失败: ` + error.message);
+
+                    layer.msg(`${operationTypeChinese}失败: ` + error.message, {icon: 2}); // icon: 2 表示错误图标
+
             })
             .finally(() => {
                 resetScanner(); // 无论成功或失败，重置扫描器
@@ -643,14 +645,9 @@
                 return response.json();
             })
             .then(data => {
-                console.log("响应数据: ", data); // 打印解析后的数据
-                if (data) {
-                    showResult(`${operationTypeChinese}成功: ` + JSON.stringify(data));
-                    return addBearingRecord(operationTypeChinese, boxText, boxNumber, quantity);
-                } else {
-                    showResult(`${operationTypeChinese}成功`);
-                    return addBearingRecord(operationTypeChinese, boxText, boxNumber, quantity);
-                }
+                // 显示操作结果
+                showResult(`${operationTypeChinese}成功: ` + JSON.stringify(data));
+                return addBearingRecord(operationTypeChinese, boxText, boxNumber, quantity);
             })
             .catch(error => {
                 console.error(`${operationTypeChinese}失败:`, error);
