@@ -50,8 +50,8 @@
         }
         /* 设置信息容器的样式 */
         .info-container {
-            /*transform: rotate(90deg); !* 顺时针旋转90度 *!*/
-            /*transform-origin: left bottom; !* 设置变形原点为左下角 *!*/
+            transform: rotate(90deg); /* 顺时针旋转90度 */
+            transform-origin: left bottom; /* 设置变形原点为左下角 */
             position: absolute ; /* 绝对定位 */
             word-wrap: break-word;  /* 允许在必要时文字换行 */
             text-align: left;
@@ -221,6 +221,9 @@
         <div class="button-row">
             <button class="layui-btn" onclick="preGenerateQRCodeByBoxText()">生成二维码</button>
             <button class="layui-btn" onclick="printQRCode()">打印二维码</button>
+            <br>
+            <button style='font-size: 20px' onclick="printQR()">打印二维码</button>
+            <br>
         </div>
 <!--        <div class="button-row">-->
 <!--            <input type="text" id="existingBoxTextInput" placeholder="请输入现有的boxText" class="layui-input">-->
