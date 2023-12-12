@@ -36,8 +36,8 @@
 
         /* 设置二维码的大小和位置 */
         #qrcode {
-            width: 130px;
-            height: 130px; /* 保持与宽度一致 */
+            width: 140px;
+            height: 140px; /* 保持与宽度一致 */
             margin: 0 0 0 0; /* 移除外边距 */
             position: absolute; /* 绝对定位 */
             left: 90px; /* 对齐到左边 */
@@ -423,8 +423,8 @@
                 $('<div></div>').qrcode({
                     text: qrData,
                     render: 'canvas',
-                    width: 130,
-                    height: 130
+                    width: 140,
+                    height: 140
                 }).appendTo(qrCodeElement);
 
                 // 显示信息
@@ -566,26 +566,31 @@
         })
             .then(response => {
                 if (!response.ok) {
-                    console.log('cgcg')
-                    return addBearingRecord(operationTypeChinese, boxText, boxNumber, quantity);
-                }else {
-                    layer.msg(`重复的${operationTypeChinese}`);
+                    // 处理错误情况
+                    return response.json().then(err => {
+                        // 假设错误信息在 err.message 中
+                        console.log(err);
+                        layer.msg(`重复的${operationTypeChinese}: ` + err.message, {icon: 2});
+                        throw new Error(err.message); // 使用实际的错误消息
+                    });
                 }
+                // 请求成功，处理成功的响应
                 return response.json();
             })
             .then(data => {
+                // 显示操作成功的结果
                 showResult(`${operationTypeChinese}成功: ` + JSON.stringify(data));
+                // 调用 addBearingRecord
+                return addBearingRecord(operationTypeChinese, boxText, boxNumber, quantity);
             })
             .catch(error => {
+                // 处理前面抛出的所有错误
                 layer.msg(`${operationTypeChinese}失败: ` + error.message, {icon: 2});
-                // 这里不再继续链式调用，因此错误会停止后续执行
-                throw error; // 重新抛出错误，确保不执行后续的 then 块
             })
             .finally(() => {
                 resetScanner(); // 无论成功或失败，重置扫描器
             });
     }
-
 
 
     function addBearingRecord(transactionType, boxText, boxNumber, quantity) {

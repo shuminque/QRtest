@@ -50,7 +50,6 @@ public class BearingController {
         }
         // 3. 创建包含Bearing数据和新product_id的响应
         Map<String, Object> response = getStringObjectMap(boxText, newBoxNumber, bearing, quantity);
-
         // 4. 返回包含Bearing数据和新product_id的响应
         return ResponseEntity.ok(response);
     }

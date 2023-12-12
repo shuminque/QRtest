@@ -1,8 +1,10 @@
 package com.depository_manage.controller;
 
 import com.depository_manage.entity.BearingInventory;
+import com.depository_manage.exception.OperationAlreadyDoneException;
 import com.depository_manage.service.BearingInventoryService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,14 +34,30 @@ public class BearingInventoryController {
     }
     @PostMapping("/stockIn")
     public ResponseEntity<?> stockIn(@RequestBody BearingInventory inventory) {
-        bearingInventoryService.stockIn(inventory);
-        return ResponseEntity.ok(Collections.singletonMap("message", "Stock-in successful"));
+        try {
+            bearingInventoryService.stockIn(inventory);
+            return ResponseEntity.ok(Collections.singletonMap("message", "Stock-in successful"));
+        } catch (OperationAlreadyDoneException e) {
+            // 返回一个错误响应
+            return ResponseEntity
+                    .status(HttpStatus.CONFLICT)
+                    .body(Collections.singletonMap("message", e.getMessage()));
+        }
     }
+
 
 
     @PostMapping("/stockOut")
     public ResponseEntity<?> stockOut(@RequestBody BearingInventory inventory) {
-        bearingInventoryService.stockOut(inventory);
-        return ResponseEntity.ok(Collections.singletonMap("message", "Stock-out successful"));
+        try {
+            bearingInventoryService.stockOut(inventory);
+            return ResponseEntity.ok(Collections.singletonMap("message", "Stock-out successful"));
+        } catch (OperationAlreadyDoneException e) {
+            // 返回一个错误响应
+            return ResponseEntity
+                    .status(HttpStatus.CONFLICT)
+                    .body(Collections.singletonMap("message", e.getMessage()));
+        }
     }
+
 }
