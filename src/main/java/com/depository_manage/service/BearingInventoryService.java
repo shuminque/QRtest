@@ -7,4 +7,6 @@ public interface BearingInventoryService {
     BearingInventory getBearingInventory(String boxText);
     void stockIn(BearingInventory bearingInventory);
     void stockOut(BearingInventory bearingInventory);
+    boolean isOperationAlreadyDone(String boxText, String boxNumber,String operationType);
+
 }

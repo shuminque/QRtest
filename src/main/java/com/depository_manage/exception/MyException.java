@@ -2,10 +2,12 @@ package com.depository_manage.exception;
 
 
 import lombok.Getter;
+import lombok.Setter;
 
 /**
  * 自定义异常类
  */
+@Setter
 @Getter
 public class MyException extends RuntimeException {
     /**
@@ -28,11 +30,4 @@ public class MyException extends RuntimeException {
         this.msg = msg;
     }
 
-    public void setCode(int code) {
-        this.code = code;
-    }
-
-    public void setMsg(String msg) {
-        this.msg = msg;
-    }
 }

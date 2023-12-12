@@ -44,7 +44,7 @@
             top: 0; /* 对齐到顶部 */
         }
         .info-row p {
-            font-size: 40px; /* Set to your desired font size */
+            font-size: 38px; /* Set to your desired font size */
             font-weight: bold; /* Optional: makes the text bold */
             line-height: normal; /* Adjust line height for better readability */
         }
@@ -56,7 +56,7 @@
             word-wrap: break-word;  /* 允许在必要时文字换行 */
             text-align: left;
             width: 500px;  /* 限制宽度，以适应旋转后的布局 */
-            top: -120px; /* 向上移动与宽度相同的距离 */
+            top: -130px; /* 向上移动与宽度相同的距离 */
             left: 0; /* 对齐页面左侧 */
         }
     }
@@ -556,52 +556,37 @@
 
     // 入库操作
     function stockIn(boxText, boxNumber, quantity, operationType) {
-        console.log("执行操作: ", operationType, boxText, boxNumber, quantity);
         const operationTypeChinese = getOperationTypeInChinese(operationType);
-        var inventoryDto = { boxText: boxText, boxNumber: boxNumber,quantityInStock: quantity };
+        var inventoryDto = { boxText: boxText, boxNumber: boxNumber, quantityInStock: quantity };
+
         fetch('/bearingInventory/stockIn', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(inventoryDto),
         })
             .then(response => {
-                console.log("响应状态: ", response.status); // 打印响应状态
-                console.log("响应头: ", response.headers.get("content-type")); // 打印响应头的内容类型
                 if (!response.ok) {
-                    throw new Error('网络响应错误');
+                    console.log('cgcg')
+                    return addBearingRecord(operationTypeChinese, boxText, boxNumber, quantity);
+                }else {
+                    layer.msg(`重复的${operationTypeChinese}`);
                 }
-                if (response.headers.get("content-type")?.includes("application/json")) {
-                    return response.json();
-                } else {
-                    return null; // 或者返回一个默认的对象，比如 {}
-                }
+                return response.json();
             })
-            // .then(response => {
-            //     // 处理响应
-            //     if (!response.ok) {
-            //         throw new Error('网络响应错误');
-            //     }
-            //     return response.json();
-            // })
             .then(data => {
-                // 显示操作结果
                 showResult(`${operationTypeChinese}成功: ` + JSON.stringify(data));
-                return addBearingRecord(operationTypeChinese, boxText, boxNumber, quantity);
-            })
-            .then(recordResponse => {
-                console.log('记录已添加:', recordResponse);
             })
             .catch(error => {
-
-                    layer.msg(`${operationTypeChinese}失败: ` + error.message, {icon: 2}); // icon: 2 表示错误图标
-
+                layer.msg(`${operationTypeChinese}失败: ` + error.message, {icon: 2});
+                // 这里不再继续链式调用，因此错误会停止后续执行
+                throw error; // 重新抛出错误，确保不执行后续的 then 块
             })
             .finally(() => {
                 resetScanner(); // 无论成功或失败，重置扫描器
             });
     }
+
+
 
     function addBearingRecord(transactionType, boxText, boxNumber, quantity) {
         var recordDto = {

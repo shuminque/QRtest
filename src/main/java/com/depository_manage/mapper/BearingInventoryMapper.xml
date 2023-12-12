@@ -7,6 +7,7 @@
         <result property="boxNumber" column="box_number"/>
         <result property="productId" column="product_id"/>
         <result property="quantityInStock" column="quantity_in_stock"/>
+        <result property="operationType" column="transaction_type"/>
     </resultMap>
 
     <insert id="insertBearingInventory" parameterType="com.depository_manage.entity.BearingInventory">
@@ -26,5 +27,11 @@
         DELETE FROM bearing_inventory
         WHERE box_text = #{boxText}
     </delete>
+
+    <select id="countOperationRecords" resultType="int">
+        SELECT COUNT(*)
+        FROM bearing_records
+        WHERE box_text = #{boxText} AND box_number = #{boxNumber} AND transaction_type = #{operationType}
+    </select>
 
 </mapper>
