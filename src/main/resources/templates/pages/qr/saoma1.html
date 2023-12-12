@@ -281,6 +281,26 @@
 <div id="operation-result" style="display:none;"></div>
 <script src="/static/lib/layui-v2.8.17/layui.js" charset="utf-8"></script>
 <script>
+    function printQR() {
+
+        /**
+         * 打印二维码
+         * @param align：对齐方式 0左对齐 1居中对齐 2右对齐
+         * @param width：二维码的宽度 58纸张最大宽度为380
+         * @param height：二维码的高度
+         * @param blackLabel:是否进行黑标检测
+         * @param msg: 	二维码对象
+         *
+         */
+
+        var align=1;
+        var width=200;
+        var height=200;
+        var msg = document.getElementById("textId").value;
+
+        window.qsprint.printQrCode(align,width,height,laber,msg);
+
+    }
     var currentOperation = null;
     var currentOperationType = ''; // 全局变量，存储当前操作类型
     var html5QrcodeScanner;
