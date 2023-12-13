@@ -44,7 +44,7 @@
             top: 0; /* 对齐到顶部 */
         }
         .info-row p {
-            font-size: 38px; /* Set to your desired font size */
+            font-size: 68px; /* Set to your desired font size */
             font-weight: bold; /* Optional: makes the text bold */
             line-height: normal; /* Adjust line height for better readability */
         }
@@ -56,7 +56,7 @@
             width: 500px; /* 限制宽度，以适应布局 */
             left: 0; /* 对齐页面左侧 */
             /*padding-left: 200px;*/
-            top: 0; /* 根据需要进行调整 */
+            top: 130px; /* 根据需要进行调整 */
             writing-mode: vertical-rl; /* 设置文本为竖直从右到左排列 */
             transform: rotate(180deg); /* 如有必要，将文本旋转180度以获得所需的方向 */
         }
@@ -452,7 +452,10 @@
                 // 显示信息
                 var infoHtml = `
                     <div class="info-row">
-                        <p><span>${data.boxText}${data.boxNumber}</span></p>
+                        <p><span>${data.boxText}</span></p>
+                    </div>
+                    <div class="info-row">
+                        <p><span>${data.boxNumber}</span></p>
                     </div>
                 `;
                 var infoContainer = document.querySelector("#printSection .info-container");
