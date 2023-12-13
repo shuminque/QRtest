@@ -251,11 +251,11 @@
 </div>
 <!-- 模态框的内容，放在页面的某个位置 -->
 <div id="scanModalContent" style="display: none;">
-    <input type="text" id="modalScanInput" placeholder="扫描数据" class="layui-input">
     <div style="text-align: center; margin-top: 20px;">
         <button class="layui-btn layui-btn-normal" onclick="processScannedData()">确认</button>
         <button class="layui-btn layui-btn-primary" onclick="closeModal()">取消</button>
     </div>
+    <input type="text" id="modalScanInput" placeholder="扫描数据" class="layui-input">
 </div>
 
 <div id="scanner-container" style="display:none;">
@@ -490,7 +490,15 @@
     function showModal(operation) {
         currentOperation = operation;
         openModal();
-        document.getElementById('modalScanInput').focus(); // 自动聚焦到输入框
+        var modalScanInput = document.getElementById('modalScanInput');
+        modalScanInput.focus(); // 自动聚焦到输入框
+        // 添加监听器，当输入框接收到回车键时触发
+        modalScanInput.addEventListener('keydown', function(event) {
+            if (event.key === 'Enter') {
+                // 模拟点击确认按钮
+                processScannedData();
+            }
+        });
     }
     function openModal() {
         layer.open({
