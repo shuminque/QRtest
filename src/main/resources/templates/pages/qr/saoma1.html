@@ -30,7 +30,7 @@
             margin: 0 0 0 0;
             left: 0;
             top: 0;
-            width: 100%;
+            width: 50%;
             max-height: 1100px; /* 根据需要调整 */
         }
 
@@ -53,11 +53,12 @@
             position: absolute; /* 绝对定位 */
             word-wrap: break-word; /* 允许在必要时文字换行 */
             text-align: left;
-            width: 300px; /* 限制宽度，以适应布局 */
+            width: 500px; /* 限制宽度，以适应布局 */
             left: 0; /* 对齐页面左侧 */
+            /*padding-left: 100px;*/
             top: 0; /* 根据需要进行调整 */
             writing-mode: vertical-rl; /* 设置文本为竖直从右到左排列 */
-            /*transform: rotate(180deg); !* 如有必要，将文本旋转180度以获得所需的方向 *!*/
+            transform: rotate(180deg); /* 如有必要，将文本旋转180度以获得所需的方向 */
         }
 
     }
@@ -139,12 +140,7 @@
     input::-webkit-inner-spin-button {
         -webkit-appearance: none;
     }
-     .info-container {
-         display: flex;
-         flex-direction: column;
-         flex-wrap: wrap;
-         max-width: 500px;
-     }
+
     .info-row {
         display: flex;
         justify-content: space-between; /* This will space out the <p> tags evenly */
@@ -282,6 +278,7 @@
 <div id="operation-result" style="display:none;"></div>
 <script src="/static/lib/layui-v2.8.17/layui.js" charset="utf-8"></script>
 <script>
+    var laber = false;
     function printQR() {
 
         /**
