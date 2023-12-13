@@ -487,18 +487,25 @@
             showResult('扫描失败: ' + e.message);
         }
     }
+    var isListenerAdded = false;
     function showModal(operation) {
         currentOperation = operation;
         openModal();
         var modalScanInput = document.getElementById('modalScanInput');
         modalScanInput.focus(); // 自动聚焦到输入框
-        // 添加监听器，当输入框接收到回车键时触发
-        modalScanInput.addEventListener('keydown', function(event) {
-            if (event.key === 'Enter') {
-                // 模拟点击确认按钮
-                processScannedData();
-            }
-        });
+
+        // 只有在监听器尚未添加的情况下才添加新的监听器
+        if (!isListenerAdded) {
+            modalScanInput.addEventListener('keydown', handleEnterKey);
+            isListenerAdded = true;
+        }
+    }
+    function handleEnterKey(event) {
+        console.log("Enter key pressed");
+        if (event.key === 'Enter') {
+            // 模拟点击确认按钮
+            processScannedData();
+        }
     }
     function openModal() {
         layer.open({
@@ -546,21 +553,31 @@
                     stockOut(data.boxText, data.boxNumber, data.quantity, currentOperation);
                     break;
             }
-            layer.closeAll(); // 关闭弹出层
+            // 处理完数据后，清空输入框并重新聚焦，准备下一次扫描
+            document.getElementById('modalScanInput').value = '';
+            document.getElementById('modalScanInput').focus();
+            console.log("Input refocused");
+            // 不关闭模态框，注释掉或移除下面这行代码
+            // layer.closeAll();
         } catch (error) {
             console.error('解析扫描数据时出错: ', error);
-            layer.closeAll(); // 关闭弹出层
+            // 如果发生错误，可以选择是否关闭模态框或者只是显示错误信息
+            // layer.closeAll();
+            // 显示错误信息的逻辑
         }
-    }
-    function closeScanModal() {
-        document.getElementById('scanModal').style.display = 'none';
-        document.getElementById('modalScanInput').value = ''; // 清空输入框
     }
     function closeModal() {
         // 清空输入框
         document.getElementById('modalScanInput').value = '';
+        // 移除事件监听器
+        var modalScanInput = document.getElementById('modalScanInput');
+        if (isListenerAdded) {
+            modalScanInput.removeEventListener('keydown', handleEnterKey);
+            isListenerAdded = false;
+        }
+        resetScanner(false); // 无论成功或失败，重置扫描器
         // 关闭当前打开的层（假设它是最新打开的）
-        layer.close(layer.index);
+         layer.closeAll();
     }
 
     // 入库操作
@@ -597,7 +614,7 @@
                 layer.msg(`${operationTypeChinese}失败: ` + error.message, {icon: 2});
             })
             .finally(() => {
-                resetScanner(); // 无论成功或失败，重置扫描器
+                resetScanner(false); // 无论成功或失败，重置扫描器
             });
     }
 
@@ -653,15 +670,8 @@
                 showResult(`${operationTypeChinese}失败: ` + error.message);
             })
             .finally(() => {
-                resetScanner(); // 无论成功或失败，重置扫描器
+                resetScanner(false); // 无论成功或失败，重置扫描器
             });
-    }
-
-    // 显示扫描结果
-    function displayScanResult(result) {
-        var resultContainer = document.getElementById('operation-result');
-        resultContainer.innerHTML = `扫描结果: ${JSON.stringify(result)}`;
-        resultContainer.style.display = "block";
     }
     // 显示操作结果（入库或出库）
     function showResult(message) {
@@ -670,13 +680,16 @@
         resultContainer.style.display = "block";
     }
 
-    function resetScanner() {
+    function resetScanner(shouldResetOperation = true) {
         document.getElementById("scanner-container").style.display = "none";
-        currentOperation = null;
+        if (shouldResetOperation) {
+            currentOperation = null;
+        }
         var resultContainer = document.getElementById('operation-result');
         resultContainer.style.display = "none";
         html5QrcodeScanner.clear(); // 清除扫描器的结果和状态
     }
+
     function printQRCode() {
         window.print();
     }
