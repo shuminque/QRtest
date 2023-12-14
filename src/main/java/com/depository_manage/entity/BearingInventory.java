@@ -8,5 +8,7 @@ public class BearingInventory {
     private String boxNumber;
     private int quantityInStock;
     private String operationType;
-    // 构造方法、getter 和 setter
+    private int depositoryId; // 将 depositoryId 改为 String 类型
+
+    // Lombok @Data 注解将自动生成构造方法、getter 和 setter
 }

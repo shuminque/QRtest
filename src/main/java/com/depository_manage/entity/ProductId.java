@@ -8,6 +8,7 @@ public class ProductId {
     private String boxNumber;
     private Integer quantity; // 具体装箱数
     private Integer depositoryId; // 厂区ID
+    private Integer isStocked; // 表示是否已入库（0未入库，1已入库）
 
     // Lombok @Data 注解会自动生成构造函数、getter、setter、toString等
 }

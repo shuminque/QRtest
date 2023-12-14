@@ -15,5 +15,13 @@ public interface ProductIdMapper {
     List<ProductId> selectAllBoxNumbers();
     void insertOrUpdateBoxNumber(ProductId productId);
     ProductId selectProductIdByBoxTextAndDepositoryId(@Param("boxText") String boxText, @Param("boxNumber") String boxNumber, @Param("depositoryId") int depositoryId);
+    void updateStockedStatus(@Param("boxText") String boxText,
+                             @Param("boxNumber") String boxNumber,
+                             @Param("depositoryId") int depositoryId,
+                             @Param("isStocked") int isStocked);
 
+    // 检查产品是否已入库的方法
+    Integer checkIfStocked(@Param("boxText") String boxText,
+                           @Param("boxNumber") String boxNumber,
+                           @Param("depositoryId") int depositoryId);
 }

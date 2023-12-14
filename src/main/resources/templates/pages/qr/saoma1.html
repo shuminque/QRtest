@@ -535,22 +535,22 @@
             console.log("数量: ", data.quantity);
             switch (currentOperation) {
                 case 'stockIn':
-                    stockIn(data.boxText, data.boxNumber, data.quantity, currentOperation);
+                    stockIn(data.boxText, data.boxNumber, data.quantity, currentOperation, depositoryId);
                     break;
                 case 'stockOut':
-                    stockOut(data.boxText, data.boxNumber, data.quantity, currentOperation);
+                    stockOut(data.boxText, data.boxNumber, data.quantity, currentOperation, depositoryId);
                     break;
                 case 'transferIn':
-                    stockIn(data.boxText, data.boxNumber, data.quantity, currentOperation);
+                    stockIn(data.boxText, data.boxNumber, data.quantity, currentOperation, depositoryId);
                     break;
                 case 'transferOut':
-                    stockOut(data.boxText, data.boxNumber, data.quantity, currentOperation);
+                    stockOut(data.boxText, data.boxNumber, data.quantity, currentOperation, depositoryId);
                     break;
                 case 'return':
-                    stockOut(data.boxText, data.boxNumber, data.quantity, currentOperation);
+                    stockOut(data.boxText, data.boxNumber, data.quantity, currentOperation, depositoryId);
                     break;
                 case 'panKu':
-                    stockOut(data.boxText, data.boxNumber, data.quantity, currentOperation);
+                    stockOut(data.boxText, data.boxNumber, data.quantity, currentOperation, depositoryId);
                     break;
             }
             // 处理完数据后，清空输入框并重新聚焦，准备下一次扫描
@@ -575,16 +575,21 @@
             modalScanInput.removeEventListener('keydown', handleEnterKey);
             isListenerAdded = false;
         }
-        resetScanner(false); // 无论成功或失败，重置扫描器
+        resetScanner(true); // 无论成功或失败，重置扫描器
         // 关闭当前打开的层（假设它是最新打开的）
          layer.closeAll();
     }
 
     // 入库操作
-    function stockIn(boxText, boxNumber, quantity, operationType) {
+    function stockIn(boxText, boxNumber, quantity, operationType, depositoryId) {
         const operationTypeChinese = getOperationTypeInChinese(operationType);
-        var inventoryDto = { boxText: boxText, boxNumber: boxNumber, quantityInStock: quantity };
-
+        var inventoryDto = {
+            boxText: boxText,
+            boxNumber: boxNumber,
+            quantityInStock: quantity,
+            operationType: operationTypeChinese,
+            depositoryId: depositoryId // 添加 depositoryId 字段
+        }
         fetch('/bearingInventory/stockIn', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -594,7 +599,7 @@
                 if (!response.ok) {
                     // 处理错误情况
                     return response.json().then(err => {
-                        // 假设错误信息在 err.message 中
+                        // 假设错误信息在 err.message
                         console.log(err);
                         layer.msg(`重复的${operationTypeChinese}: ` + err.message, {icon: 2});
                         throw new Error(err.message); // 使用实际的错误消息
@@ -617,8 +622,6 @@
                 resetScanner(false); // 无论成功或失败，重置扫描器
             });
     }
-
-
     function addBearingRecord(transactionType, boxText, boxNumber, quantity) {
         var recordDto = {
             transactionType: transactionType,
@@ -641,10 +644,16 @@
             });
     }
     // 出库操作
-    function stockOut(boxText, boxNumber, quantity, operationType) {
+    function stockOut(boxText, boxNumber, quantity, operationType, depositoryId) {
         console.log("执行操作: ", operationType, boxText, boxNumber, quantity);
         const operationTypeChinese = getOperationTypeInChinese(operationType);
-        var inventoryDto = { boxText: boxText, boxNumber: boxNumber, quantityInStock: quantity };
+        var inventoryDto = {
+            boxText: boxText,
+            boxNumber: boxNumber,
+            quantityInStock: quantity,
+            operationType: operationTypeChinese,
+            depositoryId: depositoryId // 添加 depositoryId 字段
+        };
         fetch('/bearingInventory/stockOut', {
             method: 'POST',
             headers: {
@@ -653,11 +662,16 @@
             body: JSON.stringify(inventoryDto),
         })
             .then(response => {
-                console.log("响应状态: ", response.status); // 打印响应状态
-                console.log("响应头: ", response.headers.get("content-type")); // 打印响应头的内容类型
                 if (!response.ok) {
-                    throw new Error('网络响应错误');
+                    // 处理错误情况
+                    return response.json().then(err => {
+                        // 假设错误信息在 err.message
+                        console.log(err);
+                        layer.msg(`重复的${operationTypeChinese}: ` + err.message, {icon: 2});
+                        throw new Error(err.message); // 使用实际的错误消息
+                    });
                 }
+                // 请求成功，处理成功的响应
                 return response.json();
             })
             .then(data => {
@@ -666,13 +680,14 @@
                 return addBearingRecord(operationTypeChinese, boxText, boxNumber, quantity);
             })
             .catch(error => {
-                console.error(`${operationTypeChinese}失败:`, error);
-                showResult(`${operationTypeChinese}失败: ` + error.message);
+                layer.msg(`${operationTypeChinese}失败: ` + error.message, {icon: 2});
             })
             .finally(() => {
                 resetScanner(false); // 无论成功或失败，重置扫描器
             });
+
     }
+
     // 显示操作结果（入库或出库）
     function showResult(message) {
         var resultContainer = document.getElementById('operation-result');
@@ -714,7 +729,6 @@
             'return': '返库',
             'panKu': '盘库'
         };
-
         return operationTypeMap[operationType] || operationType;
     }
 </script>

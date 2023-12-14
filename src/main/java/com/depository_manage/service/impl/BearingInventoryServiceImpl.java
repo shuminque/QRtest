@@ -4,6 +4,7 @@ import com.depository_manage.entity.BearingInventory;
 import com.depository_manage.exception.OperationAlreadyDoneException;
 import com.depository_manage.mapper.BearingInventoryMapper;
 import com.depository_manage.service.BearingInventoryService;
+import com.depository_manage.service.ProductIdService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -12,6 +13,9 @@ public class BearingInventoryServiceImpl implements BearingInventoryService {
 
     @Autowired
     private BearingInventoryMapper bearingInventoryMapper;
+
+    @Autowired
+    private ProductIdService productIdService; // 注入ProductIdService
 
     @Override
     public void addBearingInventory(BearingInventory bearingInventory) {
@@ -22,44 +26,55 @@ public class BearingInventoryServiceImpl implements BearingInventoryService {
     public BearingInventory getBearingInventory(String boxText) {
         return bearingInventoryMapper.selectBearingInventory(boxText);
     }
+
     @Override
     public void stockIn(BearingInventory inventory) {
-        if (isOperationAlreadyDone(inventory.getBoxText(), inventory.getBoxNumber(),"入库")) {
-            throw new OperationAlreadyDoneException("重复的操作");
-        }
         System.out.println(inventory);
+        // 检查是否已经入库
+        boolean isStocked = productIdService.isProductStocked(
+                inventory.getBoxText(), inventory.getBoxNumber(), inventory.getDepositoryId()
+        );
+        if (isStocked) {
+            throw new OperationAlreadyDoneException("产品已入库，不能再次入库");
+        }
+        // 执行入库操作...
         BearingInventory existingInventory = bearingInventoryMapper.selectBearingInventory(inventory.getBoxText());
         if (existingInventory != null) {
-            // 更新库存数量
             int newQuantity = existingInventory.getQuantityInStock() + inventory.getQuantityInStock();
             existingInventory.setQuantityInStock(newQuantity);
             bearingInventoryMapper.updateBearingInventory(existingInventory);
         } else {
-            // 插入新的库存记录
             bearingInventoryMapper.insertBearingInventory(inventory);
         }
+
+        // 更新状态为已入库
+        productIdService.updateStockedStatus(
+                inventory.getBoxText(), inventory.getBoxNumber(), inventory.getDepositoryId(), 1);
     }
 
     @Override
     public void stockOut(BearingInventory inventory) {
-        if (isOperationAlreadyDone(inventory.getBoxText(), inventory.getBoxNumber(),"出库")) {
-            throw new OperationAlreadyDoneException("重复的操作");
+        System.out.println(inventory);
+        // 检查是否可以出库
+        boolean isStocked = productIdService.isProductStocked(
+                inventory.getBoxText(), inventory.getBoxNumber(), inventory.getDepositoryId());
+
+        if (!isStocked) {
+            throw new OperationAlreadyDoneException("产品未入库，不能出库");
         }
+
+        // 执行出库操作...
         BearingInventory existingInventory = bearingInventoryMapper.selectBearingInventory(inventory.getBoxText());
         if (existingInventory != null && existingInventory.getQuantityInStock() >= inventory.getQuantityInStock()) {
-            // 更新库存数量
             int newQuantity = existingInventory.getQuantityInStock() - inventory.getQuantityInStock();
             existingInventory.setQuantityInStock(newQuantity);
             bearingInventoryMapper.updateBearingInventory(existingInventory);
         } else {
-            // 库存不足或记录不存在的处理逻辑
             throw new IllegalStateException("库存不足或记录不存在，无法执行出库。");
         }
-    }
-    @Override
-    public boolean isOperationAlreadyDone(String boxText, String boxNumber,String operationType) {
-        int count = bearingInventoryMapper.countOperationRecords(boxText, boxNumber, operationType);
-        return count > 0;
-    }
 
+        // 更新状态为未入库
+        productIdService.updateStockedStatus(
+                inventory.getBoxText(), inventory.getBoxNumber(), inventory.getDepositoryId(), 0);
+    }
 }

@@ -83,4 +83,14 @@ public class ProductIdServiceImpl implements ProductIdService {
     public ProductId getProductIdByBoxTextAndDepositoryId(String boxText, String boxNumber, int depositoryId) {
         return productIdMapper.selectProductIdByBoxTextAndDepositoryId(boxText, boxNumber, depositoryId);
     }
+
+    @Override
+    public void updateStockedStatus(String boxText, String boxNumber, int depositoryId, int isStocked) {
+        productIdMapper.updateStockedStatus(boxText, boxNumber, depositoryId, isStocked);
+    }
+    public boolean isProductStocked(String boxText, String boxNumber, int depositoryId) {
+        Integer stockedStatus = productIdMapper.checkIfStocked(boxText, boxNumber, depositoryId);
+        // 考虑到null的情况，null也视为未入库
+        return stockedStatus != null && stockedStatus == 1;
+    }
 }
