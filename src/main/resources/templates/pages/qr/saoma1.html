@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>扫描二维码</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-<!--    <link rel="stylesheet" href="/static/lib/layui-v2.8.17/css/layui.css" media="all">-->
+    <link rel="stylesheet" href="/static/lib/layui-v2.8.17/css/layui.css" media="all">
     <script type="text/javascript" src="/static/js/http_unpkg.com_html5-qrcode.js" charset="utf-8"></script>
     <script type="text/javascript" src="/static/js/jquery-2.1.0.js" charset="utf-8"></script>
     <script type="text/javascript" src="/static/js/jquery.qrcode.js" charset="utf-8"></script>
@@ -117,21 +117,17 @@
         width: 15%;
         border: 1px solid #ddd;
     }
-
     button.layui-btn {
-        background-color: #007bff;
         color: white;
         border: none;
-        padding: 10px 20px;
         border-radius: 5px;
-        font-size: 20px;
+        font-size: 22px;
+        min-height: 50px;
         min-width: 40%;
         cursor: pointer;
     }
 
-    button.layui-btn:hover {
-        background-color: #0056b3;
-    }
+
 
     #operation-result {
         margin-top: 20px;
@@ -154,12 +150,12 @@
         background-color: #938f8f;
         color: white;
         border: none;
-        padding: 15px 30px; /* Increase padding to make buttons larger */
+        padding: 15px 30px;
         border-radius: 5px;
         cursor: pointer;
-        font-size: 22px; /* Increase font size for better readability */
-        margin: 10px; /* Add margin to separate buttons if they are in a row */
-        min-width: 100px; /* Minimum width to ensure buttons are not too small */
+        font-size: 22px;
+        margin: 10px;
+        min-width: 100px;
         min-height: 70px;
     }
 
@@ -167,14 +163,15 @@
         background-color: #0056b3;
     }
     .layui-input {
-        padding: 12px 20px; /* Increase padding to make the input taller and text larger */
-        font-size: 38px; /* Increase font size for better readability */
-        border-radius: 4px; /* Optional: adjust the border-radius */
-        border: 4px solid #ccc; /* Optional: adjust the border style */
-        width: 100%; /* Set width to 100% to fill the container */
+        padding: 12px 20px;
+        font-size: 38px;
+        border-radius: 4px;
+        border: 4px solid #ccc;
+        width: 100%;
+        min-height: 60px;
         text-align: center;
-        box-sizing: border-box; /* Make sure padding and border are included in the width */
-        margin-bottom: 30px; /* Maintain the bottom margin */
+        box-sizing: border-box;
+        margin-bottom: 30px;
     }
 
     .button-container {
@@ -253,7 +250,7 @@
 <div id="scanModalContent" style="display: none;">
     <div style="text-align: center; margin-top: 20px;">
         <button class="layui-btn layui-btn-normal" onclick="processScannedData()">确认</button>
-        <button class="layui-btn layui-btn-primary" onclick="closeModal()">取消</button>
+        <button class="layui-btn layui-btn-normal" onclick="closeModal()">取消</button>
     </div>
     <input type="text" id="modalScanInput" placeholder="扫描数据" class="layui-input">
 </div>
@@ -589,7 +586,8 @@
             quantityInStock: quantity,
             operationType: operationTypeChinese,
             depositoryId: depositoryId // 添加 depositoryId 字段
-        }
+        };
+
         fetch('/bearingInventory/stockIn', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -599,29 +597,34 @@
                 if (!response.ok) {
                     // 处理错误情况
                     return response.json().then(err => {
-                        // 假设错误信息在 err.message
                         console.log(err);
-                        layer.msg(`重复的${operationTypeChinese}: ` + err.message, {icon: 2});
-                        throw new Error(err.message); // 使用实际的错误消息
+                        // 根据错误信息显示不同的弹出消息
+                        if (err.message === "产品已入库，不能再次入库") {
+                            layer.alert("该箱号产品重复入库，操作无效", {icon: 2});
+                        } else {
+                            layer.alert(`错误: ` + err.message, {icon: 2});
+                        }
+                        throw new Error(err.message);
                     });
                 }
-                // 请求成功，处理成功的响应
                 return response.json();
             })
             .then(data => {
                 // 显示操作成功的结果
+                // layer.alert(`${operationTypeChinese}成功: `, {icon: 6});
+                layer.msg("入库成功",{icon: 6, time:1000});
                 showResult(`${operationTypeChinese}成功: ` + JSON.stringify(data));
-                // 调用 addBearingRecord
                 return addBearingRecord(operationTypeChinese, boxText, boxNumber, quantity);
             })
             .catch(error => {
-                // 处理前面抛出的所有错误
-                layer.msg(`${operationTypeChinese}失败: ` + error.message, {icon: 2});
+                // 在此也可以处理其他类型的错误
+                console.error(`${operationTypeChinese}失败:`, error);
             })
             .finally(() => {
-                resetScanner(false); // 无论成功或失败，重置扫描器
+                resetScanner(false);
             });
     }
+
     function addBearingRecord(transactionType, boxText, boxNumber, quantity) {
         var recordDto = {
             transactionType: transactionType,
@@ -665,27 +668,30 @@
                 if (!response.ok) {
                     // 处理错误情况
                     return response.json().then(err => {
-                        // 假设错误信息在 err.message
                         console.log(err);
-                        layer.msg(`重复的${operationTypeChinese}: ` + err.message, {icon: 2});
-                        throw new Error(err.message); // 使用实际的错误消息
+                        // 定制错误消息
+                        if (err.message === "产品未入库，不能出库") {
+                            layer.alert("仓库里无该箱号产品，操作无效", {icon: 2});
+                        } else {
+                            layer.alert(`错误: ` + err.message, {icon: 2});
+                        }
+                        throw new Error(err.message);
                     });
                 }
-                // 请求成功，处理成功的响应
                 return response.json();
             })
             .then(data => {
                 // 显示操作结果
+                layer.msg("出库成功",{icon: 6, time:1000});
                 showResult(`${operationTypeChinese}成功: ` + JSON.stringify(data));
                 return addBearingRecord(operationTypeChinese, boxText, boxNumber, quantity);
             })
             .catch(error => {
-                layer.msg(`${operationTypeChinese}失败: ` + error.message, {icon: 2});
+                console.error(`${operationTypeChinese}失败:`, error);
             })
             .finally(() => {
-                resetScanner(false); // 无论成功或失败，重置扫描器
+                resetScanner(false);
             });
-
     }
 
     // 显示操作结果（入库或出库）
