@@ -36,8 +36,8 @@
 
         /* 设置二维码的大小和位置 */
         #qrcode {
-            width: 130px;
-            height: 130px; /* 保持与宽度一致 */
+            width: 200px;
+            height: 200px; /* 保持与宽度一致 */
             margin: 0 0 0 0; /* 移除外边距 */
             position: absolute; /* 绝对定位 */
             left: 80px; /* 对齐到左边 */
@@ -418,8 +418,8 @@
                 $('<div></div>').qrcode({
                     text: qrData,
                     render: 'canvas',
-                    width: 130,
-                    height: 130,
+                    width: 200,
+                    height: 200,
                     correctLevel: 3,
                 }).appendTo(qrCodeElement);
 
