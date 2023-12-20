@@ -1,6 +1,7 @@
 package com.depository_manage.controller;
 
 import com.depository_manage.entity.BearingInventory;
+import com.depository_manage.entity.InventoryInfo;
 import com.depository_manage.exception.OperationAlreadyDoneException;
 import com.depository_manage.service.BearingInventoryService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,9 +45,6 @@ public class BearingInventoryController {
                     .body(Collections.singletonMap("message", e.getMessage()));
         }
     }
-
-
-
     @PostMapping("/stockOut")
     public ResponseEntity<?> stockOut(@RequestBody BearingInventory inventory) {
         try {
@@ -57,6 +55,24 @@ public class BearingInventoryController {
             return ResponseEntity
                     .status(HttpStatus.CONFLICT)
                     .body(Collections.singletonMap("message", e.getMessage()));
+        }
+    }
+    @GetMapping("/panKu/{boxText}/{boxNumber}/{depositoryId}")
+    public ResponseEntity<?> panKu(@PathVariable String boxText,
+                                   @PathVariable String boxNumber,
+                                   @PathVariable int depositoryId) {
+        try {
+            // 这里调用service层方法获取盘库相关的数据
+            InventoryInfo inventoryInfo = bearingInventoryService.getInventoryInfo(boxText, boxNumber, depositoryId);
+            System.out.println(inventoryInfo);
+            if (inventoryInfo != null) {
+                return ResponseEntity.ok(inventoryInfo);
+            } else {
+                return ResponseEntity.notFound().build();
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Collections.singletonMap("error", e.getMessage()));
         }
     }
 

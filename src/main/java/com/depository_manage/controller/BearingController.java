@@ -23,21 +23,15 @@ public class BearingController {
     @Autowired
     private ProductIdService productIdService;
 
-    @GetMapping("/{boxText}")
-    public ResponseEntity<Bearing> getBearingByBoxText(@PathVariable String boxText) {
-        Bearing bearing = bearingService.getBearingByBoxText(boxText);
-        if (bearing != null) {
-            return ResponseEntity.ok(bearing);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
-    }
     @PostMapping("/{boxText}/{depositoryId}")
-    public ResponseEntity<?> createAndReturnNewProductId(@PathVariable String boxText, @PathVariable int depositoryId, @RequestBody Map<String, Object> requestData) {
+    public ResponseEntity<?> createAndReturnNewProductId(@PathVariable String boxText,
+                                                         @PathVariable int depositoryId,
+                                                         @RequestBody Map<String, Object> requestData) {
         // 提取 quantity 和其他需要的信息
         int quantity = Integer.parseInt((String) requestData.get("quantity"));
+        String depositoryText = convertDepositoryIdToText(depositoryId);
         // 1. 获取与boxNumber相关的Bearing数据
-        Bearing bearing = bearingService.getBearingByBoxText(boxText);
+        Bearing bearing = bearingService.getBearingByBoxTextAndDepository(boxText,depositoryText);
         if (bearing == null) {
             return ResponseEntity.notFound().build();
         }
@@ -60,9 +54,10 @@ public class BearingController {
         if (productId == null) {
             return ResponseEntity.notFound().build();
         }
+        String depositoryText = convertDepositoryIdToText(depositoryId);
 
         // 查询 bearings 表获取其他信息
-        Bearing bearing = bearingService.getBearingByBoxText(boxText);
+        Bearing bearing = bearingService.getBearingByBoxTextAndDepository(boxText,depositoryText);
         if (bearing == null) {
             return ResponseEntity.notFound().build();
         }
@@ -87,13 +82,14 @@ public class BearingController {
     @GetMapping("/preGenerate/{boxText}/{depositoryId}")
     public ResponseEntity<?> preGenerateNewProductId(@PathVariable String boxText, @PathVariable int depositoryId) {
         // 获取与boxNumber相关的Bearing数据，但不从数据库中保存或更新
-        Bearing bearing = bearingService.getBearingByBoxText(boxText);
+        String depositoryText = convertDepositoryIdToText(depositoryId);
+        Bearing bearing = bearingService.getBearingByBoxTextAndDepository(boxText,depositoryText);
         if (bearing == null) {
             return ResponseEntity.notFound().build();
         }
         // 逻辑来模拟新的product_id的生成，但实际上并不保存它
         String mockNewProductId = productIdService.calculateNextBoxNumber(boxText, depositoryId);
-        Integer mockQuantity = bearingService.calculateQuantity(boxText);
+        Integer mockQuantity = bearingService.calculateQuantity(boxText,depositoryText);
 
         // 构建响应
         Map<String, Object> response = new HashMap<>();
@@ -145,4 +141,13 @@ public class BearingController {
             return ResponseEntity.notFound().build();
         }
     }
+    public String convertDepositoryIdToText(int depositoryId) {
+        switch (depositoryId) {
+            case 1: return "SAB";
+            case 2: return "ZAB";
+            case 0: return "ALL";
+            default: return "Unknown";
+        }
+    }
+
 }

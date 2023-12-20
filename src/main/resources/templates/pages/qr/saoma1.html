@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>扫描二维码</title>
@@ -548,7 +548,7 @@
                     stockOut(data.boxText, data.boxNumber, data.quantity, currentOperation, depositoryId);
                     break;
                 case 'panKu':
-                    stockOut(data.boxText, data.boxNumber, data.quantity, currentOperation, depositoryId);
+                    fetchPanKuInfo(data.boxText, data.boxNumber, data.depository, data.quantity,); // 使用二维码内的depositoryId
                     break;
             }
             // 处理完数据后，清空输入框并重新聚焦，准备下一次扫描
@@ -577,7 +577,43 @@
         // 关闭当前打开的层（假设它是最新打开的）
          layer.closeAll();
     }
-
+    function convertDepositoryIdToText(depositoryId) {
+        switch (depositoryId) {
+            case 1: return "SAB";
+            case 2: return "ZAB";
+            default: return "Unknown";
+        }
+    }
+    function convertDepositoryIdToMath(depositoryId) {
+        switch (depositoryId) {
+            case "SAB": return 1;
+            case "ZAB": return 2;
+            default: return 0;
+        }
+    }
+    function addBearingRecord(transactionType, boxText, boxNumber, quantity, depositoryId) {
+        var depositoryText = convertDepositoryIdToText(depositoryId);
+        var recordDto = {
+            transactionType: transactionType,
+            boxText: boxText,
+            boxNumber: boxNumber,
+            quantity: quantity,
+            depository: depositoryText, // 使用 "depository" 作为字段名
+            // ... 其他必要字段 ...
+        };
+        return fetch('/bearingRecords', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(recordDto)
+        })
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
+                } else {
+                    throw new Error('记录库操作失败');
+                }
+            });
+    }
     // 入库操作
     function stockIn(boxText, boxNumber, quantity, operationType, depositoryId) {
         const operationTypeChinese = getOperationTypeInChinese(operationType);
@@ -615,7 +651,7 @@
                 // layer.alert(`${operationTypeChinese}成功: `, {icon: 6});
                 layer.msg("入库成功",{icon: 6, time:1000});
                 showResult(`${operationTypeChinese}成功: ` + JSON.stringify(data));
-                return addBearingRecord(operationTypeChinese, boxText, boxNumber, quantity);
+                return addBearingRecord(operationTypeChinese, boxText, boxNumber, quantity, depositoryId);
             })
             .catch(error => {
                 // 在此也可以处理其他类型的错误
@@ -626,27 +662,6 @@
             });
     }
 
-    function addBearingRecord(transactionType, boxText, boxNumber, quantity) {
-        var recordDto = {
-            transactionType: transactionType,
-            boxText: boxText,
-            boxNumber: boxNumber,
-            quantity: quantity,
-            // ... 其他必要字段 ...
-        };
-        return fetch('/bearingRecords', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(recordDto)
-        })
-            .then(response => {
-                if (response.ok) {
-                    return response.json();
-                } else {
-                    throw new Error('记录库操作失败');
-                }
-            });
-    }
     // 出库操作
     function stockOut(boxText, boxNumber, quantity, operationType, depositoryId) {
         console.log("执行操作: ", operationType, boxText, boxNumber, quantity);
@@ -685,13 +700,61 @@
                 // 显示操作结果
                 layer.msg("出库成功",{icon: 6, time:1000});
                 showResult(`${operationTypeChinese}成功: ` + JSON.stringify(data));
-                return addBearingRecord(operationTypeChinese, boxText, boxNumber, quantity);
+                return addBearingRecord(operationTypeChinese, boxText, boxNumber, quantity,depositoryId);
             })
             .catch(error => {
                 console.error(`${operationTypeChinese}失败:`, error);
             })
             .finally(() => {
                 resetScanner(false);
+            });
+    }
+    function openPanKu(data) {
+        layer.open({
+            type: 1, // 弹出层类型，1 表示页面层
+            title: `${data.outerInnerRing} ${data.model} 在库信息`, // 标题
+            content: generatePanKuContent(data), // 弹出层内容
+            shadeClose: true, // 设置点击遮罩层关闭弹出层
+            area: ['40%', '20%'], // 设置弹出层大小
+            // 弹出层关闭时的回调
+            cancel: function() {
+                document.getElementById('modalScanInput').value = ''; // 清空输入框
+            },
+            // 弹出层销毁时的回调
+            end: function() {
+                document.getElementById('modalScanInput').value = ''; // 清空输入框
+            }
+        });
+    }
+    function generatePanKuContent(data) {
+        // 判断箱数是否为 0
+        var isStockedContent = data.isStocked > 0 ? `有: ${data.isStocked} 箱，数量: ${data.quantity} 个` : `有: 0 箱，数量: 0 个`;
+        var totalBoxesContent = data.totalBoxes > 0 ? `仓库内合计: ${data.totalBoxes} 箱，数量: ${data.quantityInStock} 个` : '无库存';
+        // 生成弹出层内容的 HTML
+        var contentHTML = `
+        <p>箱号: ${data.boxText} ${data.boxNumber}</p>
+        <p>${isStockedContent}</p>
+        <p>${totalBoxesContent}</p>
+    `;
+        return contentHTML;
+    }
+
+    function fetchPanKuInfo(boxText, boxNumber, depositoryId) {
+        var mathDepositoryId = convertDepositoryIdToMath(depositoryId);
+        fetch(`/bearingInventory/panKu/${boxText}/${boxNumber}/${mathDepositoryId}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                // 在这里处理和显示从盘库API获取到的数据
+                console.log(data);
+                openPanKu(data);
+            })
+            .catch(error => {
+                console.error('Error:', error);
             });
     }
 
@@ -701,7 +764,6 @@
         resultContainer.innerHTML = message + ' <button onclick="resetScanner()">关闭</button>';
         resultContainer.style.display = "block";
     }
-
     function resetScanner(shouldResetOperation = true) {
         document.getElementById("scanner-container").style.display = "none";
         if (shouldResetOperation) {

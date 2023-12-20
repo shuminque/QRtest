@@ -24,7 +24,8 @@ public class BearingRecordController {
     @PostMapping
     public ResponseEntity<?> addBearingRecord(@RequestBody BearingRecord record) {
         // 获取与boxText相关的Bearing数据
-        Bearing bearing = bearingService.getBearingByBoxText(record.getBoxText());
+        System.out.println(record);
+        Bearing bearing = bearingService.getBearingByBoxTextAndDepository(record.getBoxText(), record.getDepository());
         if (bearing != null) {
             // 使用Bearing数据填充BearingRecord
             record.setCustomer(bearing.getCustomer());
@@ -49,8 +50,6 @@ public class BearingRecordController {
                     .body("No bearing found for boxText: " + record.getBoxText());
         }
     }
-
-
 
     @PutMapping("/{id}")
     public ResponseEntity<?> updateBearingRecord(@PathVariable int id, @RequestBody BearingRecord record) {

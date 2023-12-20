@@ -17,9 +17,11 @@
         <result property="storageLocation" column="storage_location"/>
     </resultMap>
 
-    <select id="selectBearingByBoxText" resultMap="bearingMap">
-        SELECT * FROM bearings WHERE box_text = #{boxText}
+    <select id="selectBearingByBoxTextAndDepository" resultMap="bearingMap">
+        SELECT * FROM bearings
+        WHERE box_text = #{boxText} AND depository = #{depository}
     </select>
+
     <select id="selectAllBearings" resultMap="bearingMap">
         SELECT * FROM bearings
     </select>
@@ -57,7 +59,7 @@
                  )
     </insert>
     <select id="calculateTotalQuantityByBoxText" resultType="java.lang.Integer">
-        SELECT SUM(quantity) FROM bearings WHERE box_text = #{boxText}
+        SELECT SUM(quantity) FROM bearings WHERE box_text = #{boxText} AND depository = #{depository}
     </select>
 
     <!-- Add additional SQL statements for update, delete, etc. as needed -->

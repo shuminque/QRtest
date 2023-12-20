@@ -153,7 +153,12 @@
                             time: 1000
                         }, function(){
                             cookieUtil.createCookie("token",data.data)
-                            window.location = '/s1';
+                            // 根据设备类型重定向到不同页面
+                            if (isMobileDevice()) { //判断函数放在js底部
+                                window.location = '/s1'; // 移动设备访问页面
+                            } else {
+                                window.location = '/s1'; // 电脑访问页面
+                            }
                         });
                     }
                 },
@@ -170,6 +175,10 @@
             return false;
         });
     });
+    function isMobileDevice() {
+        var userAgent = navigator.userAgent || navigator.vendor || window.opera;
+        return /android|ipad|iphone|ipod|iemobile|opera mini|blackberry|windows phone/i.test(userAgent);
+    }
 </script>
 </body>
 </html>
