@@ -23,6 +23,16 @@ public class BearingController {
     @Autowired
     private ProductIdService productIdService;
 
+    @GetMapping("/search")
+    public ResponseEntity<?> searchBoxText(@RequestParam String query, @RequestParam(required = false) String depository) {
+        List<String> boxTexts = bearingService.searchBoxText(query,depository);
+        if (boxTexts != null && !boxTexts.isEmpty()) {
+            return ResponseEntity.ok(boxTexts);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
     @PostMapping("/{boxText}/{depositoryId}")
     public ResponseEntity<?> createAndReturnNewProductId(@PathVariable String boxText,
                                                          @PathVariable int depositoryId,

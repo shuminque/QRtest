@@ -2,7 +2,7 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="utf-8">
-    <title>仓库管理系统</title>
+    <title>成品仓库管理系统</title>
     <meta name="keywords" content="layuimini">
     <meta name="description" content="接口">
     <meta name="renderer" content="webkit">
@@ -217,87 +217,77 @@
             });
             return result;
         }
-
-        $(document).ready(function() {
-            function loadNotifications() {
-                $.ajax({
-                    url: '/notifications/unread',
-                    type: 'GET',
-                    dataType: 'json',
-                    success: function(data) {
-                        var notifications = data.data;
-                        $("#notification-list").empty();
-                        if (notifications.length === 0) {
-                            $("#notification-list").append('<dd><a href="javascript:;">没有新的通知</a></dd>');
-                            $("#notification-count").text('');
-                        } else {
-                            notifications.forEach(function(notification) {
-                                $("#notification-list").append('<dd data-id="' + notification.id + '">' +
-                                    '<a href="javascript:;">' + notification.content + '</a></dd>');
-
-                                // $("#notification-list").append('<dd data-id="' + notification.id + '" ' +
-                                //     'data-link="' + notification.link + '"><a href="javascript:;">' +
-                                //     notification.content + '</a></dd>');
-
-                            });
-                            $("#notification-count").text(notifications.length);
-                        }
-                    },
-                    error: function() {
-                        layer.msg('获取通知失败');
-                    }
-                });
-            }
-            loadNotifications();
-            // $("#notification-list").on("click", "dd", function() {
-            //     var notificationId = $(this).data("id");
-            //     var content = $(this).text();
-            //     var applicationIdMatch = content.match(/ID: (\d+)/);
-            //     var applicationId = applicationIdMatch ? applicationIdMatch[1] : null;
-            //
-            //     $.ajax({
-            //         url: '/notifications/mark-as-read/' + notificationId,
-            //         type: 'PUT',
-            //         success: function() {
-            //             loadNotifications();
-            //             if (content.includes("[出库]")) {
-            //                 window.location.href = "index#//application_out?id=" + applicationId+ "&refill=true";
-            //             } else if (content.includes("[入库]")) {
-            //                 window.location.href = "index#//application_in?id=" + applicationId + "&notificationId=" + notificationId + "&refill=true";
-            //             }
-            //             window.location.reload();
-            //         },
-            //         error: function() {
-            //             layer.msg('标记为已读失败');
-            //         }
-            //     });
-            // });
-            $("#notification-list").on("click", "dd", function() {
-                var notificationId = $(this).data("id");
-                var content = $(this).text();
-                var applicationIdMatch = content.match(/ID: (\d+)/);
-                var applicationId = applicationIdMatch ? applicationIdMatch[1] : null;
-
-                // 保留页面跳转逻辑，但移除标记为已读的AJAX请求和页面重新加载
-                if (content.includes("[出库]")) {
-                    window.location.href = "index#//application_out?id=" + applicationId+ "&refill=true";
-                } else if (content.includes("[入库]")) {
-                    window.location.href = "index#//application_in?id=" + applicationId + "&notificationId=" + notificationId + "&refill=true";
-                }
-                window.location.reload();
-            });
-
-
-        });
-        // 百度统计代码，只统计指定域名
-        miniTongji.render({
-            specific: true,
-            domains: [
-                '99php.cn',
-                'layuimini.99php.cn',
-                'layuimini-onepage.99php.cn',
-            ],
-        });
+        // $(document).ready(function() {
+        //     function loadNotifications() {
+        //         $.ajax({
+        //             url: '/notifications/unread',
+        //             type: 'GET',
+        //             dataType: 'json',
+        //             success: function(data) {
+        //                 var notifications = data.data;
+        //                 $("#notification-list").empty();
+        //                 if (notifications.length === 0) {
+        //                     $("#notification-list").append('<dd><a href="javascript:;">没有新的通知</a></dd>');
+        //                     $("#notification-count").text('');
+        //                 } else {
+        //                     notifications.forEach(function(notification) {
+        //                         $("#notification-list").append('<dd data-id="' + notification.id + '">' +
+        //                             '<a href="javascript:;">' + notification.content + '</a></dd>');
+        //
+        //                         // $("#notification-list").append('<dd data-id="' + notification.id + '" ' +
+        //                         //     'data-link="' + notification.link + '"><a href="javascript:;">' +
+        //                         //     notification.content + '</a></dd>');
+        //
+        //                     });
+        //                     $("#notification-count").text(notifications.length);
+        //                 }
+        //             },
+        //             error: function() {
+        //                 layer.msg('获取通知失败');
+        //             }
+        //         });
+        //     }
+        //     loadNotifications();
+        //     // $("#notification-list").on("click", "dd", function() {
+        //     //     var notificationId = $(this).data("id");
+        //     //     var content = $(this).text();
+        //     //     var applicationIdMatch = content.match(/ID: (\d+)/);
+        //     //     var applicationId = applicationIdMatch ? applicationIdMatch[1] : null;
+        //     //
+        //     //     $.ajax({
+        //     //         url: '/notifications/mark-as-read/' + notificationId,
+        //     //         type: 'PUT',
+        //     //         success: function() {
+        //     //             loadNotifications();
+        //     //             if (content.includes("[出库]")) {
+        //     //                 window.location.href = "index#//application_out?id=" + applicationId+ "&refill=true";
+        //     //             } else if (content.includes("[入库]")) {
+        //     //                 window.location.href = "index#//application_in?id=" + applicationId + "&notificationId=" + notificationId + "&refill=true";
+        //     //             }
+        //     //             window.location.reload();
+        //     //         },
+        //     //         error: function() {
+        //     //             layer.msg('标记为已读失败');
+        //     //         }
+        //     //     });
+        //     // });
+        //     $("#notification-list").on("click", "dd", function() {
+        //         var notificationId = $(this).data("id");
+        //         var content = $(this).text();
+        //         var applicationIdMatch = content.match(/ID: (\d+)/);
+        //         var applicationId = applicationIdMatch ? applicationIdMatch[1] : null;
+        //
+        //         // 保留页面跳转逻辑，但移除标记为已读的AJAX请求和页面重新加载
+        //         if (content.includes("[出库]")) {
+        //             window.location.href = "index#//application_out?id=" + applicationId+ "&refill=true";
+        //         } else if (content.includes("[入库]")) {
+        //             window.location.href = "index#//application_in?id=" + applicationId + "&notificationId=" + notificationId + "&refill=true";
+        //         }
+        //         window.location.reload();
+        //     });
+        //
+        //
+        // });
 
         $('.login-out').on("click", function () {
             layer.msg('退出登录成功',{time: 1000 }, function () {

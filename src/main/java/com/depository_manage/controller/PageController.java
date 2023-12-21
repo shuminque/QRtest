@@ -1,9 +1,15 @@
 package com.depository_manage.controller;
 
+import com.depository_manage.security.bean.UserToken;
 import com.depository_manage.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.servlet.ModelAndView;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.HashMap;
+import java.util.Map;
 
 @Controller
 public class PageController {
@@ -31,19 +37,43 @@ public class PageController {
     @GetMapping("/s1")
     public String s1() {
         return "pages/qr/saoma1";
-    }//测试页面2
+    }
     @GetMapping("/a")
     public String a() {
         return "pages/qr/a";
     }//测试页面2
-//    @GetMapping("/index")
-//    public ModelAndView index(HttpServletRequest request) {
-//        ModelAndView mv = new ModelAndView();
-//        UserToken userToken = (UserToken) request.getAttribute("userToken");
-//        mv.addObject("uname", userToken.getUser().getUname());
-//        mv.setViewName("index");
-//        return mv;
-//    }
+    @GetMapping("/index")
+    public ModelAndView index(HttpServletRequest request) {
+        ModelAndView mv = new ModelAndView();
+        UserToken userToken = (UserToken) request.getAttribute("userToken");
+        mv.addObject("uname", userToken.getUser().getUname());
+        mv.setViewName("index");
+        return mv;
+    }
+    @GetMapping("/BearingStorage-in")
+    public ModelAndView BearingStorageIn() {
+        ModelAndView mv = new ModelAndView();
+        mv.setViewName("pages/BearingStorage/BearingStorage-in");
+//        mv.addObject("depositories", depositoryService.findDepositoryAll());
+//        mv.addObject("reviewers", userService.findReviewers());
+        return mv;
+    }
+    @GetMapping("/BearingStorage-out")
+    public ModelAndView BearingStorageOut() {
+        ModelAndView mv = new ModelAndView();mv.setViewName("pages/BearingStorage/BearingStorage-out");return mv;
+    }
+    @GetMapping("/BearingStorage-return")
+    public ModelAndView BearingStorageReturn() {
+        ModelAndView mv = new ModelAndView();mv.setViewName("pages/BearingStorage/BearingStorage-return");return mv;
+    }
+    @GetMapping("/BearingStorage-tranIn")
+    public ModelAndView BearingStorageTranIn() {
+        ModelAndView mv = new ModelAndView();mv.setViewName("pages/BearingStorage/BearingStorage-tranIn");return mv;
+    }
+    @GetMapping("/BearingStorage-tranOut")
+    public ModelAndView BearingStorageTranOut() {
+        ModelAndView mv = new ModelAndView();mv.setViewName("pages/BearingStorage/BearingStorage-tranOut");return mv;
+    }
 //
 //    @GetMapping("/register")
 //    public String register() {
@@ -53,17 +83,17 @@ public class PageController {
 //        NumberFormat numberFormat = NumberFormat.getInstance();
 //        return numberFormat.format(number);
 //    }
-//    @GetMapping("/welcome")
-//    public ModelAndView welcome(HttpServletRequest request) {
-//        ModelAndView mv = new ModelAndView();
-//        mv.setViewName("pages/other/welcome");
-//        Map<String, Object> map = new HashMap<String, Object>(2) {
-//            {
-//                put("begin", 0);
-//                put("size",6);
-//            }
-//        };
-//        UserToken userToken = (UserToken) request.getAttribute("userToken");
+    @GetMapping("/welcome")
+    public ModelAndView welcome(HttpServletRequest request) {
+        ModelAndView mv = new ModelAndView();
+        mv.setViewName("pages/other/welcome");
+        Map<String, Object> map = new HashMap<String, Object>(2) {
+            {
+                put("begin", 0);
+                put("size",6);
+            }
+        };
+        UserToken userToken = (UserToken) request.getAttribute("userToken");
 //        if (userToken != null && userToken.getUser() != null) {
 //            int userDepositoryId = userToken.getUser().getDepositoryId();
 //            if (userDepositoryId != 0) {
@@ -77,8 +107,7 @@ public class PageController {
 //        mv.addObject("depositories", depositoryService.findDepositoryAll());
 //        mv.addObject("materials", materialService.findMaterialAll());
 //        mv.addObject("materialTypes", materialTypeService.findMaterialTypeAll());
-////        mv.addObject("SABpriceSum", materialService.findSABpriceSum());
-////        mv.addObject("ZABpriceSum", materialService.findZABpriceSum());
+
 //        DecimalFormat df = new DecimalFormat("#,##0"); // 这会格式化数字为千分位格式，并且始终有两位小数
 //        BigDecimal sabPriceSum = materialService.findSABpriceSum();
 //        BigDecimal zabPriceSum = materialService.findZABpriceSum();
@@ -86,11 +115,11 @@ public class PageController {
 //        mv.addObject("ZABpriceSum", df.format(zabPriceSum));
 //        mv.addObject("SABcountSum", materialService.findSABcountSum());
 //        mv.addObject("ZABcountSum", materialService.findZABcountSum());
-//        // 添加 materials 的总数
+        // 添加 materials 的总数
 //        int count = materialService.findCount();
 //        mv.addObject("count", count);
-//        return mv;
-//    }
+        return mv;
+    }
 //
 //
 //    @GetMapping("/depository_add")
@@ -165,14 +194,14 @@ public class PageController {
 //        return mv;
 //    }
 //
-//    @GetMapping("/application_in")
-//    public ModelAndView application_in() {
-//        ModelAndView mv = new ModelAndView();
-//        mv.setViewName("pages/application/application-in");
+    @GetMapping("/application_in")
+    public ModelAndView application_in() {
+        ModelAndView mv = new ModelAndView();
+        mv.setViewName("pages/application/application-in");
 //        mv.addObject("depositories", depositoryService.findDepositoryAll());
 //        mv.addObject("reviewers", userService.findReviewers());
-//        return mv;
-//    }
+        return mv;
+    }
 //
 //    @GetMapping("/application_out")
 //    public ModelAndView application_out() {

@@ -35,4 +35,8 @@ public class BearingServiceImpl implements BearingService {
         // 调用 mapper 方法来获取特定 boxNumber 的 quantity 总和
         return bearingMapper.calculateTotalQuantityByBoxText(boxText, depository);
     }
+    @Override
+    public List<String> searchBoxText(String query, String depository) {
+        return bearingMapper.searchBoxText(query, depository);
+    }
 }

@@ -16,5 +16,6 @@ public interface BearingMapper {
 
     Integer calculateTotalQuantityByBoxText(@Param("boxText") String boxText,
                                             @Param("depository") String depository);
+    List<String> searchBoxText(@Param("query") String query, @Param("depository") String depository);
 
 }

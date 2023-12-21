@@ -11,4 +11,6 @@ public interface BearingService {
     void saveBearing(Bearing bearing);
 
     Integer calculateQuantity(String boxText, String depository);
+    List<String> searchBoxText(String query, String depository);
+
 }

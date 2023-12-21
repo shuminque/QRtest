@@ -62,6 +62,11 @@
         SELECT SUM(quantity) FROM bearings WHERE box_text = #{boxText} AND depository = #{depository}
     </select>
 
+    <select id="searchBoxText" resultType="string">
+        SELECT box_text FROM bearings
+        WHERE box_text LIKE CONCAT('%', #{query}, '%')
+          AND depository = #{depository}
+    </select>
     <!-- Add additional SQL statements for update, delete, etc. as needed -->
 </mapper>
 

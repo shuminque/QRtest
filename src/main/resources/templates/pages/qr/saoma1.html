@@ -221,7 +221,6 @@
 <!--            <input type="text" id="existingBoxNumberInput" placeholder="请输入现有的boxNumber" class="layui-input">-->
 <!--            <button class="layui-btn" onclick="generateExistingQRCode()">生成现有二维码</button>-->
 <!--        </div>-->
-
     </div>
     <!-- 预生成信息的模态框 -->
     <div id="preGenerateModal" style="display:none;">
@@ -249,7 +248,7 @@
 <!-- 模态框的内容，放在页面的某个位置 -->
 <div id="scanModalContent" style="display: none;">
     <div style="text-align: center; margin-top: 20px;">
-        <button class="layui-btn layui-btn-normal" onclick="processScannedData()">确认</button>
+<!--        <button class="layui-btn layui-btn-normal" onclick="processScannedData()">确认</button>-->
         <button class="layui-btn layui-btn-normal" onclick="closeModal()">取消</button>
     </div>
     <input type="text" id="modalScanInput" placeholder="扫描数据" class="layui-input">
@@ -511,7 +510,7 @@
             title: '扫描二维码', // 标题
             content: $('#scanModalContent'), // 弹出层内容
             shadeClose: true, // 设置点击遮罩层关闭弹出层
-            area: ['80%', '60%'], // 设置弹出层大小
+            area: ['80%', '40%'], // 设置弹出层大小
             // 弹出层关闭时的回调
             cancel: function() {
                 document.getElementById('modalScanInput').value = ''; // 清空输入框
@@ -711,40 +710,44 @@
     }
     function openPanKu(data) {
         layer.open({
-            type: 1, // 弹出层类型，1 表示页面层
-            title: `${data.outerInnerRing} ${data.model} 在库信息`, // 标题
-            content: generatePanKuContent(data), // 弹出层内容
-            shadeClose: true, // 设置点击遮罩层关闭弹出层
-            area: ['40%', '20%'], // 设置弹出层大小
-            // 弹出层关闭时的回调
+            type: 1,
+            title: `${data.outerInnerRing} ${data.model} 在库信息`,
+            content: generatePanKuContent(data),
+            shadeClose: true,
+            area: ['80%', '20%'],
             cancel: function() {
-                document.getElementById('modalScanInput').value = ''; // 清空输入框
+                document.getElementById('modalScanInput').value = '';
             },
-            // 弹出层销毁时的回调
             end: function() {
-                document.getElementById('modalScanInput').value = ''; // 清空输入框
+                document.getElementById('modalScanInput').value = '';
             }
         });
     }
     function generatePanKuContent(data) {
-        // 判断箱数是否为 0
         var isStockedContent = data.isStocked > 0 ? `有: ${data.isStocked} 箱，数量: ${data.quantity} 个` : `有: 0 箱，数量: 0 个`;
         var totalBoxesContent = data.totalBoxes > 0 ? `仓库内合计: ${data.totalBoxes} 箱，数量: ${data.quantityInStock} 个` : '无库存';
-        // 生成弹出层内容的 HTML
         var contentHTML = `
-        <p>箱号: ${data.boxText} ${data.boxNumber}</p>
-        <p>${isStockedContent}</p>
-        <p>${totalBoxesContent}</p>
+    <div style="padding: 10px;">
+        <p style="margin-bottom: 10px;"><strong>箱号:</strong> ${data.boxText} ${data.boxNumber}</p>
+        <p style="margin-bottom: 10px;"><strong>当前状态:</strong> ${isStockedContent}</p>
+        <p><strong>仓库总览:</strong> ${totalBoxesContent}</p>
+    </div>
     `;
         return contentHTML;
     }
-
     function fetchPanKuInfo(boxText, boxNumber, depositoryId) {
         var mathDepositoryId = convertDepositoryIdToMath(depositoryId);
+
+        // 显示加载指示器
+        var loadingIndex = layer.load(1, {shade: [0.5, '#fff']});
+
         fetch(`/bearingInventory/panKu/${boxText}/${boxNumber}/${mathDepositoryId}`)
             .then(response => {
+                // 关闭加载指示器
+                layer.close(loadingIndex);
+
                 if (!response.ok) {
-                    throw new Error('Network response was not ok');
+                    throw new Error('网络响应错误');
                 }
                 return response.json();
             })
@@ -754,10 +757,13 @@
                 openPanKu(data);
             })
             .catch(error => {
+                // 关闭加载指示器
+                layer.close(loadingIndex);
+                // 显示用户友好的错误消息
                 console.error('Error:', error);
+                layer.alert('获取盘库信息失败，请稍后重试', {icon: 2});
             });
     }
-
     // 显示操作结果（入库或出库）
     function showResult(message) {
         var resultContainer = document.getElementById('operation-result');

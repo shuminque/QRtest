@@ -25,8 +25,8 @@
 
     <update id="updateBearingInventory">
         UPDATE bearing_inventory
-        SET quantity_in_stock = #{quantityInStock}, total_boxes = #{totalBoxes}, depository_id = #{depositoryId}
-        WHERE box_text = #{boxText}
+        SET quantity_in_stock = #{quantityInStock}, total_boxes = #{totalBoxes}
+        WHERE box_text = #{boxText} AND depository_id = #{depositoryId}
     </update>
 
     <delete id="deleteBearingInventory">
@@ -39,27 +39,46 @@
         FROM bearing_records
         WHERE box_text = #{boxText} AND box_number = #{boxNumber} AND transaction_type = #{operationType}
     </select>
+<!--    <select id="selectInventoryInfo" resultType="com.depository_manage.entity.InventoryInfo">-->
+<!--        SELECT-->
+<!--            bi.box_text,-->
+<!--            pi.box_number,-->
+<!--            bi.quantity_in_stock,-->
+<!--            bi.total_boxes,-->
+<!--            pi.quantity ,-->
+<!--            pi.is_stocked,-->
+<!--            b.outer_inner_ring,-->
+<!--            b.model-->
+<!--        FROM-->
+<!--            bearing_inventory bi-->
+<!--                JOIN-->
+<!--            product_ids pi ON bi.box_text = pi.box_text AND bi.depository_id = pi.depository_id-->
+<!--                LEFT JOIN-->
+<!--            bearings b ON bi.box_text = b.box_text AND bi.depository_id = CASE-->
+<!--                                                                              WHEN b.depository = 'SAB' THEN 1-->
+<!--                                                                              WHEN b.depository = 'ZAB' THEN 2-->
+<!--                                                                              ELSE NULL-->
+<!--                END-->
+<!--        WHERE-->
+<!--            bi.box_text = #{boxText} AND bi.depository_id = #{depositoryId} AND pi.box_number = #{boxNumber};-->
+<!--    </select>-->
     <select id="selectInventoryInfo" resultType="com.depository_manage.entity.InventoryInfo">
         SELECT
             bi.box_text,
             pi.box_number,
             bi.quantity_in_stock,
             bi.total_boxes,
-            pi.quantity ,
+            pi.quantity,
             pi.is_stocked,
             b.outer_inner_ring,
             b.model
         FROM
             bearing_inventory bi
-                JOIN
-            product_ids pi ON bi.box_text = pi.box_text AND bi.depository_id = pi.depository_id
-                LEFT JOIN
-            bearings b ON bi.box_text = b.box_text AND bi.depository_id = CASE
-                                                                              WHEN b.depository = 'SAB' THEN 1
-                                                                              WHEN b.depository = 'ZAB' THEN 2
-                                                                              ELSE NULL
-                END
+                JOIN product_ids pi ON bi.box_text = pi.box_text AND bi.depository_id = pi.depository_id
+                LEFT JOIN bearings b ON bi.box_text = b.box_text
         WHERE
-            bi.box_text = #{boxText} AND bi.depository_id = #{depositoryId} AND pi.box_number = #{boxNumber};
+            bi.box_text = #{boxText} AND bi.depository_id = #{depositoryId} AND pi.box_number = #{boxNumber}
+          AND (b.depository = 'SAB' AND #{depositoryId} = 1 OR b.depository = 'ZAB' AND #{depositoryId} = 2 OR b.depository IS NULL);
     </select>
+
 </mapper>
