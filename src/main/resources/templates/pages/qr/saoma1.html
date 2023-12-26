@@ -40,14 +40,17 @@
             height: 200px; /* 保持与宽度一致 */
             margin: 0 0 0 0; /* 移除外边距 */
             position: absolute; /* 绝对定位 */
-            left: 240px; /* 对齐到左边 */
+            left: 0px; /* 对齐到左边 */
             top: 400px; /* 对齐到顶部 */
         }
-        .info-row p {
-            font-size: 68px; /* Set to your desired font size */
-            font-weight: bold; /* Optional: makes the text bold */
-            line-height: normal; /* Adjust line height for better readability */
+
+        .print-info-row  p {
+            font-size: 90px;
+            font-weight: bold;
+            line-height: normal;
+            margin-right: 100px;
         }
+
         /* 设置信息容器的样式 */
         .info-container {
             position: absolute; /* 绝对定位 */
@@ -58,7 +61,7 @@
             /*padding-left: 200px;*/
             top: 0; /* 根据需要进行调整 */
             writing-mode: vertical-rl; /* 设置文本为竖直从右到左排列 */
-            transform: rotate(180deg); /* 如有必要，将文本旋转180度以获得所需的方向 */
+            /*transform: rotate(180deg); !* 如有必要，将文本旋转180度以获得所需的方向 *!*/
         }
 
     }
@@ -424,10 +427,10 @@
 
                 // 显示信息
                 var infoHtml = `
-                    <div class="info-row">
+                    <div class="info-row print-info-row">
                         <p><span>${data.boxText}</span></p>
                     </div>
-                    <div class="info-row">
+                    <div class="info-row print-info-row">
                         <p><span>${data.boxNumber}</span></p>
                     </div>
                 `;
