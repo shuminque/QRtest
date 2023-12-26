@@ -74,9 +74,10 @@ public class BearingRecordController {
         }
     }
 
-    @GetMapping
+    @GetMapping("/all")
     public ResponseEntity<List<BearingRecord>> getAllBearingRecords() {
         List<BearingRecord> records = bearingRecordService.getAllBearingRecords();
         return ResponseEntity.ok(records);
     }
+
 }

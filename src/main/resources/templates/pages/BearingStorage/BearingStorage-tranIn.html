@@ -8,6 +8,8 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <!--    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>-->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-3-typeahead/4.0.2/bootstrap3-typeahead.min.js"></script>
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <style>
         body {
             padding-top: 50px;
@@ -95,23 +97,48 @@
         $('#boxText').on('typeahead:select change', function(event) {
             // 获取选择或输入的箱号
             const boxText = $(this).val();
-            $.ajax({
-                url: "/productIds/",
-                type: "GET",
-                data: { boxText: boxText, depositoryId: depositoryId },
-                success: function(response) {
-                    // 填充最新的箱号编号到对应输入框
-                    $('#boxNumber').val(response.boxNumber);
-                    $('#quantity').val(response.quantity);
-                },
-                error: function() {
-                    // 错误处理，例如清空箱号编号输入框
-                    $('#boxNumber').val('');
-                    $('#quantity').val('');
-                }
-            });
+            fetchLatestBoxNumberAndQuantity(boxText);
+        });
+        // 监听箱号编号输入框的变化
+        $('#boxNumber').on('change', function() {
+            const boxText = $('#boxText').val();
+            const boxNumber = $(this).val();
+            fetchQuantityForBoxNumber(boxText, boxNumber);
         });
     });
+    // 获取最新的箱号编号和数量
+    function fetchLatestBoxNumberAndQuantity(boxText) {
+        $.ajax({
+            url: "/productIds/",
+            type: "GET",
+            data: { boxText: boxText, depositoryId: depositoryId },
+            success: function(response) {
+                // 填充最新的箱号编号和数量到对应输入框
+                $('#boxNumber').val(response.boxNumber);
+                $('#quantity').val(response.quantity);
+            },
+            error: function() {
+                $('#boxNumber').val('');
+                $('#quantity').val('');
+            }
+        });
+    }
+    // 根据箱号和箱号编号获取数量
+    function fetchQuantityForBoxNumber(boxText, boxNumber) {
+        if (!boxNumber) return; // 如果箱号编号为空，则不执行操作
+        $.ajax({
+            url: "/productIds/quantity",
+            type: "GET",
+            data: { boxText: boxText, boxNumber: boxNumber, depositoryId: depositoryId },
+            success: function(response) {
+                // 更新数量到输入框
+                $('#quantity').val(response.quantity);
+            },
+            error: function() {
+                $('#quantity').val('');
+            }
+        });
+    }
     document.getElementById('stockInForm').addEventListener('submit', function(event) {
         event.preventDefault();
         const boxText = document.getElementById('boxText').value;
@@ -142,9 +169,16 @@
                 }
                 return response.json();
             })
-            .then(data => {console.log("转入成功", data);return addBearingRecord(operationTypeChinese, boxText, boxNumber, quantity, depositoryId);})
-            .then(() => {alert('转入操作成功');})
-            .catch(error => {console.error('转入操作失败:', error);alert('转入操作失败: ' + error.message);});
+            .then(
+                data => {
+                    console.log("转入成功", data);
+                    toastr.success('转入操作成功');
+                    return addBearingRecord(operationTypeChinese, boxText, boxNumber, quantity, depositoryId);
+                })
+            .catch(error => {
+                console.error('转入操作失败:', error);
+                toastr.error(`转入操作失败: ${error.message}`);
+            });
     }
     function addBearingRecord(transactionType, boxText, boxNumber, quantity, depositoryId) {
         var depositoryText = convertDepositoryIdToText(depositoryId);

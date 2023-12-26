@@ -211,85 +211,72 @@
             </div>
         </div>
 
-        <div class="layui-row">
-            <!-- 入库金额折线图 -->
-            <div class="layui-col-md6">
-                <div class="layui-card">
-                    <div class="layui-card-header"><i class="fa fa-signal icon"></i>入库折线图</div>
-                    <div class="layui-card-body">
-                        <div id="inbound-chart" style="width: 100%; height: 500px;"></div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 出库金额折线图 -->
-            <div class="layui-col-md6">
-                <div class="layui-card">
-                    <div class="layui-card-header"><i class="fa fa-signal icon"></i>出库折线图</div>
-                    <div class="layui-card-body">
-                        <div id="outbound-chart" style="width: 100%; height: 500px;"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
 <!--        <div class="layui-row">-->
-<!--            &lt;!&ndash; 在库金额柱形图 &ndash;&gt;-->
-<!--            <div class="layui-col-md12">-->
+<!--            &lt;!&ndash; 入库金额折线图 &ndash;&gt;-->
+<!--            <div class="layui-col-md6">-->
 <!--                <div class="layui-card">-->
-<!--                    <div class="layui-card-header"><i class="fa fa-signal icon"></i>在库金额柱形图</div>-->
+<!--                    <div class="layui-card-header"><i class="fa fa-signal icon"></i>入库折线图</div>-->
 <!--                    <div class="layui-card-body">-->
-<!--                        <div id="stock-chart" style="width: 100%; height: 500px;"></div>-->
+<!--                        <div id="inbound-chart" style="width: 100%; height: 500px;"></div>-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--            </div>-->
+
+<!--            &lt;!&ndash; 出库金额折线图 &ndash;&gt;-->
+<!--            <div class="layui-col-md6">-->
+<!--                <div class="layui-card">-->
+<!--                    <div class="layui-card-header"><i class="fa fa-signal icon"></i>出库折线图</div>-->
+<!--                    <div class="layui-card-body">-->
+<!--                        <div id="outbound-chart" style="width: 100%; height: 500px;"></div>-->
 <!--                    </div>-->
 <!--                </div>-->
 <!--            </div>-->
 <!--        </div>-->
-        <div>
-            <select id="depository-selector">
-                <option value="">选择厂区</option>
-                <option value="1">SAB</option>
-                <option value="2">ZAB</option>
-            </select>
-            <input type="text" id="month-selector" placeholder="请选择年月">
-            <div class="layui-row">
-                <!-- 各工程使用金额分析图 -->
-                <div class="layui-col-md12">
-                    <div class="layui-card">
-                        <div class="layui-card-header"><i class="fa fa-signal icon"></i>各工程使用金额分析图</div>
-                        <div class="layui-card-body">
-                            <div id="category-bar-chart" style="width: 100%; height: 500px;"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div id="recordTableContainer" style="display: none">
-                <table class="layui-hide" id="recordTable" lay-filter="recordTableFilter"></table>
-            </div>
-        </div>
-
-        <div>
-            <select id="depository-selector-two">
-                <option value="">选择厂区</option>
-                <option value="1">SAB</option>
-                <option value="2">ZAB</option>
-            </select>
-            <input type="text" id="year-selector" placeholder="请选择年">
-            <select name="typeId" id="typeSelect">
-                <option value="">请选择分类</option>
-                <option th:each="type : ${materialTypes}" th:value="${type.id}" th:text="${type.id}+' '+${type.tname}"></option>
-            </select>
-            <div class="layui-row">
-                <!-- 产量柱形图 -->
-                <div class="layui-col-md12">
-                    <div class="layui-card">
-                        <div class="layui-card-header"><i class="fa fa-signal icon"></i>产量柱形图</div>
-                        <div class="layui-card-body">
-                            <div id="typeAmountChart" style="width: 100%; height: 500px;"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
+<!--        <div>-->
+<!--            <select id="depository-selector">-->
+<!--                <option value="">选择厂区</option>-->
+<!--                <option value="1">SAB</option>-->
+<!--                <option value="2">ZAB</option>-->
+<!--            </select>-->
+<!--            <input type="text" id="month-selector" placeholder="请选择年月">-->
+<!--            <div class="layui-row">-->
+<!--                &lt;!&ndash; 各工程使用金额分析图 &ndash;&gt;-->
+<!--                <div class="layui-col-md12">-->
+<!--                    <div class="layui-card">-->
+<!--                        <div class="layui-card-header"><i class="fa fa-signal icon"></i>各工程使用金额分析图</div>-->
+<!--                        <div class="layui-card-body">-->
+<!--                            <div id="category-bar-chart" style="width: 100%; height: 500px;"></div>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--            <div id="recordTableContainer" style="display: none">-->
+<!--                <table class="layui-hide" id="recordTable" lay-filter="recordTableFilter"></table>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--        <div>-->
+<!--            <select id="depository-selector-two">-->
+<!--                <option value="">选择厂区</option>-->
+<!--                <option value="1">SAB</option>-->
+<!--                <option value="2">ZAB</option>-->
+<!--            </select>-->
+<!--            <input type="text" id="year-selector" placeholder="请选择年">-->
+<!--            <select name="typeId" id="typeSelect">-->
+<!--                <option value="">请选择分类</option>-->
+<!--                <option th:each="type : ${materialTypes}" th:value="${type.id}" th:text="${type.id}+' '+${type.tname}"></option>-->
+<!--            </select>-->
+<!--            <div class="layui-row">-->
+<!--                &lt;!&ndash; 产量柱形图 &ndash;&gt;-->
+<!--                <div class="layui-col-md12">-->
+<!--                    <div class="layui-card">-->
+<!--                        <div class="layui-card-header"><i class="fa fa-signal icon"></i>产量柱形图</div>-->
+<!--                        <div class="layui-card-body">-->
+<!--                            <div id="typeAmountChart" style="width: 100%; height: 500px;"></div>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--        </div>-->
     </div>
 </div>
 <script src="/static/lib/layui-v2.6.3/layui.js" charset="utf-8"></script>

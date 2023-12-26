@@ -64,6 +64,11 @@ public class ProductIdServiceImpl implements ProductIdService {
         return newBoxNumber;
     }
 
+    @Override
+    public int getQuantityByBoxTextAndBoxNumber(String boxText, String boxNumber, int depositoryId) {
+        return productIdMapper.selectQuantityByBoxTextAndBoxNumber(boxText, boxNumber, depositoryId);
+    }
+
     private String incrementBoxNumber(String boxNumber) {
         try {
             int num = Integer.parseInt(boxNumber);

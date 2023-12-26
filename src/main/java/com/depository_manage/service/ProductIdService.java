@@ -35,6 +35,8 @@ public interface ProductIdService {
 
     // 检查产品是否已入库
     boolean isProductStocked(String boxText, String boxNumber, int depositoryId);
+    int getQuantityByBoxTextAndBoxNumber(String boxText, String boxNumber, int depositoryId);
+
     // 根据需要可以添加更多方法
 
 }

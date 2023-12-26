@@ -74,6 +74,10 @@ public class PageController {
     public ModelAndView BearingStorageTranOut() {
         ModelAndView mv = new ModelAndView();mv.setViewName("pages/BearingStorage/BearingStorage-tranOut");return mv;
     }
+    @GetMapping("/Inquire-all")
+    public ModelAndView InquireAll() {
+        ModelAndView mv = new ModelAndView();mv.setViewName("pages/Inquire/Inquire-all");return mv;
+    }
 //
 //    @GetMapping("/register")
 //    public String register() {

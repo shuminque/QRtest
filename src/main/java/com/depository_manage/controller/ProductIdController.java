@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
 import java.util.List;
 
 @RestController
@@ -22,6 +23,19 @@ public class ProductIdController {
         ProductId productId = productIdService.getBoxNumberByBoxTextAndDepositoryId(boxText, depositoryId);
         if (productId != null) {
             return ResponseEntity.ok(productId);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+    @GetMapping("/quantity")
+    public ResponseEntity<?> getQuantityByBoxTextAndBoxNumber(
+            @RequestParam String boxText,
+            @RequestParam String boxNumber,
+            @RequestParam int depositoryId) {
+
+        int quantity = productIdService.getQuantityByBoxTextAndBoxNumber(boxText, boxNumber, depositoryId);
+        if (quantity >= 0) {
+            return ResponseEntity.ok(Collections.singletonMap("quantity", quantity));
         } else {
             return ResponseEntity.notFound().build();
         }

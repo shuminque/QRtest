@@ -50,4 +50,10 @@
         WHERE box_text = #{boxText} AND box_number = #{boxNumber} AND depository_id = #{depositoryId}
     </select>
 
+    <select id="selectQuantityByBoxTextAndBoxNumber" resultType="int">
+        SELECT quantity
+        FROM product_ids
+        WHERE box_text = #{boxText} AND box_number = #{boxNumber} AND depository_id = #{depositoryId}
+            LIMIT 1
+    </select>
 </mapper>

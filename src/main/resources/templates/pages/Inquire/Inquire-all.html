@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>库存记录</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css">
+
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.3/css/jquery.dataTables.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/1.7.1/css/buttons.dataTables.min.css">
+    <link rel="stylesheet" href="/static/lib/layui-v2.8.17/css/layui.css" media="all">
+    <script src="/static/lib/layui-v2.8.17/layui.js" charset="utf-8"></script>
+
+
+    <!-- jQuery 库 -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- DataTables JS -->
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.js"></script>
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/buttons/1.7.1/js/dataTables.buttons.min.js"></script>
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/buttons/1.7.1/js/buttons.html5.min.js"></script>
+    <!-- DataTables 扩展 -->
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/buttons/1.7.1/js/buttons.print.min.js"></script>
+    <style>
+        body {
+            padding-top: 50px;
+            background-color: #f8f9fa;
+        }
+        .container {
+            margin: 10px;
+        }
+        .layui-table-view .layui-table { /* 调整表格样式 */
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <table id="recordTable" lay-filter="recordTableFilter"></table>
+</div>
+
+<script>
+    layui.use(['table'], function(){
+        var table = layui.table;
+
+        // 渲染表格
+        table.render({
+            elem: '#recordTable',
+            url: '/bearingRecords/all', // 数据接口
+            parseData: function(res) { // 将原始数据格式适配成 layui 表格组件所期望的格式
+                return {
+                    "code": 0, // 解析接口状态
+                    "msg": "", // 解析提示文本
+                    "count": res.length, // 解析数据长度
+                    "data": res // 解析数据列表
+                };
+            },
+            cols: [ [ // 表头
+                {field: 'transactionType', title: '交易类型'},
+                {field: 'boxText', title: '箱号'},
+                {field: 'boxNumber', title: '箱号编号'},
+                {field: 'quantity', title: '数量'},
+                {field: 'time', title: '交易日期和时间', templet: function(d) {
+                        return d.time.split('T')[0]; // 格式化日期
+                    }},
+                {field: 'depository', title: '厂区'},
+                {field: 'customer', title: '客户'},
+                {field: 'outerInnerRing', title: '外/内轮'},
+                {field: 'model', title: '型号'},
+                {field: 'productCategory', title: '制品分类'},
+                {field: 'steelType', title: '钢种'},
+                {field: 'steelGrade', title: '钢材等级'},
+                {field: 'remarks', title: '备注'}
+            ]],
+            limit:20,
+            page: true //开启分页
+        });
+    });
+</script>
+</body>
+</html>
