@@ -36,8 +36,8 @@
 
         /* 设置二维码的大小和位置 */
         #qrcode {
-            width: 200px;
-            height: 200px; /* 保持与宽度一致 */
+            width: 220px;
+            height: 220px; /* 保持与宽度一致 */
             margin: 0 0 0 0; /* 移除外边距 */
             position: absolute; /* 绝对定位 */
             left: 0px; /* 对齐到左边 */
@@ -48,19 +48,22 @@
             font-size: 110px;
             font-weight: bold;
             line-height: normal;
-            margin-right: 100px;
+            text-align: center; /* 新增：使得文字居中 */
+            margin-right: 90px;
         }
 
         /* 设置信息容器的样式 */
         .info-container {
             position: absolute; /* 绝对定位 */
             word-wrap: break-word; /* 允许在必要时文字换行 */
-            text-align: center;
+            text-align: left;
             width: 500px; /* 限制宽度，以适应布局 */
-            left: 0PX; /* 对齐页面左侧 */
+            left: 0px; /* 对齐页面左侧 */
             /*padding-left: 200px;*/
             top: 0; /* 根据需要进行调整 */
             writing-mode: vertical-rl; /* 设置文本为竖直从右到左排列 */
+            justify-content: center; /* 水平居中 */
+            align-items: center; /* 垂直居中 */
             /*transform: rotate(180deg); !* 如有必要，将文本旋转180度以获得所需的方向 *!*/
         }
 
@@ -339,8 +342,8 @@
                 $('<div></div>').qrcode({
                     text: qrData,
                     render: 'canvas',
-                    width: 200,
-                    height: 200,
+                    width: 220,
+                    height: 220,
                     correctLevel: 3,
                 }).appendTo(qrCodeElement);
 
@@ -420,8 +423,8 @@
                 $('<div></div>').qrcode({
                     text: qrData,
                     render: 'canvas',
-                    width: 200,
-                    height: 200,
+                    width: 220,
+                    height: 220,
                     correctLevel: 3,
                 }).appendTo(qrCodeElement);
 
