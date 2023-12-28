@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>二维码生成与打印</title>
+    <link rel="stylesheet" href="/static/lib/layui-v2.8.17/css/layui.css" media="all">
+    <script src="/static/lib/layui-v2.8.17/layui.js" charset="utf-8"></script>
+    <script src="/static/js/jquery-2.1.0.js" charset="utf-8"></script>
+    <script src="/static/js/jquery.qrcode.js" charset="utf-8"></script>
+    <style>
+        /* 这里可以根据需要添加PC端特有的样式 */
+    </style>
+</head>
+<body>
+<div class="container">
+    <div>
+        <input type="text" id="boxTextInput" placeholder="请输入箱号" class="layui-input">
+    </div>
+    <div class="button-row">
+        <button class="layui-btn" onclick="preGenerateQRCodeByBoxText()">生成二维码</button>
+        <button class="layui-btn" onclick="printQRCode()">打印二维码</button>
+    </div>
+
+    <!-- 预生成信息的模态框 -->
+    <div id="preGenerateModal" style="display:none;">
+        <p>即将生成的 Number号: <span id="previewBoxNumber"></span></p>
+        <p>数量: <input type="number" id="editQuantity" /></p>
+        <button onclick="confirmGenerateQRCode()">确认</button>
+        <button onclick="cancelGenerateQRCode()">取消</button>
+    </div>
+</div>
+
+<div id="printContainer">
+    <div id="qrcodeContainer">
+        <div id="qrcode"></div>
+    </div>
+    <div id="printSection">
+        <div class="info-container"></div>
+    </div>
+</div>
+
+<script>
+    var userReviewGroupId;var userAuthority;var userDepositoryId;var userDepository;var depositoryId;
+    function getUserDepository() {
+        $.ajax({
+            url: '/get_user_depository',
+            type: 'GET',
+            dataType: 'json',
+            success: function(data) {
+                console.log(data);
+                userDepositoryId = data.depositoryId;userAuthority = data.authority;userReviewGroupId = data.review_group_id;
+                if (userDepositoryId ===1){
+                    userDepository='SAB';depositoryId=1;
+                } else if (userDepositoryId===2){
+                    userDepository='ZAB';depositoryId=2;
+                }else{
+                    userDepository="ALL";depositoryId=0;
+                }
+            },
+            error: function() {
+                layer.msg('无法获取用户的厂区信息');
+            }
+        });
+    }
+    // 页面加载完成后，初始化操作
+    $(document).ready(function() {
+        getUserDepository();
+
+        // 初始化二维码输入框的自动完成功能
+        $('#boxTextInput').typeahead({
+            source: function(query, process) {
+                return $.ajax({
+                    url: '/bearings/search',
+                    type: 'GET',
+                    data: { query: query, depository: userDepository },
+                    dataType: 'json',
+                    success: function(data) {
+                        return process(data);
+                    }
+                });
+            },
+            minLength: 1,
+            autoSelect: true
+        });
+    });
+
+    // 预生成二维码时的逻辑
+    function preGenerateQRCodeByBoxText() {
+        var boxText = document.getElementById("boxTextInput").value;
+        if (!boxText) {
+            alert("请输入箱号");
+            return;
+        }
+        var url = '/bearings/preGenerate/' + boxText + '/' + depositoryId;
+        fetch(url)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                // 在存储预生成的数据之前，添加 boxText
+                preGenerateData = {
+                    ...data,
+                    boxText: boxText, // 添加 boxText
+                    depositoryId: depositoryId // 添加 depositoryId
+                };
+                document.getElementById('previewBoxNumber').textContent = data.boxNumber;
+                document.getElementById('editQuantity').value = data.quantity; // 设置输入框的初始值
+                document.getElementById('preGenerateModal').style.display = 'block';
+            })
+            .catch(error => console.error('预生成二维码时发生错误：', error));
+    }
+
+    // 显示预生成信息的模态框
+    function displayPreGenerateModal(data) {
+        $('#previewBoxNumber').text(data.boxNumber);
+        $('#editQuantity').val(data.quantity);
+        $('#preGenerateModal').show();
+    }
+
+    // 确认生成二维码
+    function confirmGenerateQRCode() {
+        console.log(preGenerateData);
+        preGenerateData.quantity = document.getElementById('editQuantity').value;
+        // 确保发送到后端的数据包括厂区ID
+        fetch('/bearings/' + preGenerateData.boxText+'/' + depositoryId, {
+            method: 'POST',
+            body: JSON.stringify(preGenerateData),
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                // 生成二维码
+                var qrCodeElement = document.getElementById("qrcode");
+                qrCodeElement.innerHTML = ""; // 清除之前的二维码
+                var qrData = JSON.stringify(data);
+                $('<div></div>').qrcode({
+                    text: qrData,
+                    render: 'canvas',
+                    width: 250,
+                    height: 250,
+                    correctLevel: 3,
+                }).appendTo(qrCodeElement);
+
+                // 显示信息
+                var infoHtml = `
+                    <div class="info-row print-info-row">
+                        <p><span>${data.boxText}</span></p>
+                    </div>
+                    <div class="info-row print-info-row">
+                        <p><span>${data.boxNumber}</span></p>
+                    </div>
+                `;
+                var infoContainer = document.querySelector("#printSection .info-container");
+                infoContainer.innerHTML = infoHtml;
+
+                // 显示元素
+                document.getElementById('qrcodeContainer').style.display = 'block';
+                document.getElementById('printSection').style.display = 'block';
+                document.getElementById('preGenerateModal').style.display = 'none';
+            })
+            .catch(error => {
+                console.error('生成二维码时发生错误：', error);
+            });
+    }
+
+    // 取消生成二维码
+    function cancelGenerateQRCode() {
+        preGenerateData = null;
+        document.getElementById('preGenerateModal').style.display = 'none';
+    }
+
+    // 生成二维码
+    function generateQRCode(data) {
+        $('#qrcode').empty().qrcode({
+            text: JSON.stringify(data),
+            width: 250,
+            height: 250
+        });
+        updateInfoAndDisplayElements(data);
+    }
+
+    // 更新信息并显示元素
+    function updateInfoAndDisplayElements(data) {
+        var infoHtml = `
+            <div class="info-row">
+                <p><span>${data.boxText}-${data.boxNumber}</span></p>
+            </div>
+        `;
+        $(".info-container").html(infoHtml);
+        $('#qrcodeContainer').show();
+        $('#printSection').show();
+    }
+
+    // 打印二维码
+    function printQRCode() {
+        window.print();
+    }
+</script>
+</body>
+</html>
