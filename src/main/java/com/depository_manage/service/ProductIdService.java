@@ -6,6 +6,7 @@ import java.util.List;
 
 public interface ProductIdService {
     ProductId getBoxNumberByBoxTextAndDepositoryId(String boxText, int depositoryId);
+    ProductId getOldBoxNumberByBoxTextAndDepositoryId(String boxText, int depositoryId);
     List<ProductId> getAllBoxNumbers();
     ProductId saveOrUpdateBoxNumber(ProductId boxNumber);
 

@@ -17,7 +17,12 @@
         ORDER BY CAST(box_number as UNSIGNED) DESC
             LIMIT 1
     </select>
-
+    <select id="selectOldBoxNumberByBoxTextAndDepositoryId" resultType="com.depository_manage.entity.ProductId">
+        SELECT * FROM product_ids
+        WHERE box_text = #{boxText} AND depository_id = #{depositoryId} AND is_stocked =1
+        ORDER BY CAST(box_number as UNSIGNED)
+            LIMIT 1
+    </select>
     <select id="selectProductIdByBoxTextAndDepositoryId" resultMap="productIdMap">
         SELECT * FROM product_ids
         WHERE box_text = #{boxText} AND box_number = #{boxNumber} AND depository_id = #{depositoryId}

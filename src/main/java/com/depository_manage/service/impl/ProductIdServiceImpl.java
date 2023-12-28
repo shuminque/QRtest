@@ -17,6 +17,10 @@ public class ProductIdServiceImpl implements ProductIdService {
     public ProductId getBoxNumberByBoxTextAndDepositoryId(String boxText, int depositoryId) {
         return productIdMapper.selectBoxNumberByBoxTextAndDepositoryId(boxText, depositoryId);
     }
+    @Override
+    public ProductId getOldBoxNumberByBoxTextAndDepositoryId(String boxText, int depositoryId) {
+        return productIdMapper.selectOldBoxNumberByBoxTextAndDepositoryId(boxText, depositoryId);
+    }
 
     @Override
     public List<ProductId> getAllBoxNumbers() {

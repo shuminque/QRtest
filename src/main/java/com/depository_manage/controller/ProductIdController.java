@@ -27,6 +27,17 @@ public class ProductIdController {
             return ResponseEntity.notFound().build();
         }
     }
+    @GetMapping("/Old")
+    public ResponseEntity<ProductId> getOldBoxNumberByBoxTextAndDepositoryId(
+            @RequestParam String boxText,
+            @RequestParam int depositoryId) {
+        ProductId productId = productIdService.getOldBoxNumberByBoxTextAndDepositoryId(boxText, depositoryId);
+        if (productId != null) {
+            return ResponseEntity.ok(productId);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
     @GetMapping("/quantity")
     public ResponseEntity<?> getQuantityByBoxTextAndBoxNumber(
             @RequestParam String boxText,
