@@ -173,12 +173,19 @@
                 data => {
                     console.log("出库成功", data);
                     toastr.success('出库操作成功');
+                    clearForm();
                     return addBearingRecord(operationTypeChinese, boxText, boxNumber, quantity, depositoryId);
                 })
             .catch(error => {
                 console.error('出库操作失败:', error);
                 toastr.error(`出库操作失败: ${error.message}`);
             });
+    }
+    function clearForm() {
+        document.getElementById('boxText').value = '';
+        document.getElementById('boxNumber').value = '';
+        document.getElementById('quantity').value = '';
+        $('#boxText').focus(); // 重新聚焦到箱号输入框
     }
     function addBearingRecord(transactionType, boxText, boxNumber, quantity, depositoryId) {
         var depositoryText = convertDepositoryIdToText(depositoryId);

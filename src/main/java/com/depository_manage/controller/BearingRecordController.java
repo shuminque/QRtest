@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/bearingRecords")
@@ -74,10 +75,12 @@ public class BearingRecordController {
         }
     }
 
-    @GetMapping("/all")
-    public ResponseEntity<List<BearingRecord>> getAllBearingRecords() {
-        List<BearingRecord> records = bearingRecordService.getAllBearingRecords();
+    @GetMapping("/filter")
+    public ResponseEntity<?> filterBearingRecords(@RequestParam Map<String, Object> params) {
+        System.out.println("Received filter params: " + params);
+        List<BearingRecord> records = bearingRecordService.filterBearingRecords(params);
         return ResponseEntity.ok(records);
     }
+
 
 }

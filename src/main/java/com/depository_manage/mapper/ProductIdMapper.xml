@@ -26,6 +26,7 @@
     <select id="selectAllBoxNumbers" resultMap="productIdMap">
         SELECT * FROM product_ids
     </select>
+
     <insert id="insertOrUpdateBoxNumber">
         INSERT INTO product_ids (box_text, box_number, quantity, depository_id, is_stocked)
         VALUES (#{boxText}, #{boxNumber}, #{quantity}, #{depositoryId}, #{isStocked})

@@ -87,8 +87,19 @@
         SELECT * FROM bearing_records WHERE id = #{id}
     </select>
 
-    <select id="selectAllBearingRecords" resultMap="bearingRecordMap">
-        SELECT * FROM bearing_records
+    <select id="selectAllBearingRecords" resultMap="bearingRecordMap" parameterType="map">
+        SELECT * FROM bearing_records WHERE 1=1
+        <if test="transactionType != null and transactionType != ''">
+            AND transaction_type = #{transactionType}
+        </if>
+        <if test="boxText != null and boxText != ''">
+            AND box_text = #{boxText}
+        </if>
+        <if test="boxNumber != null and boxNumber != ''">
+            AND box_number = #{boxNumber}
+        </if>
+        <if test="customer != null and customer != ''">
+            AND customer = #{customer}
+        </if>
     </select>
-
 </mapper>

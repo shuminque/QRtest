@@ -4,6 +4,7 @@ import com.depository_manage.entity.BearingRecord;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
+import java.util.Map;
 
 @Mapper
 public interface BearingRecordMapper {
@@ -20,5 +21,5 @@ public interface BearingRecordMapper {
     BearingRecord selectBearingRecordById(int id);
 
     // 获取所有记录
-    List<BearingRecord> selectAllBearingRecords();
+    List<BearingRecord> selectAllBearingRecords(Map<String,Object> params);
 }

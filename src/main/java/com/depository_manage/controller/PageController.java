@@ -78,6 +78,11 @@ public class PageController {
     public ModelAndView InquireAll() {
         ModelAndView mv = new ModelAndView();mv.setViewName("pages/Inquire/Inquire-all");return mv;
     }
+    @GetMapping("/GenerateAndPrintQR")
+    public ModelAndView GenerateAndPrintQR() {
+        ModelAndView mv = new ModelAndView();
+        mv.setViewName("pages/Inquire/GenerateAndPrintQR");return mv;
+    }
 //
 //    @GetMapping("/register")
 //    public String register() {

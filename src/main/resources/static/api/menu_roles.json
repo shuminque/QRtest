@@ -94,41 +94,13 @@
                     ]
                 },
                 {
-                    "title": "入库管理",
-                    "icon": "fa fa-mail-forward",
+                    "title": "产品管理",
+                    "icon": "fa fa-server",
                     "target": "_self",
                     "roles": [
                         "SAB_cg", "SAB_sh", "ZAB_cg", "ZAB_sh", "ALL"
                     ],
                     "child": [
-                        {
-                            "title": "入库查询",
-                            "href": "/table_in",
-                            "icon": "fa fa-th-list",
-                            "target": "_self",
-                            "roles": [
-                                "SAB_cg", "SAB_sh", "ZAB_cg", "ZAB_sh", "ALL"
-                            ]
-                        }
-                    ]
-                },
-                {
-                    "title": "出库管理",
-                    "icon": "fa fa-mail-reply",
-                    "target": "_self",
-                    "roles": [
-                        "SAB_cg", "SAB_sh", "ZAB_cg", "ZAB_sh", "ALL"
-                    ],
-                    "child": [
-                        {
-                            "title": "出库查询",
-                            "href": "/table_out",
-                            "icon": "fa fa-th-list",
-                            "target": "_self",
-                            "roles": [
-                                "SAB_cg", "SAB_sh", "ZAB_cg", "ZAB_sh", "ALL"
-                            ]
-                        },
                         {
                             "title": "记录查询",
                             "href": "/Inquire-all",
@@ -137,17 +109,16 @@
                             "roles": [
                                 "SAB_cg", "SAB_sh", "ZAB_cg", "ZAB_sh", "ALL"
                             ]
-                        }
-                    ]
-                },
-                {
-                    "title": "库存管理",
-                    "icon": "fa fa-server",
-                    "target": "_self",
-                    "roles": [
-                        "SAB_cg", "SAB_sh", "ZAB_cg", "ZAB_sh", "ALL"
-                    ],
-                    "child": [
+                        },
+                        {
+                            "title": "库存查询",
+                            "href": "/GenerateAndPrintQR",
+                            "icon": "fa fa-th-list",
+                            "target": "_self",
+                            "roles": [
+                                "SAB_cg", "SAB_sh", "ZAB_cg", "ZAB_sh", "ALL"
+                            ]
+                        },
                         {
                             "title": "库存查询",
                             "href": "/table_stock",

@@ -6,6 +6,7 @@ import com.depository_manage.service.BearingRecordService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class BearingRecordServiceImpl implements BearingRecordService {
@@ -34,7 +35,8 @@ public class BearingRecordServiceImpl implements BearingRecordService {
     }
 
     @Override
-    public List<BearingRecord> getAllBearingRecords() {
-        return bearingRecordMapper.selectAllBearingRecords();
+    public List<BearingRecord> filterBearingRecords(Map<String, Object> params) {
+        Integer size =8, page = 1;
+        return bearingRecordMapper.selectAllBearingRecords(params);
     }
 }

@@ -25,17 +25,34 @@
 </head>
 <body>
 <div class="container">
+    <!-- 筛选框 -->
+    <form class="layui-form" style="margin-bottom: 20px;">
+        <div class="layui-form-item">
+            <label class="layui-form-label">交易类型：</label>
+            <div class="layui-input-inline">
+                <select name="transactionType" id="transactionType" lay-filter="transactionTypeFilter">
+                    <option value="">全部</option>
+                    <option value="入库">入库</option>
+                    <option value="出库">出库</option>
+                    <option value="返库">返库</option>
+                    <option value="转入">转入</option>
+                    <option value="转出">转出</option>
+                </select>
+            </div>
+        </div>
+    </form>
     <table id="recordTable" lay-filter="recordTableFilter"></table>
 </div>
 
 <script>
-    layui.use(['table'], function(){
+    layui.use(['table', 'form'], function(){
         var table = layui.table;
+        var form = layui.form;
 
         // 渲染表格
-        table.render({
+        var recordTable =  table.render({
             elem: '#recordTable',
-            url: '/bearingRecords/all', // 数据接口
+            url: '/bearingRecords/filter', // 数据接口
             parseData: function(res) { // 将原始数据格式适配成 layui 表格组件所期望的格式
                 return {
                     "code": 0, // 解析接口状态
@@ -63,6 +80,20 @@
             ]],
             limit:20,
             page: true //开启分页
+        });
+        // 监听筛选框的选择事件
+        form.on('select(transactionTypeFilter)', function(data){
+            var req = {};
+            console.log(data);
+            if(data.value !== '') {
+                req.transactionType = data.value; // 使用 data.value 获取选择的交易类型
+            }
+            // 重新加载表格数据
+            recordTable.reload({
+                url: '/bearingRecords/filter', // 数据接口
+                where: req
+            });
+            return false;
         });
     });
 </script>

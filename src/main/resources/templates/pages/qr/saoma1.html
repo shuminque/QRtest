@@ -43,21 +43,26 @@
             left: 0px; /* 对齐到左边 */
             top: 350px; /* 对齐到顶部 */
         }
-
-        .print-info-row  p {
-            font-size: 110px;
-            font-weight: bold;
-            line-height: normal;
-            text-align: center; /* 新增：使得文字居中 */
-        }
         .print-info-row p:first-child {
             /* 第一个p元素（boxText）的样式 */
             margin-right: 70px; /* 或者适当的值 */
         }
-
         .print-info-row p:last-child {
             /* 第二个p元素（boxNumber）的样式 */
             margin-left: 50px; /* 增加间距 */
+        }
+        .print-info-row p.box-text {
+            font-size: 110px; /* boxText字体大小 */
+        }
+
+        .print-info-row p.box-number {
+            font-size: 150px; /* boxNumber字体大小 */
+        }
+
+        .print-info-row  p {
+            font-weight: bold;
+            line-height: normal;
+            text-align: center; /* 新增：使得文字居中 */
         }
         /* 设置信息容器的样式 */
         .info-container {
@@ -71,7 +76,6 @@
             writing-mode: vertical-rl; /* 设置文本为竖直从右到左排列 */
             /*transform: rotate(180deg); !* 如有必要，将文本旋转180度以获得所需的方向 *!*/
         }
-
     }
     body {
         font-family: Arial, sans-serif;
@@ -434,12 +438,12 @@
                 }).appendTo(qrCodeElement);
 
                 // 显示信息
-                var infoHtml = `
+                                var infoHtml = `
                     <div class="info-row print-info-row">
-                        <p><span>${data.boxText}</span></p>
+                        <p class="box-text"><span>${data.boxText}</span></p>
                     </div>
                     <div class="info-row print-info-row">
-                        <p><span>${data.boxNumber}</span></p>
+                        <p class="box-number"><span>${data.boxNumber}</span></p>
                     </div>
                 `;
                 var infoContainer = document.querySelector("#printSection .info-container");
@@ -725,7 +729,7 @@
             title: `${data.outerInnerRing} ${data.model} 在库信息`,
             content: generatePanKuContent(data),
             shadeClose: true,
-            area: ['80%', '20%'],
+            area: ['80%', '35%'],
             cancel: function() {
                 document.getElementById('modalScanInput').value = '';
             },
