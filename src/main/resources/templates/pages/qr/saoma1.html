@@ -36,8 +36,8 @@
 
         /* 设置二维码的大小和位置 */
         #qrcode {
-            width: 200px;
-            height: 200px; /* 保持与宽度一致 */
+            width: 250px;
+            height: 250px; /* 保持与宽度一致 */
             margin: 0 0 0 0; /* 移除外边距 */
             position: absolute; /* 绝对定位 */
             left: 0px; /* 对齐到左边 */
@@ -46,6 +46,8 @@
         .print-info-row p:first-child {
             /* 第一个p元素（boxText）的样式 */
             margin-right: 70px; /* 或者适当的值 */
+            white-space: nowrap; /* 防止自动换行 */
+
         }
         .print-info-row p:last-child {
             /* 第二个p元素（boxNumber）的样式 */
@@ -321,6 +323,32 @@
             }
         });
     }
+    function adjustPrintFontSize(boxText) {
+        var length = boxText.length;
+        var fontSize;
+
+        if (length <= 3) {
+            fontSize = '170px';
+        } else if (length <= 8) {
+            fontSize = '140px';
+        } else {
+            fontSize = '110px';
+        }
+
+        // 应用字体大小到打印样式
+        var styleSheet = document.createElement("style")
+        styleSheet.type = "text/css"
+        styleSheet.innerText = `
+        @media print {
+            .print-info-row p.box-text {
+                font-size: ${fontSize};
+            }
+        }
+    `;
+        document.head.appendChild(styleSheet);
+    }
+
+
     document.addEventListener("DOMContentLoaded", function() {
         html5QrcodeScanner = new Html5QrcodeScanner(
             "qr-reader", { fps: 60, qrbox: 400 });
@@ -351,8 +379,8 @@
                 $('<div></div>').qrcode({
                     text: qrData,
                     render: 'canvas',
-                    width: 200,
-                    height: 200,
+                    width: 250,
+                    height: 250,
                     correctLevel: 3,
                 }).appendTo(qrCodeElement);
 
@@ -432,8 +460,8 @@
                 $('<div></div>').qrcode({
                     text: qrData,
                     render: 'canvas',
-                    width: 200,
-                    height: 200,
+                    width: 250,
+                    height: 250,
                     correctLevel: 3,
                 }).appendTo(qrCodeElement);
 
@@ -448,7 +476,7 @@
                 `;
                 var infoContainer = document.querySelector("#printSection .info-container");
                 infoContainer.innerHTML = infoHtml;
-
+                adjustPrintFontSize(data.boxText);
                 // 显示元素
                 document.getElementById('qrcodeContainer').style.display = 'block';
                 document.getElementById('printSection').style.display = 'block';
