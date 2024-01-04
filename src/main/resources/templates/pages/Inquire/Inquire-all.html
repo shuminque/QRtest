@@ -39,7 +39,21 @@
                     <option value="转出">转出</option>
                 </select>
             </div>
+            <button type="button" class="layui-btn" id="advancedSearchToggle">高级搜索</button>
         </div>
+    </form>
+    <!-- 高级搜索框 -->
+    <form class="layui-form" id="advancedSearchForm" style="display: none;">
+        <!-- 这里可以放置更多的搜索字段 -->
+        <!-- 示例字段 -->
+        <div class="layui-form-item">
+            <label class="layui-form-label">客户：</label>
+            <div class="layui-input-inline">
+                <input type="text" name="customer" placeholder="请输入客户名" class="layui-input">
+            </div>
+        </div>
+        <!-- 添加更多字段... -->
+        <button type="submit" class="layui-btn">搜索</button>
     </form>
     <table id="recordTable" lay-filter="recordTableFilter"></table>
 </div>
@@ -94,6 +108,20 @@
                 where: req
             });
             return false;
+        });
+        // 高级搜索表单提交事件
+        form.on('submit(advancedSearchForm)', function(data) {
+            var formData = data.field; // 获取表单字段
+            recordTable.reload({
+                url: '/bearingRecords/filter', // 数据接口
+                where: formData
+            });
+            return false; // 阻止表单跳转
+        });
+
+        // 高级搜索开关
+        $('#advancedSearchToggle').click(function() {
+            $('#advancedSearchForm').slideToggle(); // 切换高级搜索表单的显示状态
         });
     });
 </script>

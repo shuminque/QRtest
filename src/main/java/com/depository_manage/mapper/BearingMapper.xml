@@ -3,7 +3,7 @@
 
 <mapper namespace="com.depository_manage.mapper.BearingMapper">
     <resultMap id="bearingMap" type="com.depository_manage.entity.Bearing">
-
+        <result property="id" column="id"/>
         <result property="boxText" column="box_text"/>
         <result property="boxNumber" column="box_number"/>
         <result property="model" column="model"/>

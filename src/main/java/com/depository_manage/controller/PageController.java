@@ -83,6 +83,16 @@ public class PageController {
         ModelAndView mv = new ModelAndView();
         mv.setViewName("pages/Inquire/GenerateAndPrintQR");return mv;
     }
+    @GetMapping("/bearings")
+    public ModelAndView Bearings() {
+        ModelAndView mv = new ModelAndView();
+        mv.setViewName("pages/basicdata/bearings");return mv;
+    }
+    @GetMapping("/bearing-category")
+    public ModelAndView BearingCategory() {
+        ModelAndView mv = new ModelAndView();
+        mv.setViewName("pages/basicdata/bearing-category");return mv;
+    }
 //
 //    @GetMapping("/register")
 //    public String register() {

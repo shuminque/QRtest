@@ -2,9 +2,114 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>制品分类基础表</title>
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" href="/static/lib/layui-v2.8.17/css/layui.css" media="all">
+    <script src="/static/lib/layui-v2.8.17/layui.js" charset="utf-8"></script>
+    <!-- jQuery 库 -->
+    <script src="/static/js/http_ajax.googleapis.com_ajax_libs_jquery_3.5.1_jquery.js"></script>
+    <style>
+        body {
+            padding-top: 50px;
+            background-color: #f8f9fa;
+        }
+        .container {
+            margin: 10px;
+        }
+        .layui-table-view .layui-table { /* 调整表格样式 */
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+    </style>
 </head>
 <body>
+<div class="container">
+    <table id="recordTable" lay-filter="recordTableFilter"></table>
+</div>
 
+<!-- 工具栏模板 -->
+<script type="text/html" id="actionBar">
+    <a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="delete">删除</a>
+</script>
+
+<script>
+    layui.use(['table', 'form'], function(){
+        var table = layui.table;
+        var form = layui.form;
+
+        // 渲染表格
+        var recordTable =  table.render({
+            elem: '#recordTable',
+            url: '/productCategories/', // 数据接口
+            parseData: function(res) { // 将原始数据格式适配成 layui 表格组件所期望的格式
+                return {
+                    "code": 0, // 解析接口状态
+                    "msg": "", // 解析提示文本
+                    "count": res.length, // 解析数据长度
+                    "data": res // 解析数据列表
+                };
+            },
+            cols: [ [ // 表头
+                {field: 'id', title: 'ID'},
+                {field: 'name', title: '名称'},
+                {title: '操作', toolbar: '#actionBar'} // 添加操作列
+            ]],
+            limit:20,
+            page: true //开启分页
+        });
+
+        // 监听工具条
+        table.on('tool(recordTableFilter)', function(obj){
+            var data = obj.data; // 获得当前行数据
+            var layEvent = obj.event; // 获得 lay-event 对应的值（也就是自定义的事件名）
+            if(layEvent === 'edit'){
+                // 编辑操作
+                editProductCategory(data);
+            } else if(layEvent === 'delete'){
+                // 删除操作
+                deleteProductCategory(data.id);
+            }
+        });
+    });
+    function editProductCategory(data) {
+        // 执行编辑操作，例如显示一个带有表单的模态框，并填充数据以供编辑
+    }
+
+    function deleteProductCategory(id) {
+        layer.confirm('确定要删除吗？', function (index) {
+            $.ajax({
+                url: '/productCategories/' + id,
+                type: 'DELETE',
+                success: function(res) {
+                    layer.msg('删除成功！');
+                    layui.table.reload('recordTable'); // 重新加载表格
+                },
+                error: function(err) {
+                    layer.msg('删除失败！');
+                }
+            });
+            layer.close(index);
+        });
+    }
+</script>
 </body>
 </html>
+cols: [ [ // 表头
+{field: 'transactionType', title: '交易类型'},
+{field: 'boxText', title: '箱号'},
+{field: 'boxNumber', title: '箱号编号'},
+{field: 'quantity', title: '数量'},
+{field: 'time', title: '交易日期和时间', templet: function(d) {
+return d.time.split('T')[0]; // 格式化日期
+}},
+{field: 'depository', title: '厂区'},
+{field: 'customer', title: '客户'},
+{field: 'outerInnerRing', title: '外/内轮'},
+{field: 'model', title: '型号'},
+{field: 'productCategory', title: '制品分类'},
+{field: 'steelType', title: '钢种'},
+{field: 'steelGrade', title: '钢材等级'},
+{field: 'remarks', title: '备注'}
+]],

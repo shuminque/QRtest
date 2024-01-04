@@ -109,8 +109,8 @@
     // 获取最新的箱号编号和数量
     function fetchLatestBoxNumberAndQuantity(boxText) {
         $.ajax({
-            // url: "/productIds/Old",
-            url: "/productIds/",
+            url: "/productIds/Old",
+            // url: "/productIds/",
             type: "GET",
             data: { boxText: boxText, depositoryId: depositoryId },
             success: function(response) {
