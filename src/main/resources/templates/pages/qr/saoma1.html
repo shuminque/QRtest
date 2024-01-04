@@ -36,8 +36,8 @@
 
         /* 设置二维码的大小和位置 */
         #qrcode {
-            width: 250px;
-            height: 250px; /* 保持与宽度一致 */
+            width: 200px;
+            height: 200px; /* 保持与宽度一致 */
             margin: 0 0 0 0; /* 移除外边距 */
             position: absolute; /* 绝对定位 */
             left: 0px; /* 对齐到左边 */
@@ -45,13 +45,13 @@
         }
         .print-info-row p:first-child {
             /* 第一个p元素（boxText）的样式 */
-            margin-right: 70px; /* 或者适当的值 */
+            margin-right: 50px; /* 或者适当的值 */
             white-space: nowrap; /* 防止自动换行 */
 
         }
         .print-info-row p:last-child {
             /* 第二个p元素（boxNumber）的样式 */
-            margin-left: 20px; /* 增加间距 */
+            margin-left: 5px; /* 增加间距 */
         }
         .print-info-row p.box-text {
             font-size: 140px; /* boxText字体大小 */
@@ -328,7 +328,7 @@
         var fontSize;
 
         if (length <= 3) {
-            fontSize = '170px';
+            fontSize = '200px';
         } else if (length <= 8) {
             fontSize = '140px';
         } else {
@@ -379,8 +379,8 @@
                 $('<div></div>').qrcode({
                     text: qrData,
                     render: 'canvas',
-                    width: 250,
-                    height: 250,
+                    width: 200,
+                    height: 200,
                     correctLevel: 3,
                 }).appendTo(qrCodeElement);
 
@@ -460,8 +460,8 @@
                 $('<div></div>').qrcode({
                     text: qrData,
                     render: 'canvas',
-                    width: 250,
-                    height: 250,
+                    width: 200,
+                    height: 200,
                     correctLevel: 3,
                 }).appendTo(qrCodeElement);
 
