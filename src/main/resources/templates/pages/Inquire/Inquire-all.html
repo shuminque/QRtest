@@ -10,12 +10,9 @@
     <script src="/static/js/http_ajax.googleapis.com_ajax_libs_jquery_3.5.1_jquery.js"></script>
     <style>
         body {
-            padding-top: 50px;
             background-color: #f8f9fa;
         }
-        .container {
-            margin: 10px;
-        }
+
         .layui-table-view .layui-table { /* 调整表格样式 */
             background-color: white;
             border-radius: 10px;
@@ -26,36 +23,44 @@
 <body>
 <div class="container">
     <!-- 统一的搜索表单 -->
-    <form class="layui-form" style="margin-bottom: 20px;" id="searchForm">
+    <form class="layui-form"  id="searchForm">
+
         <div class="layui-form-item">
-            <div class="layui-inline">
-                <div class="layui-input-inline">
-                    <select name="transactionType" id="transactionType">
-                        <option value="">选择交易类型</option>
-                        <option value="入库">入库</option>
-                        <option value="出库">出库</option>
-                        <option value="返库">返库</option>
-                        <option value="转入">转入</option>
-                        <option value="转出">转出</option>
-                    </select>
-                </div>
-            </div>
             <div class="layui-input-inline">
                 <input type="text" name="time" id="date" placeholder="请选择起止日期" autocomplete="off" class="layui-input">
             </div>
             <div class="layui-input-inline">
+                <select name="transactionType" id="transactionType">
+                    <option value="">选择交易类型</option>
+                    <option value="入库">入库</option>
+                    <option value="出库">出库</option>
+                    <option value="返库">返库</option>
+                    <option value="转入">转入</option>
+                    <option value="转出">转出</option>
+                </select>
+            </div>
+
+            <div class="layui-input-inline">
                 <input type="text" name="boxText" placeholder="搜索箱号" class="layui-input">
+            </div>
+            <div class="layui-input-inline">
+                <input type="text" name="boxNumber" placeholder="搜索箱号编号" class="layui-input">
+            </div>
+            <div>
+                <div class="layui-input-inline">
+                    <select name="depository">
+                        <option value="" selected>搜索厂区</option>
+                        <option value="SAB" >SAB</option>
+                        <option value="ZAB" >ZAB</option>
+                    </select>
+                </div>
             </div>
             <div class="layui-inline">
                 <button type="button" class="layui-btn" id="advancedSearchToggle">高级搜索</button>
             </div>
             <div class="layui-inline" id="advancedSearchForm" style="display: none;">
-
                 <div class="layui-input-inline">
-                    <input type="text" name="boxNumber" placeholder="搜索箱号编号" class="layui-input">
-                </div>
-                <div class="layui-input-inline">
-                    <input type="text" name="customer" placeholder="搜索客户名" class="layui-input">
+                    <input type="text" name="customer" placeholder="搜索客户" class="layui-input">
                 </div>
                 <div class="layui-input-inline">
                     <select name="outerInnerRing">
@@ -128,7 +133,7 @@
                 {field: 'boxText', title: '箱号'},
                 {field: 'boxNumber', title: '箱号编号'},
                 {field: 'quantity', title: '数量'},
-                {field: 'time', title: '交易日期和时间', templet: function(d) {
+                {field: 'time', title: '时间', templet: function(d) {
                         return formatDate(d.time);
                     }},
                 {field: 'depository', title: '厂区'},
