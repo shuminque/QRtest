@@ -2,7 +2,10 @@ package com.depository_manage.service.impl;
 
 import com.depository_manage.entity.Material;
 import com.depository_manage.mapper.*;
-import com.depository_manage.mapper.*;
+import com.depository_manage.mapper.old.MaterialEnginMapper;
+import com.depository_manage.mapper.old.MaterialMapper;
+import com.depository_manage.mapper.old.MaterialStateMapper;
+import com.depository_manage.mapper.old.MaterialTypeMapper;
 import com.depository_manage.pojo.MaterialP;
 import com.depository_manage.service.MaterialService;
 import com.depository_manage.utils.ObjectFormatUtil;

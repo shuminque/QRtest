@@ -30,6 +30,12 @@ public class PageController {
     private MaterialTypeService materialTypeService;
     @Autowired
     private CategoryService categoryService;
+    @Autowired
+    private ProductCategoryService productCategoryService;
+    @Autowired
+    private SteelGradeService steelGradeService;
+    @Autowired
+    private SteelTypeService steelTypeService;
     @GetMapping("/login")
     public String login() {
         return "pages/user/login";
@@ -76,7 +82,11 @@ public class PageController {
     }
     @GetMapping("/Inquire-all")
     public ModelAndView InquireAll() {
-        ModelAndView mv = new ModelAndView();mv.setViewName("pages/Inquire/Inquire-all");return mv;
+        ModelAndView mv = new ModelAndView();mv.setViewName("pages/Inquire/Inquire-all");
+        mv.addObject("productCategorys", productCategoryService.findAll());
+        mv.addObject("steelGrades", steelGradeService.findAll());
+        mv.addObject("steelTypes", steelTypeService.findAll());
+        return mv;
     }
     @GetMapping("/GenerateAndPrintQR")
     public ModelAndView GenerateAndPrintQR() {
@@ -86,12 +96,23 @@ public class PageController {
     @GetMapping("/bearings")
     public ModelAndView Bearings() {
         ModelAndView mv = new ModelAndView();
-        mv.setViewName("pages/basicdata/bearings");return mv;
+        mv.setViewName("pages/basicdata/bearings");
+        return mv;
     }
     @GetMapping("/bearing-category")
     public ModelAndView BearingCategory() {
         ModelAndView mv = new ModelAndView();
         mv.setViewName("pages/basicdata/bearing-category");return mv;
+    }
+    @GetMapping("/bearing-steel-grade")
+    public ModelAndView steelGrade() {
+        ModelAndView mv = new ModelAndView();
+        mv.setViewName("pages/basicdata/bearing-steel-grade");return mv;
+    }
+    @GetMapping("/bearing-steel-type")
+    public ModelAndView steelType() {
+        ModelAndView mv = new ModelAndView();
+        mv.setViewName("pages/basicdata/bearing-steel-type");return mv;
     }
 //
 //    @GetMapping("/register")

@@ -77,7 +77,12 @@ public class BearingRecordController {
 
     @GetMapping("/filter")
     public ResponseEntity<?> filterBearingRecords(@RequestParam Map<String, Object> params) {
-        System.out.println("Received filter params: " + params);
+        String dateRange = (String) params.get("time");
+        if (dateRange !=null && dateRange.contains(" - ")){
+            String[] dates = dateRange.split(" - ");
+            params.put("startDate", dates[0] + " 00:00:00");
+            params.put("endDate", dates[1] + " 23:59:59");
+        }
         List<BearingRecord> records = bearingRecordService.filterBearingRecords(params);
         return ResponseEntity.ok(records);
     }

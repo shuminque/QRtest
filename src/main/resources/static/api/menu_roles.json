@@ -144,9 +144,16 @@
                             "roles": ["SAB_cg","SAB_sh","ZAB_cg","ZAB_sh","ALL"]
                         },
                         {
-                            "title": "工程信息",
-                            "href": "/materialEngin_add",
+                            "title": "钢等信息",
+                            "href": "/bearing-steel-grade",
                             "icon": "layui-icon layui-icon-util",
+                            "target": "_self",
+                            "roles": ["SAB_cg","SAB_sh","ZAB_cg","ZAB_sh","ALL"]
+                        },
+                        {
+                            "title": "钢种信息",
+                            "href": "/bearing-steel-type",
+                            "icon": "layui-icon layui-icon-dollar",
                             "target": "_self",
                             "roles": ["SAB_cg","SAB_sh","ZAB_cg","ZAB_sh","ALL"]
                         },
@@ -154,27 +161,6 @@
                             "title": "厂区信息",
                             "href": "/depository_add",
                             "icon": "layui-icon layui-icon-template",
-                            "target": "_self",
-                            "roles": ["SAB_cg","SAB_sh","ZAB_cg","ZAB_sh","ALL"]
-                        },
-                        {
-                            "title": "汇率信息",
-                            "href": "/rate_add",
-                            "icon": "layui-icon layui-icon-dollar",
-                            "target": "_self",
-                            "roles": ["SAB_cg","SAB_sh","ZAB_cg","ZAB_sh","ALL"]
-                        },
-                        {
-                            "title": "领用信息",
-                            "href": "/dropData_add",
-                            "icon": "layui-icon layui-icon-form",
-                            "target": "_self",
-                            "roles": ["SAB_cg","SAB_sh","ZAB_cg","ZAB_sh","ALL"]
-                        },
-                        {
-                            "title": "产量信息",
-                            "href": "/productInfo_add",
-                            "icon": "layui-icon layui-icon-chart",
                             "target": "_self",
                             "roles": ["SAB_cg","SAB_sh","ZAB_cg","ZAB_sh","ALL"]
                         }
@@ -215,15 +201,6 @@
                                 "SAB_cg", "SAB_sh", "ZAB_cg", "ZAB_sh", "ALL"
                             ]
                         }
-                    ]
-                },
-                {
-                    "title": "任务审批",
-                    "icon": "fa fa-tasks",
-                    "target": "_self",
-                    "href": "/my_task",
-                    "roles": [
-                        "SAB_sh", "ZAB_sh", "ALL"
                     ]
                 },
                 {

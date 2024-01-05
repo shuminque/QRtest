@@ -21,8 +21,8 @@
 
     <!-- 插入新的制品分类 -->
     <insert id="insert">
-        INSERT INTO product_category (name)
-        VALUES (#{name})
+        INSERT INTO product_category (id,name)
+        VALUES (#{id}, #{name})
     </insert>
 
     <!-- 更新制品分类 -->

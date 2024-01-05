@@ -25,23 +25,23 @@
 </head>
 <body>
 <div class="container">
-    <!-- 筛选框 -->
-    <form class="layui-form" style="margin-bottom: 20px;">
-        <div class="layui-form-item">
-            <label class="layui-form-label">交易类型：</label>
-            <div class="layui-input-inline">
-                <select name="transactionType" id="transactionType" lay-filter="transactionTypeFilter">
-                    <option value="">全部</option>
-                    <option value="入库">入库</option>
-                    <option value="出库">出库</option>
-                    <option value="返库">返库</option>
-                    <option value="转入">转入</option>
-                    <option value="转出">转出</option>
-                </select>
-            </div>
-        </div>
-    </form>
-    <table id="recordTable" lay-filter="recordTableFilter"></table>
+<!--    &lt;!&ndash; 筛选框 &ndash;&gt;-->
+<!--    <form class="layui-form" style="margin-bottom: 20px;">-->
+<!--        <div class="layui-form-item">-->
+<!--            <label class="layui-form-label">交易类型：</label>-->
+<!--            <div class="layui-input-inline">-->
+<!--                <select name="transactionType" id="transactionType" lay-filter="transactionTypeFilter">-->
+<!--                    <option value="">全部</option>-->
+<!--                    <option value="入库">入库</option>-->
+<!--                    <option value="出库">出库</option>-->
+<!--                    <option value="返库">返库</option>-->
+<!--                    <option value="转入">转入</option>-->
+<!--                    <option value="转出">转出</option>-->
+<!--                </select>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--    </form>-->
+    <table class="layui-hide" id="recordTable" lay-filter="recordTableFilter"></table>
 </div>
 
 <script>

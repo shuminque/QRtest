@@ -101,5 +101,20 @@
         <if test="customer != null and customer != ''">
             AND customer = #{customer}
         </if>
+        <if test="productCategory != null and productCategory != ''">
+            AND product_category = #{productCategory}
+        </if>
+        <if test="outerInnerRing != null and outerInnerRing != ''">
+            AND outer_inner_ring = #{outerInnerRing}
+        </if>
+        <if test="steelType != null and steelType != ''">
+            AND steel_type = #{steelType}
+        </if>
+        <if test="steelGrade != null and steelGrade != ''">
+            AND steel_grade = #{steelGrade}
+        </if>
+        <if test="startDate != null and endDate != null">
+            AND DATE(time) BETWEEN #{startDate} AND #{endDate}
+        </if>
     </select>
 </mapper>
