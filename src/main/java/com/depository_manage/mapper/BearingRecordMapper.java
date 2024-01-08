@@ -2,6 +2,7 @@ package com.depository_manage.mapper;
 
 import com.depository_manage.entity.BearingRecord;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 import java.util.Map;
@@ -22,4 +23,9 @@ public interface BearingRecordMapper {
 
     // 获取所有记录
     List<BearingRecord> selectAllBearingRecords(Map<String,Object> params);
+
+    boolean hasSpecialRecord(@Param("boxText") String boxText,
+                             @Param("boxNumber") String boxNumber,
+                             @Param("depository") String depository);
+
 }

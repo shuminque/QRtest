@@ -102,4 +102,8 @@ public class ProductIdServiceImpl implements ProductIdService {
         // 考虑到null的情况，null也视为未入库
         return stockedStatus != null && stockedStatus == 1;
     }
+    public boolean updateQuantity(ProductId productId) {
+        return productIdMapper.updateQuantity(productId) > 0;
+    }
+
 }

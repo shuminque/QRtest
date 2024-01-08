@@ -3,6 +3,7 @@ package com.depository_manage.controller;
 import com.depository_manage.entity.ProductId;
 import com.depository_manage.service.ProductIdService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -72,4 +73,17 @@ public class ProductIdController {
             return ResponseEntity.notFound().build();
         }
     }
+    @PostMapping("/updateQuantity")
+    public ResponseEntity<?> updateQuantity(@RequestBody ProductId productId) {
+        System.out.println(productId);
+        boolean updateSuccess = productIdService.updateQuantity(productId);
+
+        if (updateSuccess) {
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("更新失败");
+        }
+    }
+
+
 }

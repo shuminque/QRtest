@@ -86,6 +86,13 @@ public class BearingRecordController {
         List<BearingRecord> records = bearingRecordService.filterBearingRecords(params);
         return ResponseEntity.ok(records);
     }
+    @GetMapping("/checkSpecialRecord/{boxText}/{boxNumber}/{depositoryName}")
+    public ResponseEntity<?> checkSpecialRecord(@PathVariable String boxText,
+                                                @PathVariable String boxNumber,
+                                                @PathVariable String depositoryName) {
+        boolean hasSpecial = bearingRecordService.hasSpecialRecord(boxText, boxNumber, depositoryName);
+        return ResponseEntity.ok(Collections.singletonMap("hasSpecial", hasSpecial));
+    }
 
 
 }

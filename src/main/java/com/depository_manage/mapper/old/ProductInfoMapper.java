@@ -1,4 +1,4 @@
-package com.depository_manage.mapper;
+package com.depository_manage.mapper.old;
 
 import com.depository_manage.entity.ProductInfo;
 import org.apache.ibatis.annotations.Mapper;

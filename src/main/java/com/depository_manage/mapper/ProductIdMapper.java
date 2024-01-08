@@ -31,5 +31,6 @@ public interface ProductIdMapper {
     int selectQuantityByBoxTextAndBoxNumber(@Param("boxText") String boxText,
                                             @Param("boxNumber") String boxNumber,
                                             @Param("depositoryId") int depositoryId);
+    int updateQuantity(ProductId productId);
 
 }

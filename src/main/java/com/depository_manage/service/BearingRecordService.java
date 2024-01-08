@@ -10,4 +10,7 @@ public interface BearingRecordService {
     void deleteBearingRecordById(int id);
     BearingRecord getBearingRecordById(int id);
     public List<BearingRecord> filterBearingRecords(Map<String, Object> params);
+    public boolean hasSpecialRecord(String boxText, String boxNumber, String depository);
+
+
 }

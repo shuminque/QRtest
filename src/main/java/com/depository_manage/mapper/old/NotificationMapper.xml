@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <!-- 通知记录(notifications) -->
-<mapper namespace="com.depository_manage.mapper.NotificationMapper">
+<mapper namespace="com.depository_manage.mapper.old.NotificationMapper">
 
     <!-- 字段映射 -->
     <resultMap id="notificationMap" type="com.depository_manage.entity.Notification">

@@ -94,11 +94,11 @@
             minLength: 1, autoSelect: true
         });
         // 当用户选择一个选项或填写箱号时更新输入框并获取最新的箱号编号
-        $('#boxText').on('typeahead:select change', function(event) {
-            // 获取选择或输入的箱号
-            const boxText = $(this).val();
-            fetchLatestBoxNumberAndQuantity(boxText);
-        });
+        // $('#boxText').on('typeahead:select change', function(event) {
+        //     // 获取选择或输入的箱号
+        //     const boxText = $(this).val();
+        //     fetchLatestBoxNumberAndQuantity(boxText);
+        // });
         // 监听箱号编号输入框的变化
         $('#boxNumber').on('change', function() {
             const boxText = $('#boxText').val();

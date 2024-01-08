@@ -94,7 +94,7 @@
                     ]
                 },
                 {
-                    "title": "产品管理",
+                    "title": "产品仓库管理",
                     "icon": "fa fa-server",
                     "target": "_self",
                     "roles": [
@@ -102,7 +102,16 @@
                     ],
                     "child": [
                         {
-                            "title": "记录查询",
+                            "title": "进出查询",
+                            "href": "/Inquire-all",
+                            "icon": "fa fa-th-list",
+                            "target": "_self",
+                            "roles": [
+                                "SAB_cg", "SAB_sh", "ZAB_cg", "ZAB_sh", "ALL"
+                            ]
+                        },
+                        {
+                            "title": "在库查询",
                             "href": "/Inquire-all",
                             "icon": "fa fa-th-list",
                             "target": "_self",

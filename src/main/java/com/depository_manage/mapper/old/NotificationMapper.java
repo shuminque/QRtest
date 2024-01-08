@@ -1,4 +1,4 @@
-package com.depository_manage.mapper;
+package com.depository_manage.mapper.old;
 
 import com.depository_manage.entity.Notification;
 import org.apache.ibatis.annotations.Mapper;

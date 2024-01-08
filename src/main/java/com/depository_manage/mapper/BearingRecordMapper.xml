@@ -113,8 +113,19 @@
         <if test="steelGrade != null and steelGrade != ''">
             AND steel_grade = #{steelGrade}
         </if>
+        <if test="depository != null and depository != ''">
+            AND depository = #{depository}
+        </if>
         <if test="startDate != null and endDate != null">
             AND DATE(time) BETWEEN #{startDate} AND #{endDate}
         </if>
     </select>
+    <select id="hasSpecialRecord" resultType="boolean">
+        SELECT COUNT(*) > 0 FROM bearing_records
+        WHERE box_text = #{boxText} AND box_number = #{boxNumber}
+          AND depository = #{depository}
+          AND transaction_type IN ('返库', '出库', '转入')
+    </select>
+
+
 </mapper>

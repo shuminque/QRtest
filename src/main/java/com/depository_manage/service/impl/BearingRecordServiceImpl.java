@@ -39,4 +39,9 @@ public class BearingRecordServiceImpl implements BearingRecordService {
         Integer size =8, page = 1;
         return bearingRecordMapper.selectAllBearingRecords(params);
     }
+
+    @Override
+    public boolean hasSpecialRecord(String boxText, String boxNumber, String depository) {
+        return bearingRecordMapper.hasSpecialRecord(boxText, boxNumber, depository);
+    }
 }

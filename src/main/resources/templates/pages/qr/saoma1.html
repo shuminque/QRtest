@@ -657,17 +657,70 @@
             });
     }
     // 入库操作
-    function stockIn(boxText, boxNumber, quantity, operationType, depositoryId) {
+    function stockIn(boxText, boxNumber, originalQuantity, operationType, depositoryId) {
+        var depositoryName = convertDepositoryIdToText(depositoryId);
+        fetch(`/bearingRecords/checkSpecialRecord/${boxText}/${boxNumber}/${depositoryName}`)
+            .then(response => response.json())
+            .then(data => {
+                if (!data.hasSpecial) {
+                    return proceedStockIn(boxText, boxNumber, originalQuantity, operationType, depositoryId);
+                }
+                let userInput = prompt('该物品有特殊记录（返库、出库或转入）。请输入或确认数量：', originalQuantity);
+                if (userInput === null || isNaN(userInput) || parseInt(userInput, 10) <= 0) {
+                    throw new Error('用户取消操作或输入无效');
+                }
+                return updateProductQuantity(boxText, boxNumber, parseInt(userInput, 10), depositoryId)
+                    .then(() => proceedStockIn(boxText, boxNumber, parseInt(userInput, 10), operationType, depositoryId));
+            })
+            .catch(error => {
+                if (error.message.includes('入库操作失败') || error.message.includes('用户取消操作')) {
+                    console.error(error.message);
+                } else {
+                    console.error('更新数量或入库操作失败，正在尝试回滚:', error);
+                    return updateProductQuantity(boxText, boxNumber, originalQuantity, depositoryId)
+                        .catch(rollbackError => {
+                            console.error('回滚更新数量时出错:', rollbackError);
+                        });
+                }
+            });
+    }
+
+    function updateProductQuantity(boxText, boxNumber, newQuantity, depositoryId) {
+        return fetch('/productIds/updateQuantity', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                boxText: boxText,
+                boxNumber: boxNumber,
+                quantity: newQuantity,
+                depositoryId: depositoryId
+            })
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('更新失败，状态码：' + response.status);
+                }
+                if (response.headers.get("Content-Type")?.includes("application/json")) {
+                    return response.json();
+                } else {
+                    // 响应为空时，直接返回成功的结果
+                    return { message: '更新成功' };
+                }
+            });
+    }
+    function proceedStockIn(boxText, boxNumber, quantity, operationType, depositoryId) {
         const operationTypeChinese = getOperationTypeInChinese(operationType);
         var inventoryDto = {
             boxText: boxText,
             boxNumber: boxNumber,
             quantityInStock: quantity,
             operationType: operationTypeChinese,
-            depositoryId: depositoryId // 添加 depositoryId 字段
+            depositoryId: depositoryId
         };
 
-        fetch('/bearingInventory/stockIn', {
+        return fetch('/bearingInventory/stockIn', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(inventoryDto),
@@ -678,31 +731,27 @@
                     return response.json().then(err => {
                         console.log(err);
                         // 根据错误信息显示不同的弹出消息
+                        let errorMsg = "入库失败";
                         if (err.message === "产品已入库，不能再次入库") {
                             layer.alert("该箱号产品重复入库，操作无效", {icon: 2});
+                            errorMsg = "产品已入库，不能再次入库";
                         } else {
                             layer.alert(`错误: ` + err.message, {icon: 2});
+                            errorMsg = err.message;
                         }
-                        throw new Error(err.message);
+                        // 在任何失败的情况下都抛出错误
+                        throw new Error(errorMsg);
                     });
                 }
                 return response.json();
             })
             .then(data => {
-                // 显示操作成功的结果
-                // layer.alert(`${operationTypeChinese}成功: `, {icon: 6});
                 layer.msg("入库成功",{icon: 6, time:1000});
                 showResult(`${operationTypeChinese}成功: ` + JSON.stringify(data));
                 return addBearingRecord(operationTypeChinese, boxText, boxNumber, quantity, depositoryId);
-            })
-            .catch(error => {
-                // 在此也可以处理其他类型的错误
-                console.error(`${operationTypeChinese}失败:`, error);
-            })
-            .finally(() => {
-                resetScanner(false);
             });
     }
+
 
     // 出库操作
     function stockOut(boxText, boxNumber, quantity, operationType, depositoryId) {

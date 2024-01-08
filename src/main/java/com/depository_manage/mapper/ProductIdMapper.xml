@@ -62,4 +62,10 @@
         WHERE box_text = #{boxText} AND box_number = #{boxNumber} AND depository_id = #{depositoryId}
             LIMIT 1
     </select>
+    <update id="updateQuantity">
+        UPDATE product_ids
+        SET quantity = #{quantity}
+        WHERE box_text = #{boxText} AND box_number = #{boxNumber} AND depository_id = #{depositoryId}
+    </update>
+
 </mapper>
