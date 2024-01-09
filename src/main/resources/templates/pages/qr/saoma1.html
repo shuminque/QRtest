@@ -669,12 +669,18 @@
                 if (userInput === null || isNaN(userInput) || parseInt(userInput, 10) <= 0) {
                     throw new Error('用户取消操作或输入无效');
                 }
-                return updateProductQuantity(boxText, boxNumber, parseInt(userInput, 10), depositoryId)
-                    .then(() => proceedStockIn(boxText, boxNumber, parseInt(userInput, 10), operationType, depositoryId))
-                    .then(() => {
-                        // 更新二维码
-                        updateQRCodeWithData(boxText, boxNumber, parseInt(userInput, 10), depositoryName);
-                    });
+                const newQuantity = parseInt(userInput, 10);
+                if (newQuantity !== originalQuantity) {
+                    // 仅在数量变化时更新数量和二维码
+                    return updateProductQuantity(boxText, boxNumber, newQuantity, depositoryId)
+                        .then(() => proceedStockIn(boxText, boxNumber, newQuantity, operationType, depositoryId))
+                        .then(() => {
+                            updateQRCodeWithData(boxText, boxNumber, newQuantity, depositoryName);
+                        });
+                } else {
+                    // 数量未变化，直接执行入库操作
+                    return proceedStockIn(boxText, boxNumber, originalQuantity, operationType, depositoryId);
+                }
             })
             .catch(error => {
                 if (error.message.includes('入库操作失败') || error.message.includes('用户取消操作')) {

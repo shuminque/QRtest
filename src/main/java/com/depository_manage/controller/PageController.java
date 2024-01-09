@@ -162,10 +162,10 @@ public class PageController {
     }
 //
 //
-//    @GetMapping("/depository_add")
-//    public String depository_add() {
-//        return "pages/other/depository_add";
-//    }
+    @GetMapping("/depository_add")
+    public String depository_add() {
+        return "pages/other/depository_add";
+    }
 //
 //    @GetMapping("/materialType_add")
 //    public String materialType_add() {
