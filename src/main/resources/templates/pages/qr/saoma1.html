@@ -670,7 +670,11 @@
                     throw new Error('用户取消操作或输入无效');
                 }
                 return updateProductQuantity(boxText, boxNumber, parseInt(userInput, 10), depositoryId)
-                    .then(() => proceedStockIn(boxText, boxNumber, parseInt(userInput, 10), operationType, depositoryId));
+                    .then(() => proceedStockIn(boxText, boxNumber, parseInt(userInput, 10), operationType, depositoryId))
+                    .then(() => {
+                        // 更新二维码
+                        updateQRCodeWithData(boxText, boxNumber, parseInt(userInput, 10), depositoryName);
+                    });
             })
             .catch(error => {
                 if (error.message.includes('入库操作失败') || error.message.includes('用户取消操作')) {
@@ -683,6 +687,37 @@
                         });
                 }
             });
+    }
+    function updateQRCodeWithData(boxText, boxNumber, quantity, depositoryName) {
+        var qrData = JSON.stringify({
+            boxText: boxText,
+            boxNumber: boxNumber,
+            quantity: quantity,
+            depository: depositoryName
+        });
+
+        var qrCodeElement = document.getElementById("qrcode");
+        qrCodeElement.innerHTML = ""; // 清除旧的二维码
+        $('<div></div>').qrcode({
+            text: qrData,
+            render: 'canvas',
+            width: 200,
+            height: 200,
+            correctLevel: 3,
+        }).appendTo(qrCodeElement);
+        // 显示信息
+        var infoHtml = `
+                    <div class="info-row print-info-row">
+                        <p class="box-text"><span>${boxText}</span></p>
+                    </div>
+                    <div class="info-row print-info-row">
+                        <p class="box-number"><span>${boxNumber}</span></p>
+                    </div>
+                `;
+        var infoContainer = document.querySelector("#printSection .info-container");
+        infoContainer.innerHTML = infoHtml;
+        adjustPrintFontSize(boxText);
+        window.print();
     }
 
     function updateProductQuantity(boxText, boxNumber, newQuantity, depositoryId) {
