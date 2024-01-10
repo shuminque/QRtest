@@ -93,6 +93,11 @@ public class PageController {
         ModelAndView mv = new ModelAndView();
         mv.setViewName("pages/Inquire/GenerateAndPrintQR");return mv;
     }
+    @GetMapping("/Inquire-stock")
+    public ModelAndView InquireStock() {
+        ModelAndView mv = new ModelAndView();
+        mv.setViewName("pages/Inquire/Inquire-stock");return mv;
+    }
     @GetMapping("/bearings")
     public ModelAndView Bearings() {
         ModelAndView mv = new ModelAndView();
@@ -114,6 +119,7 @@ public class PageController {
         ModelAndView mv = new ModelAndView();
         mv.setViewName("pages/basicdata/bearing-steel-type");return mv;
     }
+
 //
 //    @GetMapping("/register")
 //    public String register() {

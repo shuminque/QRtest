@@ -221,6 +221,24 @@
             font-size: 38px; /* Smaller font size for mobile devices */
         }
     }
+    /* Layer 弹出框标题样式 */
+    .layui-layer-title {
+        text-align: center; /* 标题居中 */
+        font-size: 22px; /* 增大字体大小 */
+    }
+
+    /* Layer 弹出框按钮样式 */
+    .layui-layer-btn .layui-layer-btn0, .layui-layer-btn .layui-layer-btn1 {
+        width: 40%;
+        height: 20%;
+        font-size: 30px; /* 增大按钮字体大小 */
+    }
+
+    /* 调整按钮容器的样式，使按钮居中 */
+    .layui-layer-btn {
+        text-align: center;
+    }
+
 </style>
 
 <body>
@@ -283,6 +301,11 @@
     <div id="printSection">
         <div class="info-container"></div>
     </div>
+</div>
+<!-- 隐藏的确认模态框内容 -->
+<div id="confirmModal" style="display: none;">
+<!--    <p id="confirmModalText">请输入新的数量：</p>-->
+    <input type="number" id="confirmQuantityInput" class="layui-input">
 </div>
 
 <div id="operation-result" style="display:none;"></div>
@@ -659,41 +682,67 @@
     // 入库操作
     function stockIn(boxText, boxNumber, originalQuantity, operationType, depositoryId) {
         var depositoryName = convertDepositoryIdToText(depositoryId);
-        fetch(`/bearingRecords/checkSpecialRecord/${boxText}/${boxNumber}/${depositoryName}`)
+        fetch(`/bearingRecords/checkSpecialRecord/${boxText}/${boxNumber}/${depositoryName}/${originalQuantity}`)
             .then(response => response.json())
             .then(data => {
                 if (!data.hasSpecial) {
                     return proceedStockIn(boxText, boxNumber, originalQuantity, operationType, depositoryId);
                 }
-                let userInput = prompt('该物品有特殊记录（返库、出库或转入）。请输入或确认数量：', originalQuantity);
-                if (userInput === null || isNaN(userInput) || parseInt(userInput, 10) <= 0) {
-                    throw new Error('用户取消操作或输入无效');
-                }
-                const newQuantity = parseInt(userInput, 10);
-                if (newQuantity !== originalQuantity) {
-                    // 仅在数量变化时更新数量和二维码
-                    return updateProductQuantity(boxText, boxNumber, newQuantity, depositoryId)
-                        .then(() => proceedStockIn(boxText, boxNumber, newQuantity, operationType, depositoryId))
-                        .then(() => {
-                            updateQRCodeWithData(boxText, boxNumber, newQuantity, depositoryName);
-                        });
-                } else {
-                    // 数量未变化，直接执行入库操作
-                    return proceedStockIn(boxText, boxNumber, originalQuantity, operationType, depositoryId);
-                }
+                // 设置提示文本
+                // $('#confirmModalText').text('：');
+                // 弹出自定义的确认框
+                layer.open({
+                    type: 1,
+                    title: '该箱号产品多次入库，需要确认数量，数量有变化，重新打印二维码',
+                    content: $('#confirmModal'),
+                    area: ['80%', '30%'],
+                    btn: ['确认', '取消'],
+                    success: function(layero, index) {
+                        $('#confirmQuantityInput').val(originalQuantity); // 设置默认值
+                    },
+                    yes: function(index, layero) {
+                        const newQuantity = parseInt($('#confirmQuantityInput').val(), 10);
+                        if (isNaN(newQuantity) || newQuantity <= 0) {
+                            layer.msg('请输入有效数量');
+                            return;
+                        }
+                        layer.close(index); // 关闭确认框
+                        handleQuantityUpdate(boxText, boxNumber, newQuantity, originalQuantity, operationType, depositoryId, depositoryName);
+                    },
+                    btn2: function(index, layero) {
+                        layer.close(index); // 关闭确认框
+                    }
+                });
             })
             .catch(error => {
-                if (error.message.includes('入库操作失败') || error.message.includes('用户取消操作')) {
-                    console.error(error.message);
-                } else {
+                console.error('检查特殊记录时出错:', error);
+            });
+    }
+
+    function handleQuantityUpdate(boxText, boxNumber, newQuantity, originalQuantity, operationType, depositoryId, depositoryName) {
+        if (newQuantity !== originalQuantity) {
+            // 仅在数量变化时更新数量和二维码
+            updateProductQuantity(boxText, boxNumber, newQuantity, depositoryId)
+                .then(() => proceedStockIn(boxText, boxNumber, newQuantity, operationType, depositoryId))
+                .then(() => {
+                    updateQRCodeWithData(boxText, boxNumber, newQuantity, depositoryName);
+                })
+                .catch(error => {
                     console.error('更新数量或入库操作失败，正在尝试回滚:', error);
                     return updateProductQuantity(boxText, boxNumber, originalQuantity, depositoryId)
                         .catch(rollbackError => {
                             console.error('回滚更新数量时出错:', rollbackError);
                         });
-                }
-            });
+                });
+        } else {
+            // 数量未变化，直接执行入库操作
+            proceedStockIn(boxText, boxNumber, originalQuantity, operationType, depositoryId)
+                .catch(error => {
+                    console.error('入库操作失败:', error);
+                });
+        }
     }
+
     function updateQRCodeWithData(boxText, boxNumber, quantity, depositoryName) {
         var qrData = JSON.stringify({
             boxText: boxText,

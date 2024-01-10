@@ -4,6 +4,7 @@ import com.depository_manage.entity.BearingRecord;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -26,6 +27,8 @@ public interface BearingRecordMapper {
 
     boolean hasSpecialRecord(@Param("boxText") String boxText,
                              @Param("boxNumber") String boxNumber,
-                             @Param("depository") String depository);
+                             @Param("depository") String depository,
+                             @Param("quantity") int quantity);
+    List<BearingRecord> selectInventoryByCutoffDate(@Param("cutoffDate") Date cutoffDate);
 
 }

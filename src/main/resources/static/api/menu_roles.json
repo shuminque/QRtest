@@ -112,7 +112,7 @@
                         },
                         {
                             "title": "在库查询",
-                            "href": "/Inquire-all",
+                            "href": "/Inquire-stock",
                             "icon": "fa fa-th-list",
                             "target": "_self",
                             "roles": [

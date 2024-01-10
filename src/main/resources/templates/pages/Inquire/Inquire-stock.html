@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>库存记录</title>
+    <link rel="stylesheet" href="/static/lib/layui-v2.8.17/css/layui.css" media="all">
+    <script src="/static/lib/layui-v2.8.17/layui.js" charset="utf-8"></script>
+    <!-- jQuery 库 -->
+    <script src="/static/js/http_ajax.googleapis.com_ajax_libs_jquery_3.5.1_jquery.js"></script>
+    <style>
+        .container {
+            margin: 20px;
+        }
+        .search-section {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="search-section">
+        <input type="text" id="dateRange" class="layui-input" placeholder="请选择日期范围">
+        <button id="searchBtn" class="layui-btn">搜索</button>
+    </div>
+    <table id="recordTable" lay-filter="recordTableFilter"></table>
+
+</div>
+
+<script>
+    layui.use(['laydate', 'table'], function(){
+        var laydate = layui.laydate;
+        var table = layui.table;
+
+        // 日期范围选择器
+        laydate.render({
+            elem: '#dateRange',
+        });
+
+        // 搜索按钮点击事件
+        $('#searchBtn').click(function() {
+            dateRange = $('#dateRange').val();
+            if (dateRange) {
+                table.render({
+                    elem: '#recordTable',
+                    url: '/bearingRecords/inventory/' +dateRange, // 更新为正确的后端接口 URL
+                    parseData: function(res) { // 将原始数据格式适配成 layui 表格组件所期望的格式
+                        return {
+                            "code": 0, // 解析接口状态
+                            "msg": "", // 解析提示文本
+                            "count": res.length, // 解析数据长度
+                            "data": res // 解析数据列表
+                        };
+                    },
+                    cols: [ [ // 表头
+                        {field: 'boxText', title: '箱号'},
+                        {field: 'boxNumber', title: '编号'},
+                        {field: 'quantity', title: '数量'},
+                        {field: 'depository', title: '厂区'}
+                    ]],
+                    limits:[100,200,500],
+                    limit:100,
+                    page: true //开启分页
+                });
+            } else {
+                alert("请选择日期范围");
+            }
+        });
+    });
+</script>
+</body>
+</html>

@@ -5,6 +5,7 @@ import com.depository_manage.entity.BearingRecord;
 import com.depository_manage.service.BearingRecordService;
 import com.depository_manage.service.BearingService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -86,13 +87,20 @@ public class BearingRecordController {
         List<BearingRecord> records = bearingRecordService.filterBearingRecords(params);
         return ResponseEntity.ok(records);
     }
-    @GetMapping("/checkSpecialRecord/{boxText}/{boxNumber}/{depositoryName}")
+    @GetMapping("/checkSpecialRecord/{boxText}/{boxNumber}/{depositoryName}/{quantity}")
     public ResponseEntity<?> checkSpecialRecord(@PathVariable String boxText,
                                                 @PathVariable String boxNumber,
-                                                @PathVariable String depositoryName) {
-        boolean hasSpecial = bearingRecordService.hasSpecialRecord(boxText, boxNumber, depositoryName);
+                                                @PathVariable String depositoryName,
+                                                @PathVariable int quantity) {
+        boolean hasSpecial = bearingRecordService.hasSpecialRecord(boxText, boxNumber, depositoryName, quantity);
         return ResponseEntity.ok(Collections.singletonMap("hasSpecial", hasSpecial));
     }
 
-
+    @GetMapping("/inventory/{cutoffDate}")
+    public ResponseEntity<List<BearingRecord>> getInventoryByCutoffDate(
+            @PathVariable("cutoffDate")
+            @DateTimeFormat(pattern = "yyyy-MM-dd") Date cutoffDate) {
+        List<BearingRecord> records = bearingRecordService.selectInventoryByCutoffDate(cutoffDate);
+        return ResponseEntity.ok(records);
+    }
 }

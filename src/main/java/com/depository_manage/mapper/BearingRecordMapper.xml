@@ -119,13 +119,34 @@
         <if test="startDate != null and endDate != null">
             AND DATE(time) BETWEEN #{startDate} AND #{endDate}
         </if>
+        <if test="begin != null and size != null">
+            LIMIT #{begin},#{size}
+        </if>
     </select>
     <select id="hasSpecialRecord" resultType="boolean">
         SELECT COUNT(*) > 0 FROM bearing_records
         WHERE box_text = #{boxText} AND box_number = #{boxNumber}
-          AND depository = #{depository}
+          AND depository = #{depository} AND quantity= #{quantity}
           AND transaction_type IN ('返库', '出库', '转入')
     </select>
-
+    <!-- 查询语句 -->
+    <select id="selectInventoryByCutoffDate" resultMap="bearingRecordMap">
+        SELECT
+        box_text,
+        box_number,
+        depository,
+        SUM(CASE
+        WHEN transaction_type IN ('入库', '转入') THEN quantity
+        WHEN transaction_type IN ('出库', '转出', '返库') THEN -quantity
+        END) as quantity
+        FROM
+        bearing_records
+        WHERE
+        time &lt;= DATE_ADD(#{cutoffDate}, INTERVAL 1 DAY )
+        GROUP BY
+        box_text,
+        box_number,
+        depository
+    </select>
 
 </mapper>

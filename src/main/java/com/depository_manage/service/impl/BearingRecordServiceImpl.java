@@ -3,8 +3,11 @@ package com.depository_manage.service.impl;
 import com.depository_manage.entity.BearingRecord;
 import com.depository_manage.mapper.BearingRecordMapper;
 import com.depository_manage.service.BearingRecordService;
+import com.depository_manage.utils.ObjectFormatUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -36,12 +39,25 @@ public class BearingRecordServiceImpl implements BearingRecordService {
 
     @Override
     public List<BearingRecord> filterBearingRecords(Map<String, Object> params) {
-        Integer size =8, page = 1;
+        Integer size = 8, page = 1;
+        if (params.containsKey("size")) {
+            size = ObjectFormatUtil.toInteger(params.get("size"));
+            params.put("size", size);
+        }
+        if (params.containsKey("page")) {
+            page = ObjectFormatUtil.toInteger(params.get("page"));
+            params.put("begin", (page - 1) * size);
+        }
         return bearingRecordMapper.selectAllBearingRecords(params);
     }
 
     @Override
-    public boolean hasSpecialRecord(String boxText, String boxNumber, String depository) {
-        return bearingRecordMapper.hasSpecialRecord(boxText, boxNumber, depository);
+    public boolean hasSpecialRecord(String boxText, String boxNumber, String depository, int quantity) {
+        return bearingRecordMapper.hasSpecialRecord(boxText, boxNumber, depository, quantity);
+    }
+
+    @Override
+    public List<BearingRecord> selectInventoryByCutoffDate(Date cutoffDate) {
+        return bearingRecordMapper.selectInventoryByCutoffDate(cutoffDate);
     }
 }
