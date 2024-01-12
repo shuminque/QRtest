@@ -129,24 +129,85 @@
           AND depository = #{depository} AND quantity= #{quantity}
           AND transaction_type IN ('返库', '出库', '转入')
     </select>
-    <!-- 查询语句 -->
-    <select id="selectInventoryByCutoffDate" resultMap="bearingRecordMap">
+    <select id="selectInventoryByCutoffDate" resultMap="bearingRecordMap" parameterType="map">
+        SELECT
+        br.box_text,
+        br.box_number,
+        br.depository,
+        br.customer,
+        br.product_category,
+        br.outer_inner_ring,
+        br.steel_type,
+        br.steel_grade,
+        br.model,
+        SUM(CASE
+        WHEN br.transaction_type IN ('入库', '转入') THEN br.quantity
+        WHEN br.transaction_type IN ('出库', '转出', '返库') THEN -br.quantity
+        END) as quantity,
+        lr.last_recorded_time
+        FROM
+        bearing_records br
+        JOIN (
         SELECT
         box_text,
         box_number,
-        depository,
-        SUM(CASE
-        WHEN transaction_type IN ('入库', '转入') THEN quantity
-        WHEN transaction_type IN ('出库', '转出', '返库') THEN -quantity
-        END) as quantity
+        MAX(time) as last_recorded_time
         FROM
         bearing_records
         WHERE
-        time &lt;= DATE_ADD(#{cutoffDate}, INTERVAL 1 DAY )
+        transaction_type IN ('入库', '转入')
         GROUP BY
         box_text,
-        box_number,
-        depository
+        box_number
+        ) lr ON br.box_text = lr.box_text AND br.box_number = lr.box_number
+        WHERE
+        br.quantity > 0
+        <if test="cutoffDate != null">
+            AND br.time &lt;= DATE_ADD(#{cutoffDate}, INTERVAL 1 DAY)
+        </if>
+        <if test="boxText != null and boxText != ''">
+            AND br.box_text = #{boxText}
+        </if>
+        <if test="boxNumber != null and boxNumber != ''">
+            AND br.box_number = #{boxNumber}
+        </if>
+        <if test="model != null and model != ''">
+            AND br.model = #{model}
+        </if>
+        <if test="customer != null and customer != ''">
+            AND br.customer = #{customer}
+        </if>
+        <if test="productCategory != null and productCategory != ''">
+            AND br.product_category = #{productCategory}
+        </if>
+        <if test="outerInnerRing != null and outerInnerRing != ''">
+            AND br.outer_inner_ring = #{outerInnerRing}
+        </if>
+        <if test="steelType != null and steelType != ''">
+            AND br.steel_type = #{steelType}
+        </if>
+        <if test="steelGrade != null and steelGrade != ''">
+            AND br.steel_grade = #{steelGrade}
+        </if>
+        <if test="depository != null and depository != ''">
+            AND br.depository = #{depository}
+        </if>
+        GROUP BY
+        br.box_text,
+        br.box_number,
+        br.depository,
+        br.customer,
+        br.product_category,
+        br.outer_inner_ring,
+        br.steel_type,
+        br.steel_grade,
+        br.quantity,
+        br.model,
+        lr.last_recorded_time
+        <if test="begin != null and size != null">
+            LIMIT #{begin},#{size}
+        </if>
     </select>
+
 
 </mapper>

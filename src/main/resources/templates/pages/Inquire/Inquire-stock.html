@@ -1,71 +1,243 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>库存记录</title>
-    <link rel="stylesheet" href="/static/lib/layui-v2.8.17/css/layui.css" media="all">
-    <script src="/static/lib/layui-v2.8.17/layui.js" charset="utf-8"></script>
-    <!-- jQuery 库 -->
-    <script src="/static/js/http_ajax.googleapis.com_ajax_libs_jquery_3.5.1_jquery.js"></script>
-    <style>
-        .container {
-            margin: 20px;
-        }
-        .search-section {
-            margin-bottom: 20px;
-        }
-    </style>
-</head>
-<body>
-<div class="container">
-    <div class="search-section">
-        <input type="text" id="dateRange" class="layui-input" placeholder="请选择日期范围">
-        <button id="searchBtn" class="layui-btn">搜索</button>
-    </div>
-    <table id="recordTable" lay-filter="recordTableFilter"></table>
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>库存记录</title>
+        <link rel="stylesheet" href="/static/lib/layui-v2.8.17/css/layui.css" media="all">
+        <script src="/static/lib/layui-v2.8.17/layui.js" charset="utf-8"></script>
+        <!-- jQuery 库 -->
+        <script src="/static/js/http_ajax.googleapis.com_ajax_libs_jquery_3.5.1_jquery.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-3-typeahead/4.0.2/bootstrap3-typeahead.min.js"></script>
 
-</div>
-
-<script>
-    layui.use(['laydate', 'table'], function(){
-        var laydate = layui.laydate;
-        var table = layui.table;
-
-        // 日期范围选择器
-        laydate.render({
-            elem: '#dateRange',
-        });
-
-        // 搜索按钮点击事件
-        $('#searchBtn').click(function() {
-            dateRange = $('#dateRange').val();
-            if (dateRange) {
-                table.render({
-                    elem: '#recordTable',
-                    url: '/bearingRecords/inventory/' +dateRange, // 更新为正确的后端接口 URL
-                    parseData: function(res) { // 将原始数据格式适配成 layui 表格组件所期望的格式
-                        return {
-                            "code": 0, // 解析接口状态
-                            "msg": "", // 解析提示文本
-                            "count": res.length, // 解析数据长度
-                            "data": res // 解析数据列表
-                        };
-                    },
-                    cols: [ [ // 表头
-                        {field: 'boxText', title: '箱号'},
-                        {field: 'boxNumber', title: '编号'},
-                        {field: 'quantity', title: '数量'},
-                        {field: 'depository', title: '厂区'}
-                    ]],
-                    limits:[100,200,500],
-                    limit:100,
-                    page: true //开启分页
-                });
-            } else {
-                alert("请选择日期范围");
+        <style>
+            .container {
+                margin: 20px;
             }
+            .search-section {
+                margin-bottom: 20px;
+            }
+        </style>
+    </head>
+    <body>
+    <div class="container">
+        <form class="layui-form"  id="searchForm">
+            <div class="layui-form-item">
+                <div class="layui-input-inline">
+                    <input type="text" name="time" id="date" placeholder="请选择日期" autocomplete="off" class="layui-input">
+                </div>
+                <div class="layui-input-inline">
+                    <input type="text" name="boxText" id="boxText" placeholder="搜索箱号" class="layui-input">
+                </div>
+                <div class="layui-input-inline">
+                    <input type="text" name="boxNumber" placeholder="搜索箱号编号" class="layui-input">
+                </div>
+                <div class="layui-input-inline">
+                    <input type="text" name="model" placeholder="搜索型号" class="layui-input">
+                </div>
+                <div>
+                    <div class="layui-input-inline">
+                        <select name="depository">
+                            <option value="" selected>搜索厂区</option>
+                            <option value="SAB" >SAB</option>
+                            <option value="ZAB" >ZAB</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <button type="button" class="layui-btn" id="advancedSearchToggle">高级搜索</button>
+                </div>
+                <div class="layui-inline" id="advancedSearchForm" style="display: none;">
+                    <div class="layui-input-inline">
+                        <input type="text" name="customer" placeholder="搜索客户" class="layui-input">
+                    </div>
+                    <div class="layui-input-inline">
+                        <select name="outerInnerRing">
+                            <option value="" selected>搜索内/外轮</option>
+                            <option value="LA" >LA</option>
+                            <option value="LB" >LB</option>
+                        </select>
+                    </div>
+                    <div class="layui-input-inline">
+                        <select name="productCategory">
+                            <option value="" selected>搜索制品分类</option>
+                            <option th:each="product_category : ${productCategorys}"
+                                    th:value="${product_category.name}"
+                                    th:text="${product_category.name}"></option>
+                        </select>
+                    </div>
+                    <div class="layui-input-inline">
+                        <select name="steelType">
+                            <option value="" selected>搜索钢种</option>
+                            <option th:each="steel_type : ${steelTypes}"
+                                    th:value="${steel_type.name}"
+                                    th:text="${steel_type.name}"></option>
+                        </select>
+                    </div>
+                    <div class="layui-input-inline">
+                        <select name="steelGrade">
+                            <option value="" selected>搜索钢材等级</option>
+                            <option th:each="steel_grade : ${steelGrades}"
+                                    th:value="${steel_grade.grade}"
+                                    th:text="${steel_grade.grade}"></option>
+                        </select>
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <button type="submit" class="layui-btn layui-btn-primary" lay-submit lay-filter="data-search-btn">
+                        <i class="layui-icon"></i> 搜 索
+                    </button>
+                </div>
+            </div>
+        </form>
+
+        <table id="recordTable" lay-filter="recordTableFilter"></table>
+
+    </div>
+
+    <script>
+        var userReviewGroupId;var userAuthority;var userDepositoryId;var userDepository;var depositoryId;
+        function getUserDepository() {
+            $.ajax({
+                url: '/get_user_depository',
+                type: 'GET',
+                dataType: 'json',
+                success: function(data) {
+                    console.log(data);
+                    userDepositoryId = data.depositoryId;userAuthority = data.authority;userReviewGroupId = data.review_group_id;
+                    if (userDepositoryId ===1){
+                        userDepository='SAB';depositoryId=1;
+                    } else if (userDepositoryId===2){
+                        userDepository='ZAB';depositoryId=2;
+                    }else{
+                        userDepository="ALL";depositoryId=0;
+                    }
+                },
+                error: function() {
+                    layer.msg('无法获取用户的厂区信息');
+                }
+            });
+        }
+        document.addEventListener('DOMContentLoaded', function() {getUserDepository();});
+        $(document).ready(function() {
+            $('#boxText').typeahead({
+                source: function(query, process) {
+                    return $.ajax({
+                        url: '/bearings/search',
+                        type: 'GET',
+                        data: { query: query, depository: userDepository },
+                        dataType: 'json',
+                        success: function(data) {
+                            return process(data);
+                        },
+                        error: function (data) {
+                            console.log(data);
+                        }
+                    });
+                },
+                minLength: 1, autoSelect: true
+            });
         });
-    });
-</script>
-</body>
-</html>
+        layui.use(['table', 'form', 'laydate'], function(){
+            var table = layui.table;
+            var form = layui.form;
+            var laydate=layui.laydate;
+
+            // 初始化日期范围选择器
+            laydate.render({
+                elem: '#date',
+                value: new Date() // 设置默认值为当前日期
+            });
+            var recordTable =  table.render({
+                elem: '#recordTable',
+                url: '/bearingRecords/inventory', // 更新为正确的后端接口 URL
+                parseData: function(res) { // 将原始数据格式适配成 layui 表格组件所期望的格式
+                    var filteredData = res.filter(function(record) {
+                        return record.quantity > 0;
+                    });
+                    return {
+                        "code": 0, // 解析接口状态
+                        "msg": "", // 解析提示文本
+                        "count": filteredData.length, // Parse data length
+                        "data": filteredData // Parse data list
+                    };
+                },
+                request: {
+                    pageName:'page',
+                    limitName:'size'
+                },
+                cols: [ [ // 表头
+                    {field: 'boxText', title: '箱号'},
+                    {field: 'boxNumber', title: '编号'},
+                    {field: 'outerInnerRing', title: '内外轮'},
+                    {field: 'model', title: '型号'},
+                    {field: 'productCategory', title: '制片分类'},
+                    {field: 'steelType', title: '钢种'},
+                    {field: 'steelGrade', title: '钢等'},
+                    {field: 'quantity', title: '数量'},
+                    {field: 'customer', title: '客户'},
+                    {field: 'depository', title: '厂区'},
+                    {field: 'lastRecordedTime', title: '最后入库时间', templet: function(d) {
+                            return formatDate(d.lastRecordedTime);
+                    }},
+                ]],
+                limits:[20,54,100,200,500],
+                limit:20,
+                page: true //开启分页
+            });
+            function formatDate(dateStr) {
+                if (!dateStr) return '';
+                let date = new Date(dateStr);
+                let year = date.getFullYear();
+                let month = (date.getMonth() + 1).toString().padStart(2, '0');
+                let day = date.getDate().toString().padStart(2, '0');
+                return `${year}-${month}-${day}`;
+            }
+            form.on('submit(data-search-btn)', function(data) {
+                var req = {};
+                var formData = data.field;
+                console.log(formData)
+                formData.transactionType = $('#transactionType').val(); // 读取交易类型的值
+                if (formData.boxText !== '') {
+                    req.boxText = formData.boxText;
+                }
+                if (formData.boxNumber !== '') {
+                    req.boxNumber = formData.boxNumber;
+                }
+                if (formData.customer !== '') {
+                    req.customer = formData.customer;
+                }
+                if (formData.productCategory !== '') {
+                    req.productCategory = formData.productCategory;
+                }
+                if (formData.model !== '') {
+                    req.model = formData.model;
+                }
+                if (formData.outerInnerRing !== '') {
+                    req.outerInnerRing = formData.outerInnerRing;
+                }
+                if (formData.steelType !== '') {
+                    req.steelType = formData.steelType;
+                }
+                if (formData.steelGrade !== '') {
+                    req.steelGrade = formData.steelGrade;
+                }
+                if (formData.depository !== '') {
+                    req.depository = formData.depository;
+                }
+                req.cutoffDate = formData.time;
+                // 执行搜索重载
+                recordTable.reload({
+                    url: '/bearingRecords/inventory', // 更新为正确的后端接口 URL
+                    page: { curr: 1 },
+                    where: req
+                });
+                return false;
+            });
+            // 高级搜索开关逻辑
+            $('#advancedSearchToggle').click(function() {
+                $('#advancedSearchForm').slideToggle();
+            });
+        });
+    </script>
+    </body>
+    </html>

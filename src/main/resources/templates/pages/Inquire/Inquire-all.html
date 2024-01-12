@@ -173,6 +173,10 @@
                     "data": res // 解析数据列表
                 };
             },
+            request: {
+                pageName:'page',
+                limitName:'size'
+            },
             toolbar: ['filter', 'exports', 'print'],
             cols: [ [ // 表头
                 {field: 'transactionType', title: '交易类型'},
@@ -191,7 +195,7 @@
                 {field: 'steelGrade', title: '钢材等级'},
                 {field: 'remarks', title: '备注'}
             ]],
-            limits:[100,200,500],
+            limits:[20,54,100,200,500],
             limit:20,
             page: true //开启分页
         });

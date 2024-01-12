@@ -213,7 +213,17 @@
                 // 生成二维码
                 var qrCodeElement = document.getElementById("qrcode");
                 qrCodeElement.innerHTML = ""; // 清除之前的二维码
-                var qrData = JSON.stringify(data);
+                var newData = {
+                    CTM: data.customer,
+                    MDL: data.model,
+                    boxText: data.boxText,
+                    boxNumber: data.boxNumber,
+                    OIR: data.outerInnerRing,
+                    quantity: data.quantity,
+                    SL: data.storageLocation,
+                    depository: data.depository,
+                };
+                var qrData = JSON.stringify(newData);
                 $('<div></div>').qrcode({
                     text: qrData,
                     render: 'canvas',

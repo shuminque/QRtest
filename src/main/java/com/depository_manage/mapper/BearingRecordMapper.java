@@ -29,6 +29,6 @@ public interface BearingRecordMapper {
                              @Param("boxNumber") String boxNumber,
                              @Param("depository") String depository,
                              @Param("quantity") int quantity);
-    List<BearingRecord> selectInventoryByCutoffDate(@Param("cutoffDate") Date cutoffDate);
+    List<BearingRecord> selectInventoryByCutoffDate(Map<String, Object> params);
 
 }

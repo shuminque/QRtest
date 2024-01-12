@@ -57,6 +57,24 @@ public class BearingController {
         // 4. 返回包含Bearing数据和新product_id的响应
         return ResponseEntity.ok(response);
     }
+    @PostMapping("/{boxText}/{depositoryId}/regenerate")
+    public ResponseEntity<?> regenerateProductId(@PathVariable String boxText,
+                                                 @PathVariable int depositoryId,
+                                                 @RequestBody Map<String, Object> requestData) {
+        int quantity = (Integer) requestData.get("quantity");
+        String depositoryText = convertDepositoryIdToText(depositoryId);
+
+        Bearing bearing = bearingService.getBearingByBoxTextAndDepository(boxText, depositoryText);
+        if (bearing == null) {
+            return ResponseEntity.notFound().build();
+        }
+        ProductId productId = productIdService.getBoxNumberByBoxTextAndDepositoryId(boxText, depositoryId);
+
+        Map<String, Object> response = getStringObjectMap(boxText, productId.getBoxNumber(), bearing, quantity);
+
+        return ResponseEntity.ok(response);
+    }
+
     @GetMapping("/{boxText}/{boxNumber}/{depositoryId}")
     public ResponseEntity<?> getExistingProductInfo(@PathVariable String boxText, @PathVariable String boxNumber, @PathVariable int depositoryId) {
         // 查询 product_ids 表获取数量

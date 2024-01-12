@@ -96,11 +96,9 @@ public class BearingRecordController {
         return ResponseEntity.ok(Collections.singletonMap("hasSpecial", hasSpecial));
     }
 
-    @GetMapping("/inventory/{cutoffDate}")
-    public ResponseEntity<List<BearingRecord>> getInventoryByCutoffDate(
-            @PathVariable("cutoffDate")
-            @DateTimeFormat(pattern = "yyyy-MM-dd") Date cutoffDate) {
-        List<BearingRecord> records = bearingRecordService.selectInventoryByCutoffDate(cutoffDate);
+    @GetMapping("/inventory")
+    public ResponseEntity<?> getInventoryByCutoffDate(@RequestParam Map<String, Object> params) {
+        List<BearingRecord> records = bearingRecordService.selectInventoryByCutoffDate(params);
         return ResponseEntity.ok(records);
     }
 }

@@ -15,6 +15,6 @@ public interface BearingRecordService {
     public List<BearingRecord> filterBearingRecords(Map<String, Object> params);
     public boolean hasSpecialRecord(String boxText, String boxNumber, String depository, int quantity);
 
-    List<BearingRecord> selectInventoryByCutoffDate(Date cutoffDate);
+    List<BearingRecord> selectInventoryByCutoffDate(Map<String, Object> params);
 
 }

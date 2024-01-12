@@ -96,7 +96,11 @@ public class PageController {
     @GetMapping("/Inquire-stock")
     public ModelAndView InquireStock() {
         ModelAndView mv = new ModelAndView();
-        mv.setViewName("pages/Inquire/Inquire-stock");return mv;
+        mv.setViewName("pages/Inquire/Inquire-stock");
+        mv.addObject("productCategorys", productCategoryService.findAll());
+        mv.addObject("steelGrades", steelGradeService.findAll());
+        mv.addObject("steelTypes", steelTypeService.findAll());
+        return mv;
     }
     @GetMapping("/bearings")
     public ModelAndView Bearings() {

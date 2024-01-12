@@ -57,7 +57,16 @@ public class BearingRecordServiceImpl implements BearingRecordService {
     }
 
     @Override
-    public List<BearingRecord> selectInventoryByCutoffDate(Date cutoffDate) {
-        return bearingRecordMapper.selectInventoryByCutoffDate(cutoffDate);
+    public List<BearingRecord> selectInventoryByCutoffDate(Map<String, Object> params) {
+        Integer size = 8, page = 1;
+        if (params.containsKey("size")) {
+            size = ObjectFormatUtil.toInteger(params.get("size"));
+            params.put("size", size);
+        }
+        if (params.containsKey("page")) {
+            page = ObjectFormatUtil.toInteger(params.get("page"));
+            params.put("begin", (page - 1) * size);
+        }
+        return bearingRecordMapper.selectInventoryByCutoffDate(params);
     }
 }
