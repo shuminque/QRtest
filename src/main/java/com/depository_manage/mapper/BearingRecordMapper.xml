@@ -155,7 +155,7 @@
         FROM
         bearing_records
         WHERE
-        transaction_type IN ('入库', '转入')
+        transaction_type IN ('入库', '转入') AND bearing_records.time &lt;= DATE_ADD(#{cutoffDate}, INTERVAL 1 DAY)
         GROUP BY
         box_text,
         box_number
@@ -208,6 +208,4 @@
             LIMIT #{begin},#{size}
         </if>
     </select>
-
-
 </mapper>
