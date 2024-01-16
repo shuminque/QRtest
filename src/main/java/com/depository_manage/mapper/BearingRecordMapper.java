@@ -28,7 +28,9 @@ public interface BearingRecordMapper {
     boolean hasSpecialRecord(@Param("boxText") String boxText,
                              @Param("boxNumber") String boxNumber,
                              @Param("depository") String depository,
-                             @Param("quantity") int quantity);
+                             @Param("quantity") int quantity,
+                             @Param("iter") int iter);
+
     List<BearingRecord> selectInventoryByCutoffDate(Map<String, Object> params);
 
 }

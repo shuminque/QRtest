@@ -19,13 +19,14 @@
         <result property="steelType" column="steel_type"/>
         <result property="steelGrade" column="steel_grade"/>
         <result property="remarks" column="remarks"/>
+        <result property="iter" column="iter"/> <!-- 新增字段映射 -->
     </resultMap>
 
     <insert id="insertBearingRecord">
         INSERT INTO bearing_records
-        (transaction_type, box_text, box_number, quantity, time, operator, depository, storage_location, customer, outer_inner_ring, model, product_category, steel_type, steel_grade, remarks)
+        (transaction_type, box_text, box_number, quantity, time, operator, depository, storage_location, customer, outer_inner_ring, model, product_category, steel_type, steel_grade, remarks, iter)
         VALUES
-            (#{transactionType}, #{boxText}, #{boxNumber}, #{quantity}, #{time}, #{operator}, #{depository}, #{storageLocation}, #{customer}, #{outerInnerRing}, #{model}, #{productCategory}, #{steelType}, #{steelGrade}, #{remarks})
+            (#{transactionType}, #{boxText}, #{boxNumber}, #{quantity}, #{time}, #{operator}, #{depository}, #{storageLocation}, #{customer}, #{outerInnerRing}, #{model}, #{productCategory}, #{steelType}, #{steelGrade}, #{remarks}, #{iter})
     </insert>
     <update id="updateBearingRecord">
         UPDATE bearing_records
@@ -126,7 +127,7 @@
     <select id="hasSpecialRecord" resultType="boolean">
         SELECT COUNT(*) > 0 FROM bearing_records
         WHERE box_text = #{boxText} AND box_number = #{boxNumber}
-          AND depository = #{depository} AND quantity= #{quantity}
+          AND depository = #{depository} AND quantity= #{quantity} AND iter = #{iter}
           AND transaction_type IN ('返库', '出库', '转入')
     </select>
     <select id="selectInventoryByCutoffDate" resultMap="bearingRecordMap" parameterType="map">

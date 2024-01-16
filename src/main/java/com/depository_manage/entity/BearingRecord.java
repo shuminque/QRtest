@@ -22,6 +22,7 @@ public class BearingRecord {
     private String steelGrade;
     private String remarks;
     private Date lastRecordedTime;
+    private int iter;
 
     // Lombok @Data 注解会自动生成构造函数、getter 和 setter 方法、toString 方法等
 }

@@ -52,8 +52,10 @@ public class BearingController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Collections.singletonMap("error", "Unable to generate new Product ID for box number: " + boxText));
         }
+        ProductId productId = productIdService.getBoxNumberByBoxTextAndDepositoryId(boxText, depositoryId);
+
         // 3. 创建包含Bearing数据和新product_id的响应
-        Map<String, Object> response = getStringObjectMap(boxText, newBoxNumber, bearing, quantity);
+        Map<String, Object> response = getStringObjectMap(boxText, newBoxNumber, bearing, quantity, productId.getIter());
         // 4. 返回包含Bearing数据和新product_id的响应
         return ResponseEntity.ok(response);
     }
@@ -70,7 +72,7 @@ public class BearingController {
         }
         ProductId productId = productIdService.getBoxNumberByBoxTextAndDepositoryId(boxText, depositoryId);
 
-        Map<String, Object> response = getStringObjectMap(boxText, productId.getBoxNumber(), bearing, quantity);
+        Map<String, Object> response = getStringObjectMap(boxText, productId.getBoxNumber(), bearing, quantity, productId.getIter());
 
         return ResponseEntity.ok(response);
     }
@@ -144,7 +146,7 @@ public class BearingController {
         response.put("storageLocation", bearing.getStorageLocation()); // 库位
         return response;
     }
-    private static Map<String, Object> getStringObjectMap(String boxText, String newBoxNumber, Bearing bearing, int quantity) {
+    private static Map<String, Object> getStringObjectMap(String boxText, String newBoxNumber, Bearing bearing, int quantity, int iter) {
         Map<String, Object> response = new HashMap<>();
         response.put("boxText", boxText);
         response.put("boxNumber", newBoxNumber);
@@ -157,6 +159,7 @@ public class BearingController {
 //        response.put("steelGrade", bearing.getSteelGrade());           // 钢材等级
         response.put("depository", bearing.getDepository());           // 厂区
         response.put("storageLocation", bearing.getStorageLocation()); // 库位
+        response.put("iter", iter); // 轮数
         return response;
     }
 

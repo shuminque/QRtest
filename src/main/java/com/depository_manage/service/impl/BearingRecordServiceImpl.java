@@ -52,9 +52,10 @@ public class BearingRecordServiceImpl implements BearingRecordService {
     }
 
     @Override
-    public boolean hasSpecialRecord(String boxText, String boxNumber, String depository, int quantity) {
-        return bearingRecordMapper.hasSpecialRecord(boxText, boxNumber, depository, quantity);
+    public boolean hasSpecialRecord(String boxText, String boxNumber, String depository, int quantity, int iter) {
+        return bearingRecordMapper.hasSpecialRecord(boxText, boxNumber, depository, quantity, iter);
     }
+
 
     @Override
     public List<BearingRecord> selectInventoryByCutoffDate(Map<String, Object> params) {

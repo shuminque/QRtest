@@ -22,12 +22,14 @@ public interface ProductIdMapper {
     void updateStockedStatus(@Param("boxText") String boxText,
                              @Param("boxNumber") String boxNumber,
                              @Param("depositoryId") int depositoryId,
-                             @Param("isStocked") int isStocked);
+                             @Param("isStocked") int isStocked,
+                             @Param("iter") int iter);
 
     // 检查产品是否已入库的方法
     Integer checkIfStocked(@Param("boxText") String boxText,
                            @Param("boxNumber") String boxNumber,
-                           @Param("depositoryId") int depositoryId);
+                           @Param("depositoryId") int depositoryId,
+                           @Param("iter") int iter);
     int selectQuantityByBoxTextAndBoxNumber(@Param("boxText") String boxText,
                                             @Param("boxNumber") String boxNumber,
                                             @Param("depositoryId") int depositoryId);

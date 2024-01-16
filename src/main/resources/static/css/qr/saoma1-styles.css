@@ -66,6 +66,10 @@
         writing-mode: vertical-rl; /* 设置文本为竖直从右到左排列 */
         /*transform: rotate(180deg); !* 如有必要，将文本旋转180度以获得所需的方向 *!*/
     }
+
+    .icon-container-for-print {
+        display: block;
+    }
 }
 body {
     font-family: Arial, sans-serif;

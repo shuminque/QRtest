@@ -42,7 +42,6 @@ public class BearingRecordController {
 
             // 设置记录的时间
             record.setTime(new Date());
-
             // 添加记录
             bearingRecordService.addBearingRecord(record);
             return ResponseEntity.ok(Collections.singletonMap("message", record));
@@ -87,14 +86,16 @@ public class BearingRecordController {
         List<BearingRecord> records = bearingRecordService.filterBearingRecords(params);
         return ResponseEntity.ok(records);
     }
-    @GetMapping("/checkSpecialRecord/{boxText}/{boxNumber}/{depositoryName}/{quantity}")
+    @GetMapping("/checkSpecialRecord/{boxText}/{boxNumber}/{depositoryName}/{quantity}/{iter}")
     public ResponseEntity<?> checkSpecialRecord(@PathVariable String boxText,
                                                 @PathVariable String boxNumber,
                                                 @PathVariable String depositoryName,
-                                                @PathVariable int quantity) {
-        boolean hasSpecial = bearingRecordService.hasSpecialRecord(boxText, boxNumber, depositoryName, quantity);
+                                                @PathVariable int quantity,
+                                                @PathVariable int iter) {
+        boolean hasSpecial = bearingRecordService.hasSpecialRecord(boxText, boxNumber, depositoryName, quantity, iter);
         return ResponseEntity.ok(Collections.singletonMap("hasSpecial", hasSpecial));
     }
+
 
     @GetMapping("/inventory")
     public ResponseEntity<?> getInventoryByCutoffDate(@RequestParam Map<String, Object> params) {

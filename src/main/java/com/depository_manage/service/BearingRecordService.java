@@ -13,7 +13,7 @@ public interface BearingRecordService {
     void deleteBearingRecordById(int id);
     BearingRecord getBearingRecordById(int id);
     public List<BearingRecord> filterBearingRecords(Map<String, Object> params);
-    public boolean hasSpecialRecord(String boxText, String boxNumber, String depository, int quantity);
+    public boolean hasSpecialRecord(String boxText, String boxNumber, String depository, int quantity, int iter);
 
     List<BearingRecord> selectInventoryByCutoffDate(Map<String, Object> params);
 
