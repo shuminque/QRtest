@@ -39,7 +39,7 @@
     }
     .print-info-row p:last-child {
         /* 第二个p元素（boxNumber）的样式 */
-        margin-left: 5px; /* 增加间距 */
+        margin-left: 1px; /* 增加间距 */
     }
     .print-info-row p.box-text {
         font-size: 140px; /* boxText字体大小 */

@@ -37,10 +37,12 @@
         }
     }
     .your-icon-class {
-        width: 50px;
-        height: 50px;
+        width: 100px;
+        height: 100px;
         display: block;
-        margin: 50px auto; /* 居中对齐 */
+        margin: 45px 0px -35px -60px;
+        padding: 0 0 0 0;
+        transform: rotate(90deg);
     }
 </style>
 <body>
@@ -349,12 +351,13 @@
     function regenerateQRCode() {
         var newQuantity = prompt("请输入新的数量:", "");
         if (newQuantity != null && !isNaN(newQuantity) && newQuantity > 0) {
-            updateQRCodeQuantity(parseInt(newQuantity));
+            var isQuantityChanged = newQuantity !== preGenerateData.quantity;
+            updateQRCodeQuantity(parseInt(newQuantity), isQuantityChanged);
         } else {
             alert("请输入有效的数量");
         }
     }
-    function updateQRCodeQuantity(newQuantity) {
+    function updateQRCodeQuantity(newQuantity, isQuantityChanged) {
         // Call the new API to get updated data
         fetch('/bearings/' + preGenerateData.boxText + '/' + preGenerateData.depositoryId + '/regenerate', {
             method: 'POST',
@@ -371,7 +374,7 @@
             })
             .then(updatedData => {
                 // Use the updated data to regenerate QR code
-                generateQRCode(updatedData);
+                generateQRCode(updatedData, isQuantityChanged);
                 updateProductQuantity(updatedData.boxText, updatedData.boxNumber, newQuantity, convertDepositoryIdToMath(updatedData.depository), updatedData.iter);
 
             })
@@ -379,7 +382,7 @@
     }
 
 
-    function generateQRCode(data) {
+    function generateQRCode(data, isQuantityChanged) {
         var qrCodeElement = document.getElementById("qrcode");
         qrCodeElement.innerHTML = ""; // Clear existing QR code
         var newData = {
@@ -401,8 +404,26 @@
             height: 200,
             correctLevel: 3,
         }).appendTo(qrCodeElement);
-        // Update the displayed information if necessary
-        // ... code to update displayed info ...
+        // 根据 isQuantityChanged 决定是否添加图标
+        var iconHtml = isQuantityChanged ? `
+        <div class="icon-container-for-print">
+            <img src="/static/images/iic.png" alt="Icon" class="your-icon-class">
+        </div>
+    ` : '';
+
+        // 显示信息，包括或不包括图标
+        var infoHtml = `
+        <div class="info-row print-info-row">
+            <p class="box-text"><span>${data.boxText}</span></p>
+        </div>
+        ${iconHtml}
+        <div class="info-row print-info-row">
+            <p class="box-number"><span>${data.boxNumber}</span></p>
+        </div>
+    `;
+        var infoContainer = document.querySelector("#printSection .info-container");
+        infoContainer.innerHTML = infoHtml;
+        adjustPrintFontSize(data.boxText);
     }
     function prepareOperation(operation) {
         console.log("开始切换")
@@ -584,12 +605,14 @@
                 // 弹出自定义的确认框
                 layer.open({
                     type: 1,
-                    title: '该箱号产品多次入库，需要确认数量，数量有变化，重新打印二维码',
+                    title: '<div style="line-height: 1.1em; height: auto; ">该箱号产品多次入库<br>需要确认数量，数量有变化<br>重新打印二维码</div>',
                     content: $('#confirmModal'),
-                    area: ['80%', '30%'],
+                    area: ['80%', '40%'],
                     btn: ['确认', '取消'],
                     success: function(layero, index) {
-                        $('#confirmQuantityInput').val(originalQuantity); // 设置默认值
+                        layero.find('.layui-layer-title').css('height', '80px');
+                        layero.find('.layui-layer-content').css('height', '90px');
+                            $('#confirmQuantityInput').val(originalQuantity); // 设置默认值
                     },
                     yes: function(index, layero) {
                         const newQuantity = parseInt($('#confirmQuantityInput').val(), 10);
@@ -612,11 +635,11 @@
 
     function handleQuantityUpdate(boxText, boxNumber, newQuantity, originalQuantity, operationType, depositoryId, depositoryName, iter) {
         if (newQuantity !== originalQuantity) {
-            // 仅在数量变化时更新数量和二维码
+            // 数量发生变化时更新数量和二维码，并显示图标
             updateProductQuantity(boxText, boxNumber, newQuantity, depositoryId, iter)
                 .then(() => proceedStockIn(boxText, boxNumber, newQuantity, operationType, depositoryId, iter))
                 .then(() => {
-                    updateQRCodeWithData(boxText, boxNumber, newQuantity, depositoryName,iter);
+                    updateQRCodeWithData(boxText, boxNumber, newQuantity, depositoryName, iter, true); // 显示图标
                 })
                 .catch(error => {
                     console.error('更新数量或入库操作失败，正在尝试回滚:', error);
@@ -632,7 +655,8 @@
         }
     }
 
-    function updateQRCodeWithData(boxText, boxNumber, quantity, depositoryName, iter) {
+
+    function updateQRCodeWithData(boxText, boxNumber, quantity, depositoryName, iter, isQuantityChanged) {
         var qrData = JSON.stringify({
             boxText: boxText,
             boxNumber: boxNumber,
@@ -650,20 +674,34 @@
             height: 200,
             correctLevel: 3,
         }).appendTo(qrCodeElement);
-        // 显示信息
-        var infoHtml = `
-                    <div class="info-row print-info-row">
-                        <p class="box-text"><span>${boxText}</span></p>
-                    </div>
+        var iconHtml = isQuantityChanged ? `
+            <div class="icon-container-for-print">
+                <img src="/static/images/iic.png" alt="Icon" class="your-icon-class" id="iconImage">
+            </div>
+        ` : '';
 
-                    <div class="info-row print-info-row">
-                        <p class="box-number"><span>${boxNumber}</span></p>
-                    </div>
-                `;
+        // 显示信息，包括或不包括图标
+        var infoHtml = `
+                        <div class="info-row print-info-row">
+                            <p class="box-text"><span>${boxText}</span></p>
+                        </div>
+                        ${iconHtml}
+                        <div class="info-row print-info-row">
+                            <p class="box-number"><span>${boxNumber}</span></p>
+                        </div>
+                    `;
         var infoContainer = document.querySelector("#printSection .info-container");
         infoContainer.innerHTML = infoHtml;
         adjustPrintFontSize(boxText);
-        window.print();
+        // 如果图标存在，等待图标加载完成后再打印
+        if (isQuantityChanged) {
+            var iconImage = document.getElementById("iconImage");
+            iconImage.onload = function() {
+                window.print();
+            };
+        } else {
+            window.print();
+        }
     }
 
     function updateProductQuantity(boxText, boxNumber, newQuantity, depositoryId, iter) {
