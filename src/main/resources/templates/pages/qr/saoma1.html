@@ -40,7 +40,7 @@
         width: 100px;
         height: 100px;
         display: block;
-        margin: 45px 0px -35px -60px;
+        margin: 150px 0px -35px -60px;
         padding: 0 0 0 0;
         transform: rotate(90deg);
     }
@@ -257,7 +257,6 @@
                 document.getElementById('previewBoxNumber').textContent = data.boxNumber;
                 document.getElementById('editQuantity').value = data.quantity; // 设置输入框的初始值
                 document.getElementById('editQuantity').setAttribute('data-initial-value', data.quantity);
-
                 document.getElementById('preGenerateModal').style.display = 'block';
             })
             .catch(error => console.error('预生成二维码时发生错误：', error));
@@ -297,7 +296,6 @@
                     iter: data.iter
                 };
                 var qrData = JSON.stringify(newData);
-                console.log(qrData);
                 $('<div></div>').qrcode({
                     text: qrData,
                     render: 'canvas',

@@ -7,6 +7,7 @@
     <script src="/static/lib/layui-v2.8.17/layui.js" charset="utf-8"></script>
     <script src="/static/js/jquery-2.1.0.js" charset="utf-8"></script>
     <script src="/static/js/jquery.qrcode.js" charset="utf-8"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-3-typeahead/4.0.2/bootstrap3-typeahead.min.js"></script>
     <style>
         @media print {
             @page  {
@@ -80,6 +81,15 @@
                 font-size: 100px;
             }
         }
+        .your-icon-class {
+            width: 100px;
+            height: 100px;
+            display: block;
+            /*margin: 150px 0px -35px -60px;*/
+            margin: 170px -15px 0px -100px;
+            padding: 0 0 0 0;
+            transform: rotate(90deg);
+        }
     </style>
 </head>
 <body>
@@ -111,7 +121,7 @@
 </div>
 
 <script>
-    var userReviewGroupId;var userAuthority;var userDepositoryId;var userDepository;var depositoryId;
+    var userReviewGroupId;var userAuthority;var userDepositoryId;var userDepository;var depositoryId;    var preGenerateData; // 用于存储即将生成的数据
     function getUserDepository() {
         $.ajax({
             url: '/get_user_depository',
@@ -179,6 +189,7 @@
                 };
                 document.getElementById('previewBoxNumber').textContent = data.boxNumber;
                 document.getElementById('editQuantity').value = data.quantity; // 设置输入框的初始值
+                document.getElementById('editQuantity').setAttribute('data-initial-value', data.quantity);
                 document.getElementById('preGenerateModal').style.display = 'block';
             })
             .catch(error => console.error('预生成二维码时发生错误：', error));
@@ -222,6 +233,7 @@
                     quantity: data.quantity,
                     SL: data.storageLocation,
                     depository: data.depository,
+                    iter: data.iter
                 };
                 var qrData = JSON.stringify(newData);
                 $('<div></div>').qrcode({
@@ -232,13 +244,26 @@
                     correctLevel: 3,
                 }).appendTo(qrCodeElement);
 
-                // 显示信息
+                // 检查数量是否改变
+                var initialQuantity = document.getElementById('editQuantity').getAttribute('data-initial-value');
+                var currentQuantity = document.getElementById('editQuantity').value;
+                var isQuantityChanged = initialQuantity !== currentQuantity;
+
+                // 根据数量是否改变，决定是否显示图标
+                var iconHtml = isQuantityChanged ? `
+                     <div class="icon-container-for-print">
+                        <img src="/static/images/iic.png" alt="Icon" class="your-icon-class">
+                    </div>
+                ` : '';
+
+                // 显示信息，包括或不包括图标
                 var infoHtml = `
                     <div class="info-row print-info-row">
-                        <p><span>${data.boxText}</span></p>
+                        <p class="box-text"><span>${data.boxText}</span></p>
                     </div>
+                    ${iconHtml}
                     <div class="info-row print-info-row">
-                        <p><span>${data.boxNumber}</span></p>
+                        <p class="box-number"><span>${data.boxNumber}</span></p>
                     </div>
                 `;
                 var infoContainer = document.querySelector("#printSection .info-container");
