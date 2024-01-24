@@ -264,13 +264,13 @@
             if (field === 'dissolve') {
                 // 只有当编辑的字段是“溶解号”时才处理
                 console.log('编辑了溶解号:', value);
-
+                data.dissolve = value;
                 // 发送AJAX请求更新后端数据
                 $.ajax({
                     url: '/bearingRecords/' + data.id, // 更新API URL
                     type: 'PUT',
                     contentType: 'application/json',
-                    data: JSON.stringify({ dissolve: value }),
+                    data: JSON.stringify(data), // 发送整个更新后的数据对象
                     success: function(response) {
                         layer.msg('溶解号更新成功');
                         // 可以在此处添加其他成功处理逻辑

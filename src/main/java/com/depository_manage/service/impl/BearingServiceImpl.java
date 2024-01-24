@@ -1,6 +1,7 @@
 package com.depository_manage.service.impl;
 
 import com.depository_manage.entity.Bearing;
+import com.depository_manage.entity.BearingRecord;
 import com.depository_manage.mapper.BearingMapper;
 import com.depository_manage.service.BearingService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +22,10 @@ public class BearingServiceImpl implements BearingService {
     @Override
     public List<Bearing> getAllBearings() {
         return bearingMapper.selectAllBearings();
+    }
+    @Override
+    public void updateBearing(Bearing bearing) {
+        bearingMapper.updateBearing(bearing);
     }
     @Override
     public Bearing getLatestBearingByBoxText(String boxText) {

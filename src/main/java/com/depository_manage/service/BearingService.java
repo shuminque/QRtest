@@ -7,6 +7,8 @@ import java.util.List;
 public interface BearingService {
     Bearing getBearingByBoxTextAndDepository(String boxText, String depository);
     List<Bearing> getAllBearings();
+    void updateBearing(Bearing bearing);
+
     Bearing getLatestBearingByBoxText(String boxText);
     void saveBearing(Bearing bearing);
 

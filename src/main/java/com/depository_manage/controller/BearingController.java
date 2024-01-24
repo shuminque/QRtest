@@ -1,6 +1,7 @@
 package com.depository_manage.controller;
 
 import com.depository_manage.entity.Bearing;
+import com.depository_manage.entity.BearingRecord;
 import com.depository_manage.entity.ProductId;
 import com.depository_manage.service.BearingService;
 import com.depository_manage.service.ProductIdService;
@@ -31,6 +32,12 @@ public class BearingController {
         } else {
             return ResponseEntity.notFound().build();
         }
+    }
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateBearing(@PathVariable int id, @RequestBody Bearing bearing) {
+        bearing.setId(id);
+        bearingService.updateBearing(bearing);
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping("/{boxText}/{depositoryId}")

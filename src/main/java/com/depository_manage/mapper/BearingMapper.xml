@@ -22,7 +22,45 @@
         SELECT * FROM bearings
         WHERE box_text = #{boxText} AND depository = #{depository}
     </select>
-
+    <update id="updateBearing">
+        UPDATE bearings
+        <set>
+            <if test="outerInnerRing != null">
+                outer_inner_ring = #{outerInnerRing},
+            </if>
+            <if test="customer != null">
+                customer = #{customer},
+            </if>
+            <if test="model != null">
+                model = #{model},
+            </if>
+            <if test="productCategory != null">
+                product_category = #{productCategory},
+            </if>
+            <if test="steelType != null">
+                steel_type = #{steelType},
+            </if>
+            <if test="steelGrade != null">
+                steel_grade = #{steelGrade},
+            </if>
+            <if test="boxText != null">
+                box_text = #{boxText},
+            </if>
+            <if test="quantity != null">
+                quantity = #{quantity},
+            </if>
+            <if test="size != null">
+                size = #{size},
+            </if>
+            <if test="depository != null">
+                depository = #{depository},
+            </if>
+            <if test="storageLocation != null">
+                storage_location = #{storageLocation},
+            </if>
+        </set>
+        WHERE id = #{id}
+    </update>
     <select id="selectAllBearings" resultMap="bearingMap">
         SELECT * FROM bearings
     </select>
