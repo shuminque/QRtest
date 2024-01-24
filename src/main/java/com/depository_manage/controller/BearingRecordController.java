@@ -38,8 +38,8 @@ public class BearingRecordController {
             record.setDepository(bearing.getDepository());
             record.setStorageLocation(bearing.getStorageLocation());
             record.setOuterInnerRing(bearing.getOuterInnerRing());
+            record.setSize(bearing.getSize());
             // ...其他需要的字段...
-
             // 设置记录的时间
             record.setTime(new Date());
             // 添加记录

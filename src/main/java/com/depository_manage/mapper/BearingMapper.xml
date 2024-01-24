@@ -15,6 +15,7 @@
         <result property="steelGrade" column="steel_grade"/>
         <result property="depository" column="depository"/>
         <result property="storageLocation" column="storage_location"/>
+        <result property="size" column="size"/>
     </resultMap>
 
     <select id="selectBearingByBoxTextAndDepository" resultMap="bearingMap">
@@ -43,7 +44,8 @@
             steel_type,
             steel_grade,
             depository,
-            storage_location
+            storage_location,
+            size
         ) VALUES (
                      #{boxText},
                      #{boxNumber},
@@ -55,7 +57,8 @@
                      #{steelType},
                      #{steelGrade},
                      #{depository},
-                     #{storageLocation}
+                     #{storageLocation},
+                     #{size}
                  )
     </insert>
     <select id="calculateTotalQuantityByBoxText" resultType="java.lang.Integer">

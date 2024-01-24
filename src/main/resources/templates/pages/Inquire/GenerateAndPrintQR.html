@@ -121,7 +121,9 @@
 </div>
 
 <script>
-    var userReviewGroupId;var userAuthority;var userDepositoryId;var userDepository;var depositoryId;    var preGenerateData; // 用于存储即将生成的数据
+    var userReviewGroupId;var userAuthority;var userDepositoryId;
+    var userDepository;var depositoryId;    var preGenerateData; // 用于存储即将生成的数据
+    var defaultQuantity;
     function getUserDepository() {
         $.ajax({
             url: '/get_user_depository',
@@ -190,6 +192,8 @@
                 document.getElementById('previewBoxNumber').textContent = data.boxNumber;
                 document.getElementById('editQuantity').value = data.quantity; // 设置输入框的初始值
                 document.getElementById('editQuantity').setAttribute('data-initial-value', data.quantity);
+                defaultQuantity = data.quantity; // 将获取到的默认数量赋值给全局变量
+
                 document.getElementById('preGenerateModal').style.display = 'block';
             })
             .catch(error => console.error('预生成二维码时发生错误：', error));

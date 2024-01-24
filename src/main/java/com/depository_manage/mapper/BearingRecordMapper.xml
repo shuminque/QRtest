@@ -19,14 +19,16 @@
         <result property="steelType" column="steel_type"/>
         <result property="steelGrade" column="steel_grade"/>
         <result property="remarks" column="remarks"/>
-        <result property="iter" column="iter"/> <!-- 新增字段映射 -->
+        <result property="iter" column="iter"/>
+        <result property="size" column="size"/>
+        <result property="dissolve" column="dissolve"/>
     </resultMap>
 
     <insert id="insertBearingRecord">
         INSERT INTO bearing_records
-        (transaction_type, box_text, box_number, quantity, time, operator, depository, storage_location, customer, outer_inner_ring, model, product_category, steel_type, steel_grade, remarks, iter)
+        (transaction_type, box_text, box_number, quantity, time, operator, depository, storage_location, customer, outer_inner_ring, model, product_category, steel_type, steel_grade, remarks, iter, size, dissolve)
         VALUES
-            (#{transactionType}, #{boxText}, #{boxNumber}, #{quantity}, #{time}, #{operator}, #{depository}, #{storageLocation}, #{customer}, #{outerInnerRing}, #{model}, #{productCategory}, #{steelType}, #{steelGrade}, #{remarks}, #{iter})
+            (#{transactionType}, #{boxText}, #{boxNumber}, #{quantity}, #{time}, #{operator}, #{depository}, #{storageLocation}, #{customer}, #{outerInnerRing}, #{model}, #{productCategory}, #{steelType}, #{steelGrade}, #{remarks}, #{iter}, #{size}, #{dissolve})
     </insert>
     <update id="updateBearingRecord">
         UPDATE bearing_records
@@ -76,6 +78,12 @@
             <if test="remarks != null">
                 remarks = #{remarks}
             </if>
+            <if test="size != null">
+                size = #{size},
+            </if>
+            <if test="dissolve != null">
+                dissolve = #{dissolve}
+            </if>
         </set>
         WHERE id = #{id}
     </update>
@@ -120,6 +128,7 @@
         <if test="startDate != null and endDate != null">
             AND DATE(time) BETWEEN #{startDate} AND #{endDate}
         </if>
+        ORDER BY id DESC
         <if test="begin != null and size != null">
             LIMIT #{begin},#{size}
         </if>

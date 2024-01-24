@@ -193,6 +193,8 @@
                 {field: 'productCategory', title: '制品分类'},
                 {field: 'steelType', title: '钢种'},
                 {field: 'steelGrade', title: '钢材等级'},
+                {field: 'size', title: '尺寸'},
+                {field: 'dissolve', title: '溶解号', edit: 'text'}, // 添加编辑功能
                 {field: 'remarks', title: '备注'}
             ]],
             limits:[20,54,100,200,500],
@@ -253,6 +255,32 @@
                 where: req
             });
             return false;
+        });
+        table.on('edit(recordTableFilter)', function(obj) {
+            var value = obj.value; // 获取编辑后的值
+            var data = obj.data; // 获取整行数据
+            var field = obj.field; // 获取编辑的字段
+
+            if (field === 'dissolve') {
+                // 只有当编辑的字段是“溶解号”时才处理
+                console.log('编辑了溶解号:', value);
+
+                // 发送AJAX请求更新后端数据
+                $.ajax({
+                    url: '/bearingRecords/' + data.id, // 更新API URL
+                    type: 'PUT',
+                    contentType: 'application/json',
+                    data: JSON.stringify({ dissolve: value }),
+                    success: function(response) {
+                        layer.msg('溶解号更新成功');
+                        // 可以在此处添加其他成功处理逻辑
+                    },
+                    error: function(xhr, status, error) {
+                        layer.msg('更新失败: ' + error);
+                        // 错误处理
+                    }
+                });
+            }
         });
 
         // 高级搜索开关

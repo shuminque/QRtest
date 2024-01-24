@@ -118,12 +118,9 @@
 <script>
     var currentOperation = null;
     var currentOperationType = ''; // 全局变量，存储当前操作类型
-    var html5QrcodeScanner;
-    var userReviewGroupId;
-    var userAuthority;
-    var userDepositoryId;
-    var userDepository;
-    var depositoryId;
+    var html5QrcodeScanner;var userReviewGroupId;var userAuthority;
+    var userDepositoryId;var userDepository;var depositoryId;var defaultQuantity;var preGenerateData; // 用于存储即将生成的数据
+
     function getUserDepository() {
         $.ajax({
             url: '/get_user_depository',
@@ -231,7 +228,6 @@
         document.getElementById('qrcodeContainer').style.display = 'block';
         document.getElementById('printSection').style.display = 'block';
     }
-    var preGenerateData; // 用于存储即将生成的数据
     // 当用户点击“生成二维码”时执行
     function preGenerateQRCodeByBoxText() {
         var boxText = document.getElementById("boxTextInput").value;
@@ -254,6 +250,7 @@
                     boxText: boxText, // 添加 boxText
                     depositoryId: depositoryId // 添加 depositoryId
                 };
+                defaultQuantity = data.quantity; // 将获取到的默认数量赋值给全局变量
                 document.getElementById('previewBoxNumber').textContent = data.boxNumber;
                 document.getElementById('editQuantity').value = data.quantity; // 设置输入框的初始值
                 document.getElementById('editQuantity').setAttribute('data-initial-value', data.quantity);
@@ -305,9 +302,8 @@
                 }).appendTo(qrCodeElement);
 
                 // 检查数量是否改变
-                var initialQuantity = document.getElementById('editQuantity').getAttribute('data-initial-value');
-                var currentQuantity = document.getElementById('editQuantity').value;
-                var isQuantityChanged = initialQuantity !== currentQuantity;
+                var currentQuantity = parseInt(document.getElementById('editQuantity').value);
+                var isQuantityChanged = defaultQuantity !== currentQuantity;
 
                 // 根据数量是否改变，决定是否显示图标
                 var iconHtml = isQuantityChanged ? `
@@ -315,9 +311,8 @@
                         <img src="/static/images/iic.png" alt="Icon" class="your-icon-class">
                     </div>
                 ` : '';
-
                         // 显示信息，包括或不包括图标
-                        var infoHtml = `
+                var infoHtml = `
                     <div class="info-row print-info-row">
                         <p class="box-text"><span>${data.boxText}</span></p>
                     </div>
@@ -349,12 +344,13 @@
     function regenerateQRCode() {
         var newQuantity = prompt("请输入新的数量:", "");
         if (newQuantity != null && !isNaN(newQuantity) && newQuantity > 0) {
-            var isQuantityChanged = newQuantity !== preGenerateData.quantity;
+            var isQuantityChanged = parseInt(newQuantity) !== defaultQuantity;
             updateQRCodeQuantity(parseInt(newQuantity), isQuantityChanged);
         } else {
             alert("请输入有效的数量");
         }
     }
+
     function updateQRCodeQuantity(newQuantity, isQuantityChanged) {
         // Call the new API to get updated data
         fetch('/bearings/' + preGenerateData.boxText + '/' + preGenerateData.depositoryId + '/regenerate', {
@@ -637,7 +633,8 @@
             updateProductQuantity(boxText, boxNumber, newQuantity, depositoryId, iter)
                 .then(() => proceedStockIn(boxText, boxNumber, newQuantity, operationType, depositoryId, iter))
                 .then(() => {
-                    updateQRCodeWithData(boxText, boxNumber, newQuantity, depositoryName, iter, true); // 显示图标
+                    var isQuantityChanged = parseInt(newQuantity) !== defaultQuantity; // 检查数量是否更改
+                    updateQRCodeWithData(boxText, boxNumber, newQuantity, depositoryName, iter, isQuantityChanged); // 根据是否更改显示图标
                 })
                 .catch(error => {
                     console.error('更新数量或入库操作失败，正在尝试回滚:', error);
