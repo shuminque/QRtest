@@ -88,6 +88,14 @@ public class PageController {
         mv.addObject("steelTypes", steelTypeService.findAll());
         return mv;
     }
+    @GetMapping("/Inquire-dissolve")
+    public ModelAndView InquireDissolve() {
+        ModelAndView mv = new ModelAndView();mv.setViewName("pages/Inquire/Inquire-dissolve");
+        mv.addObject("productCategorys", productCategoryService.findAll());
+        mv.addObject("steelGrades", steelGradeService.findAll());
+        mv.addObject("steelTypes", steelTypeService.findAll());
+        return mv;
+    }
     @GetMapping("/GenerateAndPrintQR")
     public ModelAndView GenerateAndPrintQR() {
         ModelAndView mv = new ModelAndView();

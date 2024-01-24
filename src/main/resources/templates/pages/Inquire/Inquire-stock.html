@@ -8,13 +8,9 @@
         <!-- jQuery 库 -->
         <script src="/static/js/http_ajax.googleapis.com_ajax_libs_jquery_3.5.1_jquery.js"></script>
         <script src="/static/js/http_cdnjs.cloudflare.com_ajax_libs_bootstrap-3-typeahead_4.0.2_bootstrap3-typeahead.js"></script>
-
         <style>
             .container {
                 margin: 20px;
-            }
-            .search-section {
-                margin-bottom: 20px;
             }
         </style>
     </head>
@@ -165,6 +161,8 @@
                     pageName:'page',
                     limitName:'size'
                 },
+                page: true, //开启分页,
+                totalRow: true, // 开启合计行
                 cols: [ [ // 表头
                     {field: 'boxText', title: '箱号'},
                     {field: 'boxNumber', title: '编号'},
@@ -175,16 +173,30 @@
                     {field: 'steelGrade', title: '钢等'},
                     {field: 'size', title: '尺寸'},
                     {field: 'dissolve', title: '溶解号'},
-                    {field: 'quantity', title: '数量'},
+                    {field: 'quantity', title: '数量', totalRowText: '合计'}, // 启用合计行文本
                     {field: 'customer', title: '客户'},
                     {field: 'depository', title: '厂区'},
                     {field: 'lastRecordedTime', title: '最后入库时间', templet: function(d) {
                             return formatDate(d.lastRecordedTime);
                     }},
                 ]],
+                done: function(res, curr, count) {
+                    // 在这里计算合计值
+                    var total = 0;
+                    res.data.forEach(function(item) {
+                        total += parseInt(item.quantity);
+                    });
+                    // 更新合计行的值
+                    var totalRow = document.getElementsByClassName('layui-table-total')[0];
+                    if (totalRow) {
+                        var totalCell = totalRow.querySelector('td[data-field="quantity"]');
+                        if (totalCell) {
+                            totalCell.getElementsByClassName('layui-table-cell')[0].innerText = total.toString();
+                        }
+                    }
+                },
                 limits:[20,54,100,200,500],
                 limit:20,
-                page: true //开启分页
             });
             function formatDate(dateStr) {
                 if (!dateStr) return '';

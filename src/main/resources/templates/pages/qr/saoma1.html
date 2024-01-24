@@ -286,11 +286,11 @@
                     MDL: data.model,
                     boxText: data.boxText,
                     boxNumber: data.boxNumber,
+                    iter: data.iter,
                     OIR: data.outerInnerRing,
                     quantity: data.quantity,
                     SL: data.storageLocation,
-                    depository: data.depository,
-                    iter: data.iter
+                    depository: data.depository
                 };
                 var qrData = JSON.stringify(newData);
                 $('<div></div>').qrcode({
@@ -384,11 +384,11 @@
             MDL: data.model,
             boxText: data.boxText,
             boxNumber: data.boxNumber,
+            iter: data.iter,
             OIR: data.outerInnerRing,
             quantity: data.quantity,
             SL: data.storageLocation,
-            depository: data.depository,
-            iter: data.iter
+            depository: data.depository
         };
         var qrData = JSON.stringify(newData);
         $('<div></div>').qrcode({
