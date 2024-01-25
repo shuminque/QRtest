@@ -44,6 +44,15 @@
         padding: 0 0 0 0;
         transform: rotate(90deg);
     }
+    button.layui-btn {
+        color: white;
+        border: none;
+        border-radius: 5px;
+        font-size: 22px;
+        min-height: 69px;
+        min-width: 41%;
+        cursor: pointer;
+    }
 </style>
 <body>
 <div>
@@ -52,11 +61,15 @@
     </div>
     <div class="button-container">
         <div class="button-row">
-            <button class="layui-btn" onclick="preGenerateQRCodeByBoxText()">生成二维码</button>
-            <button class="layui-btn" onclick="printQRCode()">打印二维码</button>
+            <button class="layui-btn" onclick="preGenerateQRCodeByBoxText()">生成整箱二维码</button>
             <button class="layui-btn" onclick="preGenerateQRCodeByBoxTextForZero()">生成零箱二维码</button>
         </div>
-<!--        <div class="button-row">-->
+        <div class="button-row">
+
+        <button class="layui-btn" onclick="printQRCode()">打印二维码</button>
+        </div>
+
+        <!--        <div class="button-row">-->
 <!--            <input type="text" id="existingBoxTextInput" placeholder="请输入现有的boxText" class="layui-input">-->
 <!--            <input type="text" id="existingBoxNumberInput" placeholder="请输入现有的boxNumber" class="layui-input">-->
 <!--            <button class="layui-btn" onclick="generateExistingQRCode()">生成现有二维码</button>-->
