@@ -6,6 +6,7 @@ import java.util.List;
 
 public interface ProductIdService {
     ProductId getBoxNumberByBoxTextAndDepositoryId(String boxText, int depositoryId);
+    ProductId getLatestZeroBoxNumberByBoxTextAndDepositoryId(String boxText, int depositoryId);
     ProductId getOldBoxNumberByBoxTextAndDepositoryId(String boxText, int depositoryId);
     List<ProductId> getAllBoxNumbers();
     ProductId saveOrUpdateBoxNumber(ProductId boxNumber);
@@ -28,7 +29,9 @@ public interface ProductIdService {
      * @return 预计的下一个 product_id。
      */
     String calculateNextBoxNumber(String boxText, int depositoryId);
+    String incrementAndSaveBoxNumberForZero(String boxText, int depositoryId, int quantity);
 
+    String calculateNextBoxNumberForZero(String boxText, int depositoryId);
     ProductId getProductIdByBoxTextAndDepositoryId(String boxText, String boxNumber, int depositoryId);
 
     // 更新产品的入库状态

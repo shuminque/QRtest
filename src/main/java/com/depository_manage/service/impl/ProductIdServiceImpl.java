@@ -18,6 +18,10 @@ public class ProductIdServiceImpl implements ProductIdService {
         return productIdMapper.selectBoxNumberByBoxTextAndDepositoryId(boxText, depositoryId);
     }
     @Override
+    public ProductId getLatestZeroBoxNumberByBoxTextAndDepositoryId(String boxText, int depositoryId) {
+        return productIdMapper.selectBoxNumberByBoxTextAndDepositoryIdForZero(boxText, depositoryId);
+    }
+    @Override
     public ProductId getOldBoxNumberByBoxTextAndDepositoryId(String boxText, int depositoryId) {
         return productIdMapper.selectOldBoxNumberByBoxTextAndDepositoryId(boxText, depositoryId);
     }
@@ -38,23 +42,19 @@ public class ProductIdServiceImpl implements ProductIdService {
         ProductId current = productIdMapper.selectBoxNumberByBoxTextAndDepositoryId(boxText, depositoryId);
         String newBoxNumber;
         int newIter;
-
         if (current != null) {
-            newBoxNumber = current.getBoxNumber();
+            // 使用已有的incrementBoxNumber方法
+            newBoxNumber = incrementBoxNumber(current.getBoxNumber());
             newIter = current.getIter();
 
-            if ("999".equals(newBoxNumber)) {
-                newBoxNumber = "001"; // 重置为001
-                newIter++; // 增加iter
-            } else {
-                int num = Integer.parseInt(newBoxNumber);
-                newBoxNumber = String.format("%03d", num + 1); // 正常递增
+            // 如果BoxNumber为"999"，则iter增加
+            if ("999".equals(current.getBoxNumber())) {
+                newIter++;
             }
         } else {
-            newBoxNumber = "001"; // 如果不存在当前 BoxNumber，从 "001" 开始
+            newBoxNumber = "001"; // 如果不存在当前BoxNumber，从"001"开始
             newIter = 1; // 初始iter值设为1
         }
-
         ProductId newProductIdEntry = new ProductId();
         newProductIdEntry.setBoxText(boxText);
         newProductIdEntry.setBoxNumber(newBoxNumber);
@@ -62,11 +62,8 @@ public class ProductIdServiceImpl implements ProductIdService {
         newProductIdEntry.setDepositoryId(depositoryId);
         newProductIdEntry.setIter(newIter); // 设置iter值
         productIdMapper.insertOrUpdateBoxNumber(newProductIdEntry);
-
         return newBoxNumber;
     }
-
-
     @Override
     public String calculateNextBoxNumber(String boxText, int depositoryId) {
         // 获取当前的 BoxNumber
@@ -82,15 +79,6 @@ public class ProductIdServiceImpl implements ProductIdService {
     }
     private String incrementBoxNumber(String boxNumber) {
         try {
-//            int num = Integer.parseInt(boxNumber);
-//            num++; // 递增 product_id
-//            if (num <= 999) {
-//                // 如果是三位数或更少，则保持三位数格式
-//                return String.format("%03d", num);
-//            } else {
-//                // 如果超过三位数，则直接返回数字
-//                return Integer.toString(num);
-//            }
             int num = Integer.parseInt(boxNumber);
             if (num >= 999) {
                 // Reset to "001" and indicate that iter needs to be incremented
@@ -103,6 +91,66 @@ public class ProductIdServiceImpl implements ProductIdService {
             throw new IllegalArgumentException("Invalid boxNumber format: " + boxNumber);
         }
     }
+    @Override
+    public String incrementAndSaveBoxNumberForZero(String boxText, int depositoryId, int quantity) {
+        ProductId current = productIdMapper.selectBoxNumberByBoxTextAndDepositoryIdForZero(boxText, depositoryId);
+        String newBoxNumber;
+        int newIter;
+
+        if (current != null) {
+            newBoxNumber = current.getBoxNumber();
+            newIter = current.getIter();
+
+            if ("1999".equals(newBoxNumber)) {
+                newBoxNumber = "1001"; // Reset to 1001
+                newIter++; // Increment iter
+            } else {
+                int num = Integer.parseInt(newBoxNumber);
+                newBoxNumber = String.format("%04d", num + 1); // Increment within the range
+            }
+        } else {
+            newBoxNumber = "1001"; // Start from 1001 if no current BoxNumber
+            newIter = 1; // Initial iter value
+        }
+
+        ProductId newProductIdEntry = new ProductId();
+        newProductIdEntry.setBoxText(boxText);
+        newProductIdEntry.setBoxNumber(newBoxNumber);
+        newProductIdEntry.setQuantity(quantity);
+        newProductIdEntry.setDepositoryId(depositoryId);
+        newProductIdEntry.setIter(newIter); // Set iter value
+        productIdMapper.insertOrUpdateBoxNumber(newProductIdEntry);
+
+        return newBoxNumber;
+    }
+
+    @Override
+    public String calculateNextBoxNumberForZero(String boxText, int depositoryId) {
+        ProductId current = productIdMapper.selectBoxNumberByBoxTextAndDepositoryIdForZero(boxText, depositoryId);
+        String newBoxNumber;
+
+        if (current != null) {
+            newBoxNumber = incrementBoxNumberForZero(current.getBoxNumber());
+        } else {
+            newBoxNumber = "1001"; // Start from 1001 if no current BoxNumber
+        }
+
+        return newBoxNumber;
+    }
+
+    private String incrementBoxNumberForZero(String boxNumber) {
+        try {
+            int num = Integer.parseInt(boxNumber);
+            if (num >= 1999) {
+                return "1001"; // Reset to 1001
+            } else {
+                return String.format("%04d", num + 1); // Increment normally
+            }
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Invalid boxNumber format: " + boxNumber);
+        }
+    }
+
     @Override
     public int getQuantityByBoxTextAndBoxNumber(String boxText, String boxNumber, int depositoryId) {
         return productIdMapper.selectQuantityByBoxTextAndBoxNumber(boxText, boxNumber, depositoryId);

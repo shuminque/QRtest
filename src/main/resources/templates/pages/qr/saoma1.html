@@ -54,6 +54,7 @@
         <div class="button-row">
             <button class="layui-btn" onclick="preGenerateQRCodeByBoxText()">生成二维码</button>
             <button class="layui-btn" onclick="printQRCode()">打印二维码</button>
+            <button class="layui-btn" onclick="preGenerateQRCodeByBoxTextForZero()">生成零箱二维码</button>
         </div>
 <!--        <div class="button-row">-->
 <!--            <input type="text" id="existingBoxTextInput" placeholder="请输入现有的boxText" class="layui-input">-->
@@ -67,6 +68,12 @@
         <p>数量: <input type="number" id="editQuantity" /></p> <!-- 替换为输入框 -->
         <button onclick="confirmGenerateQRCode()">确认</button>
         <button onclick="cancelGenerateQRCode()">取消</button>
+    </div>
+    <div id="preGenerateModalForZero" style="display:none;">
+        <p>即将生成的 Number号: <span id="previewBoxNumberForZero"></span></p>
+        <p>数量: <input type="number" id="editQuantityForZero" /></p>
+        <button onclick="confirmGenerateQRCodeForZero()">确认</button>
+        <button onclick="cancelGenerateQRCodeForZero()">取消</button>
     </div>
 </div>
 <!--<button onclick="generateQRCode()">生成全部二维码</button>-->
@@ -187,7 +194,6 @@
             alert("请输入现有的boxText和boxNumber");
             return;
         }
-
         // 向后端请求获取与现有boxText和boxNumber相关的数据
         fetch('/bearings/' + existingBoxText + '/' + existingBoxNumber + '/' + existingDepositoryId)
             .then(response => {
@@ -258,7 +264,35 @@
             })
             .catch(error => console.error('预生成二维码时发生错误：', error));
     }
-
+    function preGenerateQRCodeByBoxTextForZero() {
+        var boxText = document.getElementById("boxTextInput").value;
+        if (!boxText) {
+            alert("请输入箱号");
+            return;
+        }
+        var url = '/bearings/zero/preGenerate/' + boxText + '/' + depositoryId;
+        fetch(url)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                // 在存储预生成的数据之前，添加 boxText
+                preGenerateData = {
+                    ...data,
+                    boxText: boxText, // 添加 boxText
+                    depositoryId: depositoryId // 添加 depositoryId
+                };
+                defaultQuantity = data.quantity; // 将获取到的默认数量赋值给全局变量
+                document.getElementById('previewBoxNumberForZero').textContent = data.boxNumber;
+                document.getElementById('editQuantityForZero').value = data.quantity; // 设置输入框的初始值
+                document.getElementById('editQuantityForZero').setAttribute('data-initial-value', data.quantity);
+                document.getElementById('preGenerateModalForZero').style.display = 'block';
+            })
+            .catch(error => console.error('预生成二维码时发生错误：', error));
+    }
     // 当用户点击“确认”按钮时执行
     function confirmGenerateQRCode() {
         console.log(preGenerateData);
@@ -334,12 +368,89 @@
                 console.error('生成二维码时发生错误：', error);
             });
     }
+    function confirmGenerateQRCodeForZero() {
+        console.log(preGenerateData);
+        preGenerateData.quantity = document.getElementById('editQuantityForZero').value;
+        // 确保发送到后端的数据包括厂区ID
+        fetch('/bearings/zero/' + preGenerateData.boxText+'/' + depositoryId, {
+            method: 'POST',
+            body: JSON.stringify(preGenerateData),
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                // 生成二维码
+                var qrCodeElement = document.getElementById("qrcode");
+                qrCodeElement.innerHTML = ""; // 清除之前的二维码
+                var newData = {
+                    CTM: data.customer,
+                    MDL: data.model,
+                    boxText: data.boxText,
+                    boxNumber: data.boxNumber,
+                    iter: data.iter,
+                    OIR: data.outerInnerRing,
+                    quantity: data.quantity,
+                    SL: data.storageLocation,
+                    depository: data.depository
+                };
+                var qrData = JSON.stringify(newData);
+                $('<div></div>').qrcode({
+                    text: qrData,
+                    render: 'canvas',
+                    width: 200,
+                    height: 200,
+                    correctLevel: 3,
+                }).appendTo(qrCodeElement);
+
+                // 检查数量是否改变
+                var currentQuantity = parseInt(document.getElementById('editQuantityForZero').value);
+                var isQuantityChanged = defaultQuantity !== currentQuantity;
+
+                // 根据数量是否改变，决定是否显示图标
+                var iconHtml = isQuantityChanged ? `
+                     <div class="icon-container-for-print">
+                        <img src="/static/images/iic.png" alt="Icon" class="your-icon-class">
+                    </div>
+                ` : '';
+                // 显示信息，包括或不包括图标
+                var infoHtml = `
+                    <div class="info-row print-info-row">
+                        <p class="box-text"><span>${data.boxText}</span></p>
+                    </div>
+                    ${iconHtml}
+                    <div class="info-row print-info-row">
+                        <p class="box-number"><span>${data.boxNumber}</span></p>
+                    </div>
+                `;
+                var infoContainer = document.querySelector("#printSection .info-container");
+                infoContainer.innerHTML = infoHtml;
+                adjustPrintFontSize(data.boxText);
+                // 显示元素
+                document.getElementById('qrcodeContainer').style.display = 'block';
+                document.getElementById('printSection').style.display = 'block';
+                document.getElementById('preGenerateModalForZero').style.display = 'none';
+                document.getElementById('regenerateButton').style.display = 'block';
+            })
+            .catch(error => {
+                console.error('生成二维码时发生错误：', error);
+            });
+    }
     // 当用户点击“取消”按钮时执行
     function cancelGenerateQRCode() {
         preGenerateData = null;
         document.getElementById('preGenerateModal').style.display = 'none';
         document.getElementById('regenerateButton').style.display = 'none';
-
+    }
+    function cancelGenerateQRCodeForZero() {
+        document.getElementById('preGenerateModalForZero').style.display = 'none';
+        document.getElementById('regenerateButton').style.display = 'none';
     }
     function regenerateQRCode() {
         var newQuantity = prompt("请输入新的数量:", "");

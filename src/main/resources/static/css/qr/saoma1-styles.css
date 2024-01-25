@@ -113,7 +113,37 @@ body {
     padding: 10px 0; /* 垂直内边距 */
     margin: 5px 0; /* 垂直外边距，水平方向自动居中 */
 }
+#preGenerateModalForZero {
+    background-color: white;
+    padding: 15px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    display: none; /* 初始状态为隐藏 */
+    position: fixed;
+    width: 50%; /* 宽度为视窗的 50% */
+    height: 30%; /* 高度为视窗的  */
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1000;
+    font-size: 22px; /* 增大字体大小 */
+    display: flex; /* 启用 flex 布局 */
+    flex-direction: column; /* 子元素垂直排列 */
+    align-items: center; /* 子元素在主轴上居中对齐 */
+    justify-content: space-around; /* 子元素之间均匀分布 */
+}
 
+#preGenerateModalForZero p {
+    width: 100%; /* <p> 标签宽度占满容器 */
+    text-align: center; /* 文本居中 */
+    margin: 5px 0; /* 上下边距 */
+}
+
+#preGenerateModalForZero button {
+    width: 45%; /* 按钮宽度为容器的 45% */
+    padding: 10px 0; /* 垂直内边距 */
+    margin: 5px 0; /* 垂直外边距，水平方向自动居中 */
+}
 #editQuantity {
     width: 30%; /* 输入框宽度占满容器 */
     padding: 10px; /* 输入框内边距 */

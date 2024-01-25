@@ -170,9 +170,9 @@
                     {field: 'model', title: '型号'},
                     {field: 'productCategory', title: '制片分类'},
                     {field: 'steelType', title: '钢种'},
-                    {field: 'steelGrade', title: '钢等'},
+                    {field: 'steelGrade', title: '钢等',totalRowText: '箱数'},
                     {field: 'size', title: '尺寸'},
-                    {field: 'dissolve', title: '溶解号'},
+                    {field: 'dissolve', title: '溶解号',totalRowText: '合计数'},
                     {field: 'quantity', title: '数量', totalRowText: '合计'}, // 启用合计行文本
                     {field: 'customer', title: '客户'},
                     {field: 'depository', title: '厂区'},
@@ -193,10 +193,15 @@
                         if (totalCell) {
                             totalCell.getElementsByClassName('layui-table-cell')[0].innerText = total.toString();
                         }
+                        // 更新箱数
+                        var boxCountCell = totalRow.querySelector('td[data-field="size"]');
+                        if (boxCountCell) {
+                            boxCountCell.getElementsByClassName('layui-table-cell')[0].innerText = res.data.length.toString();
+                        }
                     }
                 },
-                limits:[20,54,100,200,500],
-                limit:20,
+                limits:[54,100,200,500],
+                limit:54,
             });
             function formatDate(dateStr) {
                 if (!dateStr) return '';

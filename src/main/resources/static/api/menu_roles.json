@@ -129,7 +129,7 @@
                             ]
                         },
                         {
-                            "title": "溶解号录入",
+                            "title": "溶解号登记",
                             "href": "/Inquire-dissolve",
                             "icon": "fa fa-th-list",
                             "target": "_self",

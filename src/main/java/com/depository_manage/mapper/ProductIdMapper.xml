@@ -14,7 +14,13 @@
 
     <select id="selectBoxNumberByBoxTextAndDepositoryId" resultType="com.depository_manage.entity.ProductId">
         SELECT * FROM product_ids
-        WHERE box_text = #{boxText} AND depository_id = #{depositoryId}
+        WHERE box_text = #{boxText} AND depository_id = #{depositoryId} AND CAST(box_number as UNSIGNED) &lt; 1000
+        ORDER BY iter DESC, CAST(box_number as UNSIGNED) DESC
+            LIMIT 1
+    </select>
+    <select id="selectBoxNumberByBoxTextAndDepositoryIdForZero" resultType="com.depository_manage.entity.ProductId">
+        SELECT * FROM product_ids
+        WHERE box_text = #{boxText} AND depository_id = #{depositoryId} AND CAST(box_number as UNSIGNED) > 1000
         ORDER BY iter DESC, CAST(box_number as UNSIGNED) DESC
             LIMIT 1
     </select>
