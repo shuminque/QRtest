@@ -649,6 +649,7 @@
             document.getElementById('modalScanInput').value = '';
             document.getElementById('modalScanInput').focus();
             console.log("Input refocused");
+
             // 不关闭模态框，注释掉或移除下面这行代码
             // layer.closeAll();
         } catch (error) {
@@ -728,6 +729,9 @@
                     area: ['80%', '40%'],
                     btn: ['确认', '取消'],
                     success: function(layero, index) {
+                        layer.style(index,{
+                            top:0,
+                        });
                         layero.find('.layui-layer-title').css('height', '80px');
                         layero.find('.layui-layer-content').css('height', '90px');
                             $('#confirmQuantityInput').val(originalQuantity); // 设置默认值
