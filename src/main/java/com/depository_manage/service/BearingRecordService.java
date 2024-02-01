@@ -16,5 +16,6 @@ public interface BearingRecordService {
     public boolean hasSpecialRecord(String boxText, String boxNumber, String depository, int quantity, int iter);
 
     List<BearingRecord> selectInventoryByCutoffDate(Map<String, Object> params);
+    List<Map<String, Object>> getEveryPairData(String startDate, String endDate);
 
 }

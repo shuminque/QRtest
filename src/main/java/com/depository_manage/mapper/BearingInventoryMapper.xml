@@ -70,6 +70,7 @@
             bi.total_boxes,
             pi.quantity,
             pi.is_stocked,
+            pi.iter,
             b.outer_inner_ring,
             b.model
         FROM
@@ -78,7 +79,9 @@
                 LEFT JOIN bearings b ON bi.box_text = b.box_text
         WHERE
             bi.box_text = #{boxText} AND bi.depository_id = #{depositoryId} AND pi.box_number = #{boxNumber}
-          AND (b.depository = 'SAB' AND #{depositoryId} = 1 OR b.depository = 'ZAB' AND #{depositoryId} = 2 OR b.depository IS NULL);
+          AND (b.depository = 'SAB' AND #{depositoryId} = 1 OR b.depository = 'ZAB' AND #{depositoryId} = 2 OR b.depository IS NULL)
+        ORDER BY
+            pi.iter DESC
+            LIMIT 1;
     </select>
-
 </mapper>

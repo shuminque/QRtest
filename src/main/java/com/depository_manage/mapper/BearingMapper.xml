@@ -16,6 +16,7 @@
         <result property="depository" column="depository"/>
         <result property="storageLocation" column="storage_location"/>
         <result property="size" column="size"/>
+        <result property="pair" column="pair"/>
     </resultMap>
 
     <select id="selectBearingByBoxTextAndDepository" resultMap="bearingMap">
@@ -58,6 +59,9 @@
             <if test="storageLocation != null">
                 storage_location = #{storageLocation},
             </if>
+            <if test="pair != null">
+                pair = #{pair}
+            </if>
         </set>
         WHERE id = #{id}
     </update>
@@ -83,7 +87,8 @@
             steel_grade,
             depository,
             storage_location,
-            size
+            size,
+            pair
         ) VALUES (
                      #{boxText},
                      #{boxNumber},
@@ -96,7 +101,8 @@
                      #{steelGrade},
                      #{depository},
                      #{storageLocation},
-                     #{size}
+                     #{size},
+                     #{pair}
                  )
     </insert>
     <select id="calculateTotalQuantityByBoxText" resultType="java.lang.Integer">

@@ -70,4 +70,8 @@ public class BearingRecordServiceImpl implements BearingRecordService {
         }
         return bearingRecordMapper.selectInventoryByCutoffDate(params);
     }
+    @Override
+    public List<Map<String, Object>> getEveryPairData(String startDate, String endDate) {
+        return bearingRecordMapper.everyPair(startDate, endDate);
+    }
 }

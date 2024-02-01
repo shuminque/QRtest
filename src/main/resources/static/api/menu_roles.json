@@ -120,15 +120,6 @@
                             ]
                         },
                         {
-                            "title": "二维生成",
-                            "href": "/GenerateAndPrintQR",
-                            "icon": "fa fa-th-list",
-                            "target": "_self",
-                            "roles": [
-                                "SAB_cg", "SAB_sh", "ZAB_cg", "ZAB_sh", "ALL"
-                            ]
-                        },
-                        {
                             "title": "溶解号登记",
                             "href": "/Inquire-dissolve",
                             "icon": "fa fa-th-list",
@@ -136,7 +127,17 @@
                             "roles": [
                                 "SAB_cg", "SAB_sh", "ZAB_cg", "ZAB_sh", "ALL"
                             ]
+                        },
+                        {
+                            "title": "二维生成",
+                            "href": "/GenerateAndPrintQR",
+                            "icon": "fa fa-th-list",
+                            "target": "_self",
+                            "roles": [
+                                "SAB_cg", "SAB_sh", "ZAB_cg", "ZAB_sh", "ALL"
+                            ]
                         }
+
                     ]
                 },
                 {
@@ -148,28 +149,28 @@
                     ],
                     "child": [
                         {
-                            "title": "轴承信息",
+                            "title": "成品信息",
                             "href": "/bearings",
                             "icon": "layui-icon layui-icon-file",
                             "target": "_self",
                             "roles": ["SAB_cg","SAB_sh","ZAB_cg","ZAB_sh","ALL"]
                         },
                         {
-                            "title": "分类信息",
+                            "title": "成品分类",
                             "href": "/bearing-category",
                             "icon": "layui-icon layui-icon-tabs",
                             "target": "_self",
                             "roles": ["SAB_cg","SAB_sh","ZAB_cg","ZAB_sh","ALL"]
                         },
                         {
-                            "title": "钢等信息",
+                            "title": "钢材等级",
                             "href": "/bearing-steel-grade",
                             "icon": "layui-icon layui-icon-util",
                             "target": "_self",
                             "roles": ["SAB_cg","SAB_sh","ZAB_cg","ZAB_sh","ALL"]
                         },
                         {
-                            "title": "钢种信息",
+                            "title": "钢厂信息",
                             "href": "/bearing-steel-type",
                             "icon": "layui-icon layui-icon-dollar",
                             "target": "_self",
@@ -193,26 +194,8 @@
                     ],
                     "child": [
                         {
-                            "title": "成本分类报表",
-                            "href": "/every_type",
-                            "icon": "layui-icon layui-icon-list",
-                            "target": "_self",
-                            "roles": [
-                                "SAB_cg", "SAB_sh", "ZAB_cg", "ZAB_sh", "ALL"
-                            ]
-                        },
-                        {
-                            "title": "部品明细报表",
-                            "href": "/total_table",
-                            "icon": "layui-icon layui-icon-list",
-                            "target": "_self",
-                            "roles": [
-                                "SAB_cg", "SAB_sh", "ZAB_cg", "ZAB_sh", "ALL"
-                            ]
-                        },
-                        {
-                            "title": "互借明细",
-                            "href": "/transfer_table",
+                            "title": "制品在库报表",
+                            "href": "/every_pair",
                             "icon": "layui-icon layui-icon-list",
                             "target": "_self",
                             "roles": [

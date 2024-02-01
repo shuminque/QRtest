@@ -22,13 +22,14 @@
         <result property="iter" column="iter"/>
         <result property="size" column="size"/>
         <result property="dissolve" column="dissolve"/>
+        <result property="pair" column="pair"/>
     </resultMap>
 
     <insert id="insertBearingRecord">
         INSERT INTO bearing_records
-        (transaction_type, box_text, box_number, quantity, time, operator, depository, storage_location, customer, outer_inner_ring, model, product_category, steel_type, steel_grade, remarks, iter, size, dissolve)
+        (transaction_type, box_text, box_number, quantity, time, operator, depository, storage_location, customer, outer_inner_ring, model, product_category, steel_type, steel_grade, remarks, iter, size, dissolve, pair)
         VALUES
-            (#{transactionType}, #{boxText}, #{boxNumber}, #{quantity}, #{time}, #{operator}, #{depository}, #{storageLocation}, #{customer}, #{outerInnerRing}, #{model}, #{productCategory}, #{steelType}, #{steelGrade}, #{remarks}, #{iter}, #{size}, #{dissolve})
+            (#{transactionType}, #{boxText}, #{boxNumber}, #{quantity}, #{time}, #{operator}, #{depository}, #{storageLocation}, #{customer}, #{outerInnerRing}, #{model}, #{productCategory}, #{steelType}, #{steelGrade}, #{remarks}, #{iter}, #{size}, #{dissolve}, #{pair})
     </insert>
     <update id="updateBearingRecord">
         UPDATE bearing_records
@@ -84,6 +85,9 @@
             <if test="dissolve != null">
                 dissolve = #{dissolve}
             </if>
+            <if test="pair != null">
+                pair = #{pair}
+            </if>
         </set>
         WHERE id = #{id}
     </update>
@@ -107,8 +111,11 @@
         <if test="boxNumber != null and boxNumber != ''">
             AND box_number = #{boxNumber}
         </if>
+        <if test="model != null and model != ''">
+            AND model  LIKE CONCAT('%',#{model},'%')
+        </if>
         <if test="customer != null and customer != ''">
-            AND customer = #{customer}
+            AND customer  LIKE CONCAT('%',#{customer},'%')
         </if>
         <if test="productCategory != null and productCategory != ''">
             AND product_category = #{productCategory}
@@ -139,6 +146,7 @@
           AND depository = #{depository} AND quantity= #{quantity} AND iter = #{iter}
           AND transaction_type IN ('返库', '出库', '转入')
     </select>
+
     <select id="selectInventoryByCutoffDate" resultMap="bearingRecordMap" parameterType="map">
         SELECT
         br.box_text,
@@ -151,7 +159,7 @@
         br.steel_grade,
         br.model,
         br.size,
-        br.dissolve,
+        MAX(br.dissolve) as dissolve,
         SUM(CASE
         WHEN br.transaction_type IN ('入库', '转入') THEN br.quantity
         WHEN br.transaction_type IN ('出库', '转出', '返库') THEN -br.quantity
@@ -184,10 +192,10 @@
             AND br.box_number = #{boxNumber}
         </if>
         <if test="model != null and model != ''">
-            AND br.model = #{model}
+            AND br.model  LIKE CONCAT('%',#{model},'%')
         </if>
         <if test="customer != null and customer != ''">
-            AND br.customer = #{customer}
+            AND br.customer  LIKE CONCAT('%',#{customer},'%')
         </if>
         <if test="productCategory != null and productCategory != ''">
             AND br.product_category = #{productCategory}
@@ -216,10 +224,93 @@
         br.quantity,
         br.model,
         br.size,
-        br.dissolve,
         lr.last_recorded_time
         <if test="begin != null and size != null">
             LIMIT #{begin},#{size}
         </if>
     </select>
+
+    <select id="everyPair" resultType="map">
+        WITH transaction_summary AS (
+        SELECT
+        b.pair,
+        br.model,
+        br.outer_inner_ring,
+        SUM(CASE WHEN br.transaction_type = '入库' THEN br.quantity ELSE 0 END) AS 入库,
+        SUM(CASE WHEN br.transaction_type = '出库' THEN br.quantity ELSE 0 END) AS 出库,
+        SUM(CASE WHEN br.transaction_type = '返库' THEN br.quantity ELSE 0 END) AS 返库,
+        SUM(CASE WHEN br.transaction_type = '转入' THEN br.quantity ELSE 0 END) AS 转入,
+        SUM(CASE WHEN br.transaction_type = '转出' THEN br.quantity ELSE 0 END) AS 转出
+        FROM
+        bearing_records br
+        JOIN
+        bearings b ON br.box_text = b.box_text
+        WHERE
+        br.time > DATE_ADD(#{StartDate},interval 1 DAY) AND br.time &lt; DATE_ADD(#{EndDate},interval 1 DAY)
+        GROUP BY
+        b.pair, br.outer_inner_ring,br.model
+        ),
+        pre_start_date_inventory AS (
+        SELECT
+        b.pair,
+        br.outer_inner_ring,
+        SUM(CASE WHEN br.transaction_type IN ('入库', '转入') THEN br.quantity
+        WHEN br.transaction_type IN ('出库', '返库', '转出') THEN -br.quantity
+        ELSE 0 END) AS 在库
+        FROM
+        bearing_records br
+        JOIN
+        bearings b ON br.box_text = b.box_text
+        WHERE
+        br.time &lt; #{StartDate}
+        GROUP BY
+        b.pair, br.outer_inner_ring
+        ),
+        inventory AS (
+        SELECT
+        b.pair,
+        br.outer_inner_ring,
+        SUM(CASE WHEN br.transaction_type IN ('入库', '转入') THEN br.quantity
+        WHEN br.transaction_type IN ('出库','返库', '转出') THEN -br.quantity
+        ELSE 0 END) AS 当前库存
+        FROM
+        bearing_records br
+        JOIN
+        bearings b ON br.box_text = b.box_text
+        WHERE
+        br.time &lt; DATE_ADD(#{EndDate},interval 1 DAY)
+        GROUP BY
+        b.pair, br.outer_inner_ring
+        )
+        SELECT
+        b.pair,
+        MAX(b.model) AS 型号,
+        MAX(b.steel_type) AS 钢厂,
+        MAX(b.customer) AS 客户,
+        MAX(CASE WHEN pre_inv.outer_inner_ring = 'LA' THEN pre_inv.在库 ELSE 0 END) AS 前月末在库_LA,
+        MAX(CASE WHEN pre_inv.outer_inner_ring = 'LB' THEN pre_inv.在库 ELSE 0 END) AS 前月末在库_LB,
+        SUM(CASE WHEN ts.outer_inner_ring = 'LA' THEN ts.入库 ELSE 0 END) AS 入库_LA,
+        SUM(CASE WHEN ts.outer_inner_ring = 'LB' THEN ts.入库 ELSE 0 END) AS 入库_LB,
+        SUM(CASE WHEN ts.outer_inner_ring = 'LA' THEN ts.出库 ELSE 0 END) AS 出库_LA,
+        SUM(CASE WHEN ts.outer_inner_ring = 'LB' THEN ts.出库 ELSE 0 END) AS 出库_LB,
+        SUM(CASE WHEN ts.outer_inner_ring = 'LA' THEN ts.返库 ELSE 0 END) AS 返库_LA,
+        SUM(CASE WHEN ts.outer_inner_ring = 'LB' THEN ts.返库 ELSE 0 END) AS 返库_LB,
+        SUM(CASE WHEN ts.outer_inner_ring = 'LA' THEN ts.转入 ELSE 0 END) AS 转入_LA,
+        SUM(CASE WHEN ts.outer_inner_ring = 'LB' THEN ts.转入 ELSE 0 END) AS 转入_LB,
+        SUM(CASE WHEN ts.outer_inner_ring = 'LA' THEN ts.转出 ELSE 0 END) AS 转出_LA,
+        SUM(CASE WHEN ts.outer_inner_ring = 'LB' THEN ts.转出 ELSE 0 END) AS 转出_LB,
+        MAX(CASE WHEN inv.outer_inner_ring = 'LA' THEN inv.当前库存 ELSE 0 END) AS 当月在库_LA,
+        MAX(CASE WHEN inv.outer_inner_ring = 'LB' THEN inv.当前库存 ELSE 0 END) AS 当月在库_LB
+        FROM
+        bearings b
+        LEFT JOIN
+        transaction_summary ts ON b.pair = ts.pair AND b.outer_inner_ring = ts.outer_inner_ring and b.model=ts.model
+        LEFT JOIN
+        inventory inv ON b.pair = inv.pair AND b.outer_inner_ring = inv.outer_inner_ring
+        LEFT JOIN
+        pre_start_date_inventory pre_inv ON b.pair = pre_inv.pair AND b.outer_inner_ring = pre_inv.outer_inner_ring
+        GROUP BY
+        b.pair;
+    </select>
+
 </mapper>

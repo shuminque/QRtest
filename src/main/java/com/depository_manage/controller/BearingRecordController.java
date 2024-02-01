@@ -39,6 +39,7 @@ public class BearingRecordController {
             record.setStorageLocation(bearing.getStorageLocation());
             record.setOuterInnerRing(bearing.getOuterInnerRing());
             record.setSize(bearing.getSize());
+            record.setPair(bearing.getPair());
             // ...其他需要的字段...
             // 设置记录的时间
             record.setTime(new Date());
@@ -102,4 +103,12 @@ public class BearingRecordController {
         List<BearingRecord> records = bearingRecordService.selectInventoryByCutoffDate(params);
         return ResponseEntity.ok(records);
     }
+    @GetMapping("/everyPair")
+    public ResponseEntity<?> getEveryPairData(
+            @RequestParam("startDate") @DateTimeFormat(pattern = "yyyy-MM-dd") String startDate,
+            @RequestParam("endDate") @DateTimeFormat(pattern = "yyyy-MM-dd") String endDate) {
+        List<Map<String, Object>> data = bearingRecordService.getEveryPairData(startDate, endDate);
+        return ResponseEntity.ok(data);
+    }
+
 }

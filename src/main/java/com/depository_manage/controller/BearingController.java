@@ -46,15 +46,13 @@ public class BearingController {
                                                  @RequestBody Map<String, Object> requestData) {
         int quantity = (Integer) requestData.get("quantity");
         String depositoryText = convertDepositoryIdToText(depositoryId);
-
         Bearing bearing = bearingService.getBearingByBoxTextAndDepository(boxText, depositoryText);
         if (bearing == null) {
             return ResponseEntity.notFound().build();
         }
         ProductId productId = productIdService.getBoxNumberByBoxTextAndDepositoryId(boxText, depositoryId);
-
+        ProductId productIdZero = productIdService.getLatestZeroBoxNumberByBoxTextAndDepositoryId(boxText, depositoryId);
         Map<String, Object> response = getStringObjectMap(boxText, productId.getBoxNumber(), bearing, quantity, productId.getIter());
-
         return ResponseEntity.ok(response);
     }
 
@@ -203,8 +201,8 @@ public class BearingController {
         response.put("quantity", quantity);  // 使用传递的 quantity 值
         response.put("outerInnerRing", bearing.getOuterInnerRing());   // 外/内轮
 //        response.put("productCategory", bearing.getProductCategory()); // 制品分类
-//        response.put("steelType", bearing.getSteelType());             // 钢种
-//        response.put("steelGrade", bearing.getSteelGrade());           // 钢材等级
+        response.put("steelType", bearing.getSteelType());             // 钢种
+        response.put("steelGrade", bearing.getSteelGrade());           // 钢材等级
         response.put("depository", bearing.getDepository());           // 厂区
         response.put("storageLocation", bearing.getStorageLocation()); // 库位
         response.put("iter", iter); // 轮数

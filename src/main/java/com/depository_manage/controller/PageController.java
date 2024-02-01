@@ -44,10 +44,6 @@ public class PageController {
     public String s1() {
         return "pages/qr/saoma1";
     }
-    @GetMapping("/a")
-    public String a() {
-        return "pages/qr/a";
-    }//测试页面2
     @GetMapping("/index")
     public ModelAndView index(HttpServletRequest request) {
         ModelAndView mv = new ModelAndView();
@@ -131,7 +127,10 @@ public class PageController {
         ModelAndView mv = new ModelAndView();
         mv.setViewName("pages/basicdata/bearing-steel-type");return mv;
     }
-
+    @GetMapping("/every_pair")
+    public String every_pair() {
+        return "pages/chart/every_pair";
+    }
 //
 //    @GetMapping("/register")
 //    public String register() {
@@ -141,6 +140,7 @@ public class PageController {
 //        NumberFormat numberFormat = NumberFormat.getInstance();
 //        return numberFormat.format(number);
 //    }
+
     @GetMapping("/welcome")
     public ModelAndView welcome(HttpServletRequest request) {
         ModelAndView mv = new ModelAndView();

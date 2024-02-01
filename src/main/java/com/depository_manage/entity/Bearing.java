@@ -17,5 +17,7 @@ public class Bearing {
     private String depository;       // 厂区
     private String storageLocation;  // 库位
     private String size;  // 尺寸
+    private Integer pair;
+
     // Lombok 的 @Data 注解会自动生成构造函数、getter 和 setter 方法
 }

@@ -10,7 +10,7 @@
 <!--    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css">-->
     <script src="/static/js/http_code.jquery.com_jquery-3.6.0.min.js"></script>
     <script src="/static/js/http_cdnjs.cloudflare.com_ajax_libs_bootstrap-3-typeahead_4.0.2_bootstrap3-typeahead.js"></script>
-
+    <script src="/static/lib/layui-v2.8.17/layui.js" charset="utf-8"></script>
     <style>
         body {
             background-color: #f8f9fa;
@@ -73,12 +73,7 @@
                     </select>
                 </div>
                 <div class="layui-input-inline">
-                    <select name="productCategory">
-                        <option value="" selected>搜索制品分类</option>
-                        <option th:each="product_category : ${productCategorys}"
-                                th:value="${product_category.name}"
-                                th:text="${product_category.name}"></option>
-                    </select>
+                    <input type="text" name="model" placeholder="搜索型号" class="layui-input">
                 </div>
                 <div class="layui-input-inline">
                     <select name="steelType">
@@ -106,6 +101,69 @@
     </form>
 
     <table id="recordTable" lay-filter="recordTableFilter"></table>
+    <!-- 工具栏模板 -->
+    <script type="text/html" id="actionBar">
+        <a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
+<!--        <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="delete">删除</a>-->
+    </script>
+    <script type="text/template" id="editGradeModelTemplate">
+        <form class="layui-form" lay-filter="editGradeFormFilter">
+            <div class="layui-form-item">
+                <label class="layui-form-label">编号：</label>
+                <div class="layui-input-block">
+                    <input type="text" name="id" required class="layui-input" readonly>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">交易类型：</label>
+                <div class="layui-input-block">
+                    <select name="transactionType">
+                        <option value="">选择交易类型</option>
+                        <option value="入库">入库</option>
+                        <option value="出库">出库</option>
+                        <option value="返库">返库</option>
+                        <option value="转入">转入</option>
+                        <option value="转出">转出</option>
+                    </select>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">箱号：</label>
+                <div class="layui-input-block">
+                    <input type="text" name="boxText" required class="layui-input" readonly>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">箱号编号：</label>
+                <div class="layui-input-block">
+                    <input type="text" name="boxNumber" required class="layui-input" readonly>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">数量：</label>
+                <div class="layui-input-block">
+                    <input type="text" name="quantity" required class="layui-input" readonly>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">时间：</label>
+                <div class="layui-input-block">
+                    <input type="text" name="time" class="layui-input" readonly>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">厂区：</label>
+                <div class="layui-input-block">
+                    <input type="text" name="depository" class="layui-input" readonly>
+                </div>
+            </div>
+            <div class="layui-form-item" style="text-align: center;">
+                <button class="layui-btn layui-btn-normal" lay-submit lay-filter="editGradeSubmitBtnFilter">
+                    更新
+                </button>
+            </div>
+        </form>
+    </script>
 </div>
 
 <script>
@@ -179,6 +237,7 @@
             },
             toolbar: ['filter', 'exports', 'print'],
             cols: [ [ // 表头
+                {title: '操作', toolbar: '#actionBar'},
                 {field: 'transactionType', title: '交易类型'},
                 {field: 'boxText', title: '箱号'},
                 {field: 'boxNumber', title: '箱号编号'},
@@ -224,6 +283,9 @@
             if (formData.boxNumber !== '') {
                 req.boxNumber = formData.boxNumber;
             }
+            if (formData.model !== '') {
+                req.model = formData.model;
+            }
             if (formData.customer !== '') {
                 req.customer = formData.customer;
             }
@@ -256,32 +318,74 @@
             });
             return false;
         });
-        table.on('edit(recordTableFilter)', function(obj) {
-            var value = obj.value; // 获取编辑后的值
-            var data = obj.data; // 获取整行数据
-            var field = obj.field; // 获取编辑的字段
-
-            if (field === 'dissolve') {
-                // 只有当编辑的字段是“溶解号”时才处理
-                console.log('编辑了溶解号:', value);
-                data.dissolve = value;
-                // 发送AJAX请求更新后端数据
-                $.ajax({
-                    url: '/bearingRecords/' + data.id, // 更新API URL
-                    type: 'PUT',
-                    contentType: 'application/json',
-                    data: JSON.stringify(data), // 发送整个更新后的数据对象
-                    success: function(response) {
-                        layer.msg('溶解号更新成功');
-                        // 可以在此处添加其他成功处理逻辑
-                    },
-                    error: function(xhr, status, error) {
-                        layer.msg('更新失败: ' + error);
-                        // 错误处理
-                    }
-                });
+        table.on('tool(recordTableFilter)', function(obj) {
+            var data = obj.data;
+            var layEvent = obj.event;
+            if (layEvent === 'edit') {
+                editSteelGrade(data);
+            } else if (layEvent === 'delete') {
+                deleteSteelGrade(data.id);
             }
         });
+
+        function editSteelGrade(data) {
+            // 打开弹出层
+            layer.open({
+                type: 1,
+                title: '编辑',
+                content: $('#editGradeModelTemplate').html(), // 使用模板的内容
+                area: ['500px', '80%'],
+                success: function(layero, index) {
+                    // 使用 layui.form 来填充表单数据
+                    layui.form.val('editGradeFormFilter', {
+                        'id': data.id,
+                        'transactionType': data.transactionType,
+                        'boxText': data.boxText,
+                        'boxNumber': data.boxNumber,
+                        'quantity': data.quantity,
+                        'time': formatDate(data.time),
+                        'depository': data.depository,
+                        'customer': data.customer,
+                        'outerInnerRing': data.outerInnerRing,
+                        'model': data.model,
+                        'productCategory': data.productCategory,
+                        'steelType': data.steelType,
+                        'steelGrade': data.steelGrade,
+                        'size': data.size,
+                        'dissolve': data.dissolve,
+                        'remarks': data.remarks
+                    });
+                    layui.form.render();
+                }
+            });
+        }
+        // 监听编辑表单的提交事件
+        layui.form.on('submit(editGradeSubmitBtnFilter)', function(data) {
+            var formData = data.field; // 获取表单数据
+            var originalData = data.form.dataset.originalData; // 假设原始数据被存储在这里
+            var updatedData = Object.assign({}, originalData, formData);
+
+            // 发送 AJAX 请求来更新数据
+            $.ajax({
+                url: '/bearingRecords/' + formData.id, // 更新API URL
+                type: 'PUT', // 使用 PUT 方法更新
+                contentType: 'application/json', // 发送数据的格式
+                data: JSON.stringify(updatedData), // 将合并后的数据转换为 JSON 字符串
+                success: function(response) {
+                    layer.close(this.layerIndex);
+                    // 处理请求成功的情况
+                    layer.msg('更新成功！', {icon: 1, time: 3000});
+                    table.reload('recordTable'); // 重新加载表格数据
+                    layer.closeAll(); // 关闭所有弹出层
+                },
+                error: function(xhr, status, error) {
+                    // 处理请求失败的情况
+                    layer.msg('更新失败！', {icon: 2, time: 3000});
+                }
+            });
+            return false; // 阻止表单跳转
+        });
+
 
         // 高级搜索开关
         $('#advancedSearchToggle').click(function() {
