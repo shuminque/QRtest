@@ -52,7 +52,7 @@
     var tableInstance;  // 定义一个全局table变量
     function loadReport() {
         // 获取选择框和日期选择器的值
-        var depositoryId = document.getElementById('depositorySelect').value;
+        // var depositoryId = document.getElementById('depositorySelect').value;
         var startDate = document.getElementById('startDatePicker').value;
         var endDate = document.getElementById('endDatePicker').value;
 
@@ -126,7 +126,6 @@
             success: function(data) {
                 let depositoryId = data.depositoryId;
                 let selectElem = document.getElementById('depositorySelect');
-
                 if (depositoryId === 1) {
                     selectElem.innerHTML = '<option value="1">SAB</option>';
                 } else if (depositoryId === 2) {
