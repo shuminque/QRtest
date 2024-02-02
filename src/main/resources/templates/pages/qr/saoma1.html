@@ -615,13 +615,13 @@
             console.log(data);
             switch (currentOperation) {
                 case 'stockIn':
-                    stockIn(data.boxText, data.boxNumber, data.quantity,  currentOperation, depositoryId, data.iter);
+                    stockIn(data,  currentOperation, depositoryId);
                     break;
                 case 'stockOut':
                     stockOut(data.boxText, data.boxNumber, data.quantity, currentOperation, depositoryId, data.iter);
                     break;
                 case 'transferIn':
-                    stockIn(data.boxText, data.boxNumber, data.quantity, currentOperation, depositoryId, data.iter);
+                    stockIn(data,  currentOperation, depositoryId);
                     break;
                 case 'transferOut':
                     stockOut(data.boxText, data.boxNumber, data.quantity, currentOperation, depositoryId, data.iter);
@@ -698,13 +698,14 @@
             });
     }
     // 入库操作
-    function stockIn(boxText, boxNumber, originalQuantity, operationType, depositoryId, iter) {
+    function stockIn(data, operationType, depositoryId) {
         var depositoryName = convertDepositoryIdToText(depositoryId);
-        fetch(`/bearingRecords/checkSpecialRecord/${boxText}/${boxNumber}/${depositoryName}/${originalQuantity}/${iter}`)
+        var originalQuantity=data.quantity;
+        fetch(`/bearingRecords/checkSpecialRecord/${data.boxText}/${data.boxNumber}/${depositoryName}/${originalQuantity}/${data.iter}`)
             .then(response => response.json())
-            .then(data => {
-                if (!data.hasSpecial) {
-                    return proceedStockIn(boxText, boxNumber, originalQuantity, operationType, depositoryId, iter);
+            .then(outcome => {
+                if (!outcome.hasSpecial) {
+                    return proceedStockIn(data.boxText, data.boxNumber, originalQuantity, operationType, depositoryId, data.iter);
                 }
                 // 设置提示文本
                 // $('#confirmModalText').text('：');
@@ -730,7 +731,7 @@
                             return;
                         }
                         layer.close(index); // 关闭确认框
-                        handleQuantityUpdate(boxText, boxNumber, newQuantity, originalQuantity, operationType, depositoryId, depositoryName, iter);
+                        handleQuantityUpdate(data, newQuantity, originalQuantity, operationType, depositoryId, depositoryName);
                     },
                     btn2: function(index, layero) {
                         layer.close(index); // 关闭确认框
@@ -742,38 +743,39 @@
             });
     }
 
-    function handleQuantityUpdate(boxText, boxNumber, newQuantity, originalQuantity, operationType, depositoryId, depositoryName, iter) {
+    function handleQuantityUpdate(data, newQuantity, originalQuantity, operationType, depositoryId, depositoryName) {
         if (newQuantity !== parseInt(originalQuantity)) {
             // 数量发生变化时更新数量和二维码，并显示图标
-            updateProductQuantity(boxText, boxNumber, newQuantity, depositoryId, iter)
-                .then(() => proceedStockIn(boxText, boxNumber, newQuantity, operationType, depositoryId, iter))
+            updateProductQuantity(data.boxText, data.boxNumber, newQuantity, depositoryId, data.iter)
+                .then(() => proceedStockIn(data.boxText, data.boxNumber, newQuantity, operationType, depositoryId, data.iter))
                 .then(() => {
                     console.log(newQuantity);
                     console.log(originalQuantity);
                     console.log(defaultQuantity);
                     var isQuantityChanged = parseInt(newQuantity) !== defaultQuantity; // 检查数量是否更改
-                    updateQRCodeWithData(boxText, boxNumber, newQuantity, depositoryName, iter, isQuantityChanged); // 根据是否更改显示图标
+                    updateQRCodeWithData(data, newQuantity, depositoryName, isQuantityChanged); // 根据是否更改显示图标
                 })
                 .catch(error => {
                     console.error('更新数量或入库操作失败，正在尝试回滚:', error);
-                    return updateProductQuantity(boxText, boxNumber, originalQuantity, depositoryId, iter)
+                    return updateProductQuantity(data.boxText, data.boxNumber, originalQuantity, depositoryId, data.iter)
                         .catch(rollbackError => {
                             console.error('回滚更新数量时出错:', rollbackError);
                         });
                 });
         } else {
             // 数量未变化，直接执行入库操作
-            proceedStockIn(boxText, boxNumber, originalQuantity, operationType, depositoryId, iter)
+            proceedStockIn(data.boxText, data.boxNumber, originalQuantity, operationType, depositoryId, data.iter)
                 .catch(error => console.error('入库操作失败:', error));
         }
     }
 
 
-    function updateQRCodeWithData(boxText, boxNumber, quantity, depositoryName, iter, isQuantityChanged) {
+    function updateQRCodeWithData(data, quantity, depositoryName, isQuantityChanged) {
         // var qrData = JSON.stringify({boxText: boxText, boxNumber: boxNumber,
         //     quantity:  quantity, depository: depositoryName, iter: iter,
         // });
-        var qrData = [boxText, boxNumber, quantity, depositoryName, iter].join('/');
+        var qrData = [data.CTM,data.MDL,data.boxText, data.boxNumber,data.iter,data.OIR, quantity, data.steelType,
+                      data.steelGrade,data.SL,depositoryName, ].join('/');
         var qrCodeElement = document.getElementById("qrcode");
         qrCodeElement.innerHTML = ""; // 清除旧的二维码
         $('<div></div>').qrcode({
@@ -792,16 +794,16 @@
         // 显示信息，包括或不包括图标
         var infoHtml = `
                         <div class="info-row print-info-row">
-                            <p class="box-text"><span>${boxText}</span></p>
+                            <p class="box-text"><span>${data.boxText}</span></p>
                         </div>
                         ${iconHtml}
                         <div class="info-row print-info-row">
-                            <p class="box-number"><span>${boxNumber}</span></p>
+                            <p class="box-number"><span>${data.boxNumber}</span></p>
                         </div>
                     `;
         var infoContainer = document.querySelector("#printSection .info-container");
         infoContainer.innerHTML = infoHtml;
-        adjustPrintFontSize(boxText);
+        adjustPrintFontSize(data.boxText);
         // 如果图标存在，等待图标加载完成后再打印
         if (isQuantityChanged) {
             var iconImage = document.getElementById("iconImage");
