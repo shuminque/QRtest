@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>制品分类基础表</title>
+    <title>成品分类基础表</title>
     <!-- DataTables CSS -->
     <link rel="stylesheet" href="/static/lib/layui-v2.8.17/css/layui.css" media="all">
     <script src="/static/lib/layui-v2.8.17/layui.js" charset="utf-8"></script>
@@ -10,7 +10,6 @@
     <script src="/static/js/http_ajax.googleapis.com_ajax_libs_jquery_3.5.1_jquery.js"></script>
     <style>
         body {
-            padding-top: 50px;
             background-color: #f8f9fa;
         }
         .container {
@@ -20,7 +19,7 @@
 </head>
 <body>
 <div class="container">
-    <button id="addCategoryBtn" class="layui-btn">添加制品分类</button>
+    <button id="addCategoryBtn" class="layui-btn">添加成品分类</button>
 
     <table id="recordTable" lay-filter="recordTableFilter"></table>
 </div>
@@ -54,6 +53,7 @@
         </div>
     </form>
 </div>
+<!-- 编辑分类的表单（在弹出层中显示） -->
 <script type="text/template" id="editStateModelTemplate">
     <form class="layui-form" lay-filter="editStateFormFilter">
         <!-- 状态编号 -->

@@ -110,6 +110,9 @@ public class PageController {
     public ModelAndView Bearings() {
         ModelAndView mv = new ModelAndView();
         mv.setViewName("pages/basicdata/bearings");
+        mv.addObject("productCategorys", productCategoryService.findAll());
+        mv.addObject("steelGrades", steelGradeService.findAll());
+        mv.addObject("steelTypes", steelTypeService.findAll());
         return mv;
     }
     @GetMapping("/bearing-category")
