@@ -246,7 +246,7 @@
         JOIN
         bearings b ON br.box_text = b.box_text
         WHERE
-        br.time > DATE_ADD(#{StartDate},interval 1 DAY) AND br.time &lt; DATE_ADD(#{EndDate},interval 1 DAY)
+        br.time > #{StartDate} AND br.time &lt; DATE_ADD(#{EndDate},interval 1 DAY)
         GROUP BY
         b.pair, br.outer_inner_ring,br.model
         ),
