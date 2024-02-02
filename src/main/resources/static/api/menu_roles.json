@@ -203,34 +203,6 @@
                             ]
                         }
                     ]
-                },
-                {
-                    "title": "一次性相关",
-                    "icon": "fa fa-tasks",
-                    "target": "_self",
-                    "roles": [
-                        "SAB_cg", "SAB_sh", "ZAB_cg", "ZAB_sh", "ALL"
-                    ],
-                    "child": [
-                        {
-                            "title": "一次性填写",
-                            "href": "/once_add",
-                            "icon": "fa fa-pencil",
-                            "target": "_self",
-                            "roles": [
-                                "SAB_cg", "SAB_sh", "ZAB_cg", "ZAB_sh", "ALL"
-                            ]
-                        },
-                        {
-                            "title": "一次性报表",
-                            "href": "/once_table",
-                            "icon": "layui-icon layui-icon-list",
-                            "target": "_self",
-                            "roles": [
-                                "SAB_cg", "SAB_sh", "ZAB_cg", "ZAB_sh", "ALL"
-                            ]
-                        }
-                    ]
                 }
             ]
         },
