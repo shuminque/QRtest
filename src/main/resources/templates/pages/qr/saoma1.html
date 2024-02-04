@@ -333,6 +333,7 @@
             .then(data => {
                 // 生成二维码
                 var qrCodeElement = document.getElementById("qrcode");
+                var currentTime = new Date().toISOString(); // 获取当前时间的ISO字符串格式
                 qrCodeElement.innerHTML = ""; // 清除之前的二维码
                 var newData = {
                     CTM: data.customer,
@@ -345,7 +346,8 @@
                     steelType: data.steelType,
                     steelGrade: data.steelGrade,
                     SL: data.storageLocation,
-                    depository: data.depository
+                    depository: data.depository,
+                    timestamp: currentTime // 添加时间戳
                 };
                 // var qrData = JSON.stringify(newData);
                 var qrData = Object.values(newData).join('/');
@@ -772,7 +774,43 @@
     }
 
     function handleQuantityUpdate(data, newQuantity, originalQuantity, operationType, depositoryId, depositoryName) {
-        if (newQuantity !== parseInt(originalQuantity)) {
+        var isQuantityChanged = newQuantity !== parseInt(originalQuantity);
+        var isOriginallyWholeBox = data.boxNumber.length === 3; // 整箱的判断条件
+
+        if (isQuantityChanged && isOriginallyWholeBox) {
+            // 如果数量变化且原来是整箱，调用API生成新的零箱
+            fetch('/bearings/zero/' + data.boxText + '/' + depositoryId, {
+                body: JSON.stringify({
+                    ...data,
+                    quantity: newQuantity.toString()
+                }),
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+                .then(response => response.json())
+                .then(newZeroBoxData => {
+                    console.log("响应数据:", newZeroBoxData); // 确认响应数据结构
+                    if (newZeroBoxData.boxNumber === undefined) {
+                        console.error("响应中缺少boxNumber字段");
+                        // 处理错误情况，例如设置默认值或返回错误
+                        return;
+                    }
+                    // 使用新的零箱信息进行入库操作
+                    console.log("更新后的数据:", data);
+                    data.boxNumber = newZeroBoxData.boxNumber; // 更新箱号为新的零箱号
+                    proceedStockIn(data.boxText, data.boxNumber, newQuantity, operationType, depositoryId,newZeroBoxData.iter)
+                        .then(() => {
+                            // 可能还需要更新二维码等后续操作
+                            updateQRCodeWithData(data, newQuantity, depositoryName, true);
+                        });
+                })
+                    .catch(error => {
+                    console.error('生成新零箱或入库操作失败:', error);
+                    // 这里可以处理错误，比如显示提示信息
+                });
+        } else if (isQuantityChanged) {
             // 数量发生变化时更新数量和二维码，并显示图标
             updateProductQuantity(data.boxText, data.boxNumber, newQuantity, depositoryId, data.iter)
                 .then(() => proceedStockIn(data.boxText, data.boxNumber, newQuantity, operationType, depositoryId, data.iter))
