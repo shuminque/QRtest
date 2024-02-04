@@ -3,10 +3,11 @@ package com.depository_manage.service;
 import com.depository_manage.entity.Bearing;
 
 import java.util.List;
+import java.util.Map;
 
 public interface BearingService {
     Bearing getBearingByBoxTextAndDepository(String boxText, String depository);
-    List<Bearing> getAllBearings();
+    List<Bearing> getAllBearings(Map<String,Object> params);
     void updateBearing(Bearing bearing);
 
     Bearing getLatestBearingByBoxText(String boxText);

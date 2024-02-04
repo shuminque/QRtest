@@ -320,13 +320,13 @@ public class PageController {
 //    }
 //
 //
-//    @GetMapping("/table_user")
-//    public ModelAndView table_user() {
-//        ModelAndView mv = new ModelAndView();
-//        mv.setViewName("pages/user/table-user");
-//        mv.addObject("depositories", depositoryService.findDepositoryAll());
-//        return mv;
-//    }
+    @GetMapping("/table_user")
+    public ModelAndView table_user() {
+        ModelAndView mv = new ModelAndView();
+        mv.setViewName("pages/user/table-user");
+        mv.addObject("depositories", depositoryService.findDepositoryAll());
+        return mv;
+    }
 //
 //    @GetMapping("/table_stock")
 //    public ModelAndView table_stock() {
@@ -372,22 +372,22 @@ public class PageController {
 //        return "pages/user/user-password";
 //    }
 //
-//    @GetMapping("/user_add")
-//    public ModelAndView user_add() {
-//        ModelAndView mv = new ModelAndView();
-//        mv.setViewName("pages/user/user-add");
-//        mv.addObject("depositories", depositoryService.findDepositoryAll());
-//        return mv;
-//    }
-//
-//    @GetMapping("/user_edit")
-//    public ModelAndView user_edit(Integer id) {
-//        ModelAndView mv = new ModelAndView();
-//        mv.setViewName("pages/user/user-edit");
-//        mv.addObject("depositories", depositoryService.findDepositoryAll());
-//        mv.addObject("user", userService.findUserPById(id));
-//        return mv;
-//    }
+    @GetMapping("/user_add")
+    public ModelAndView user_add() {
+        ModelAndView mv = new ModelAndView();
+        mv.setViewName("pages/user/user-add");
+        mv.addObject("depositories", depositoryService.findDepositoryAll());
+        return mv;
+    }
+
+    @GetMapping("/user_edit")
+    public ModelAndView user_edit(Integer id) {
+        ModelAndView mv = new ModelAndView();
+        mv.setViewName("pages/user/user-edit");
+        mv.addObject("depositories", depositoryService.findDepositoryAll());
+        mv.addObject("user", userService.findUserPById(id));
+        return mv;
+    }
 //
 //    @GetMapping("/form_step_look")
 //    public ModelAndView form_step_look(Integer id) {

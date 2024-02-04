@@ -55,6 +55,21 @@ public class BearingController {
         Map<String, Object> response = getStringObjectMap(boxText, productId.getBoxNumber(), bearing, quantity, productId.getIter());
         return ResponseEntity.ok(response);
     }
+    @PostMapping("/{boxText}/{depositoryId}/regenerateZero")
+    public ResponseEntity<?> regenerateZeroProductId(@PathVariable String boxText,
+                                                 @PathVariable int depositoryId,
+                                                 @RequestBody Map<String, Object> requestData) {
+        int quantity = (Integer) requestData.get("quantity");
+        String depositoryText = convertDepositoryIdToText(depositoryId);
+        Bearing bearing = bearingService.getBearingByBoxTextAndDepository(boxText, depositoryText);
+        if (bearing == null) {
+            return ResponseEntity.notFound().build();
+        }
+        ProductId productId = productIdService.getBoxNumberByBoxTextAndDepositoryId(boxText, depositoryId);
+        ProductId productIdZero = productIdService.getLatestZeroBoxNumberByBoxTextAndDepositoryId(boxText, depositoryId);
+        Map<String, Object> response = getStringObjectMap(boxText, productIdZero.getBoxNumber(), bearing, quantity, productIdZero.getIter());
+        return ResponseEntity.ok(response);
+    }
 
     @GetMapping("/{boxText}/{boxNumber}/{depositoryId}")
     public ResponseEntity<?> getExistingProductInfo(@PathVariable String boxText, @PathVariable String boxNumber, @PathVariable int depositoryId) {
@@ -210,14 +225,11 @@ public class BearingController {
     }
 
     @GetMapping("/all")
-    public ResponseEntity<List<Bearing>> getAllBearings() {
-        List<Bearing> bearings = bearingService.getAllBearings();
-        if (bearings != null && !bearings.isEmpty()) {
-            return ResponseEntity.ok(bearings);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+    public ResponseEntity<?> getAllBearings(@RequestParam Map<String,Object> params) {
+        List<Bearing> bearings = bearingService.getAllBearings(params);
+        return ResponseEntity.ok(bearings); // 即使为空，也返回200 OK响应
     }
+
     public String convertDepositoryIdToText(int depositoryId) {
         switch (depositoryId) {
             case 1: return "SAB";

@@ -6,12 +6,13 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
+import java.util.Map;
 
 @Mapper
 public interface BearingMapper {
     Bearing selectBearingByBoxTextAndDepository(@Param("boxText") String boxText,
                                                 @Param("depository") String depository);
-    List<Bearing> selectAllBearings();
+    List<Bearing> selectAllBearings(Map<String,Object> params);
     void updateBearing(Bearing bearing);
     Bearing selectLatestBearingByBoxText(String boxText);
     void insertBearing(Bearing bearing);

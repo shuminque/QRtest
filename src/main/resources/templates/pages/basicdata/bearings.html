@@ -25,22 +25,61 @@
 </head>
 <body>
 <div class="container">
-<!--    &lt;!&ndash; 筛选框 &ndash;&gt;-->
-<!--    <form class="layui-form" style="margin-bottom: 20px;">-->
-<!--        <div class="layui-form-item">-->
-<!--            <label class="layui-form-label">交易类型：</label>-->
-<!--            <div class="layui-input-inline">-->
-<!--                <select name="transactionType" id="transactionType" lay-filter="transactionTypeFilter">-->
-<!--                    <option value="">全部</option>-->
-<!--                    <option value="入库">入库</option>-->
-<!--                    <option value="出库">出库</option>-->
-<!--                    <option value="返库">返库</option>-->
-<!--                    <option value="转入">转入</option>-->
-<!--                    <option value="转出">转出</option>-->
-<!--                </select>-->
-<!--            </div>-->
-<!--        </div>-->
-<!--    </form>-->
+    <form class="layui-form"  id="searchForm">
+        <div class="layui-form-item">
+            <div>
+                <div class="layui-input-inline">
+                    <select name="depository">
+                        <option value="" selected>搜索厂区</option>
+                        <option value="SAB" >SAB</option>
+                        <option value="ZAB" >ZAB</option>
+                    </select>
+                </div>
+            </div>
+            <div class="layui-input-inline">
+                <input type="text" name="boxText" id="boxText" placeholder="搜索箱号" class="layui-input">
+            </div>
+            <div class="layui-input-inline">
+                <input type="text" name="customer" placeholder="搜索客户" class="layui-input">
+            </div>
+            <div class="layui-input-inline">
+                <select name="outerInnerRing">
+                    <option value="" selected>搜索内/外轮</option>
+                    <option value="LA" >LA</option>
+                    <option value="LB" >LB</option>
+                </select>
+            </div>
+            <div class="layui-inline">
+                <button type="button" class="layui-btn" id="advancedSearchToggle">高级搜索</button>
+            </div>
+            <div class="layui-inline" id="advancedSearchForm" style="display: none;">
+                <div class="layui-input-inline">
+                    <input type="text" name="model" placeholder="搜索型号" class="layui-input">
+                </div>
+                <div class="layui-input-inline">
+                    <select name="steelType">
+                        <option value="" selected>搜索钢种</option>
+                        <option th:each="steel_type : ${steelTypes}"
+                                th:value="${steel_type.name}"
+                                th:text="${steel_type.name}"></option>
+                    </select>
+                </div>
+                <div class="layui-input-inline">
+                    <select name="steelGrade">
+                        <option value="" selected>搜索钢材等级</option>
+                        <option th:each="steel_grade : ${steelGrades}"
+                                th:value="${steel_grade.grade}"
+                                th:text="${steel_grade.grade}"></option>
+                    </select>
+                </div>
+            </div>
+            <div class="layui-inline">
+                <button type="submit" class="layui-btn layui-btn-primary" lay-submit lay-filter="data-search-btn">
+                    <i class="layui-icon"></i> 搜 索
+                </button>
+            </div>
+        </div>
+    </form>
     <table class="layui-hide" id="recordTable" lay-filter="recordTableFilter"></table>
 </div>
 <!-- 工具栏模板 -->
@@ -181,30 +220,51 @@
             toolbar: ['filter', 'exports', 'print'],
             cols: [ [ // 表头
                 {field: 'id', title: 'ID',  hide:true},
-                {field: 'pair', title: '关联', edit: 'text'},
-                {field: 'boxText', title: '箱号', edit: 'text'},
-                {field: 'quantity', title: '数量', edit: 'text'},
+                {field: 'pair', title: '关联'},
+                {field: 'boxText', title: '箱号'},
+                {field: 'quantity', title: '数量'},
                 {field: 'depository', title: '厂区'},
-                {field: 'customer', title: '客户', edit: 'text'},
-                {field: 'outerInnerRing', title: '外/内轮', edit: 'text'},
-                {field: 'model', title: '型号', edit: 'text'},
-                {field: 'productCategory', title: '制品分类', edit: 'text'},
-                {field: 'steelType', title: '钢种', edit: 'text'},
-                {field: 'steelGrade', title: '钢材等级', edit: 'text'},
-                {field: 'size', title: '材料尺寸', edit: 'text'},
-                {field: 'storageLocation', title: '库位', edit: 'text'},
+                {field: 'customer', title: '客户'},
+                {field: 'outerInnerRing', title: '外/内轮'},
+                {field: 'model', title: '型号'},
+                {field: 'productCategory', title: '制品分类'},
+                {field: 'steelType', title: '钢种'},
+                {field: 'steelGrade', title: '钢材等级'},
+                {field: 'size', title: '材料尺寸'},
+                {field: 'storageLocation', title: '库位'},
                 {title: '操作', toolbar: '#actionBar'} // 添加操作列
             ]],
             limits:[300,500,1000],
             limit:300,
             page: true //开启分页
         });
-        // 监听筛选框的选择事件
-        form.on('select(transactionTypeFilter)', function(data){
+        // 统一搜索表单提交事件
+        form.on('submit(data-search-btn)', function(data) {
             var req = {};
-            console.log(data);
-            if(data.value !== '') {
-                req.transactionType = data.value; // 使用 data.value 获取选择的交易类型
+            var formData = data.field;
+            if (formData.boxText !== '') {
+                req.boxText = formData.boxText;
+            }
+            if (formData.model !== '') {
+                req.model = formData.model;
+            }
+            if (formData.customer !== '') {
+                req.customer = formData.customer;
+            }
+            if (formData.productCategory !== '') {
+                req.productCategory = formData.productCategory;
+            }
+            if (formData.outerInnerRing !== '') {
+                req.outerInnerRing = formData.outerInnerRing;
+            }
+            if (formData.steelType !== '') {
+                req.steelType = formData.steelType;
+            }
+            if (formData.steelGrade !== '') {
+                req.steelGrade = formData.steelGrade;
+            }
+            if (formData.depository !== '') {
+                req.depository = formData.depository;
             }
             // 重新加载表格数据
             recordTable.reload({
@@ -283,7 +343,10 @@
             return false; // 阻止表单跳转。
         });
 
-
+        // 高级搜索开关
+        $('#advancedSearchToggle').click(function() {
+            $('#advancedSearchForm').slideToggle();
+        });
         // table.on('edit(recordTableFilter)', function(obj) {
         //     var value = obj.value; // 获取编辑后的值
         //     var data = obj.data; // 获取整行数据

@@ -246,7 +246,8 @@
         JOIN
         bearings b ON br.box_text = b.box_text
         WHERE
-        br.time > #{StartDate} AND br.time &lt; DATE_ADD(#{EndDate},interval 1 DAY)
+            br.depository = #{depository} AND  -- 使用depository作为过滤条件
+            br.time > #{StartDate} AND br.time &lt; DATE_ADD(#{EndDate},interval 1 DAY)
         GROUP BY
         b.pair, br.outer_inner_ring,br.model
         ),
@@ -262,7 +263,8 @@
         JOIN
         bearings b ON br.box_text = b.box_text
         WHERE
-        br.time &lt; #{StartDate}
+            br.depository = #{depository} AND  -- 使用depository作为过滤条件
+            br.time &lt; #{StartDate}
         GROUP BY
         b.pair, br.outer_inner_ring
         ),
@@ -278,7 +280,8 @@
         JOIN
         bearings b ON br.box_text = b.box_text
         WHERE
-        br.time &lt; DATE_ADD(#{EndDate},interval 1 DAY)
+            br.depository = #{depository} AND
+            br.time &lt; DATE_ADD(#{EndDate},interval 1 DAY)
         GROUP BY
         b.pair, br.outer_inner_ring
         )
@@ -287,6 +290,7 @@
         MAX(b.model) AS 型号,
         MAX(b.steel_type) AS 钢厂,
         MAX(b.customer) AS 客户,
+        MAX(b.size) AS 材料尺寸,
         MAX(CASE WHEN pre_inv.outer_inner_ring = 'LA' THEN pre_inv.在库 ELSE 0 END) AS 前月末在库_LA,
         MAX(CASE WHEN pre_inv.outer_inner_ring = 'LB' THEN pre_inv.在库 ELSE 0 END) AS 前月末在库_LB,
         SUM(CASE WHEN ts.outer_inner_ring = 'LA' THEN ts.入库 ELSE 0 END) AS 入库_LA,
@@ -309,8 +313,11 @@
         inventory inv ON b.pair = inv.pair AND b.outer_inner_ring = inv.outer_inner_ring
         LEFT JOIN
         pre_start_date_inventory pre_inv ON b.pair = pre_inv.pair AND b.outer_inner_ring = pre_inv.outer_inner_ring
+        WHERE b.depository = #{depository}
         GROUP BY
-        b.pair;
+        b.pair
+        ORDER BY
+            MAX(b.size);
     </select>
 
 </mapper>

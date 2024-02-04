@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class BearingServiceImpl implements BearingService {
@@ -20,8 +21,8 @@ public class BearingServiceImpl implements BearingService {
     }
 
     @Override
-    public List<Bearing> getAllBearings() {
-        return bearingMapper.selectAllBearings();
+    public List<Bearing> getAllBearings(Map<String,Object> params) {
+        return bearingMapper.selectAllBearings(params);
     }
     @Override
     public void updateBearing(Bearing bearing) {

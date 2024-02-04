@@ -106,8 +106,9 @@ public class BearingRecordController {
     @GetMapping("/everyPair")
     public ResponseEntity<?> getEveryPairData(
             @RequestParam("startDate") @DateTimeFormat(pattern = "yyyy-MM-dd") String startDate,
-            @RequestParam("endDate") @DateTimeFormat(pattern = "yyyy-MM-dd") String endDate) {
-        List<Map<String, Object>> data = bearingRecordService.getEveryPairData(startDate, endDate);
+            @RequestParam("endDate") @DateTimeFormat(pattern = "yyyy-MM-dd") String endDate,
+            @RequestParam("depository") String depository) {
+        List<Map<String, Object>> data = bearingRecordService.getEveryPairData(startDate, endDate, depository);
         return ResponseEntity.ok(data);
     }
 

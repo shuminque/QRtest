@@ -1,9 +1,7 @@
 package com.depository_manage.service;
 
 import com.depository_manage.entity.BearingRecord;
-import org.apache.ibatis.annotations.Param;
 
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -16,6 +14,6 @@ public interface BearingRecordService {
     public boolean hasSpecialRecord(String boxText, String boxNumber, String depository, int quantity, int iter);
 
     List<BearingRecord> selectInventoryByCutoffDate(Map<String, Object> params);
-    List<Map<String, Object>> getEveryPairData(String startDate, String endDate);
+    List<Map<String, Object>> getEveryPairData(String startDate, String endDate, String depository);
 
 }

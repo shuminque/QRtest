@@ -275,7 +275,10 @@
                 document.getElementById('editQuantity').setAttribute('data-initial-value', data.quantity);
                 document.getElementById('preGenerateModal').style.display = 'block';
             })
-            .catch(error => console.error('预生成二维码时发生错误：', error));
+            .catch(error => {
+                console.error('预生成二维码时发生错误：', error);
+                layer.alert("请输入正确的箱号");
+            });
     }
     function preGenerateQRCodeByBoxTextForZero() {
         var boxText = document.getElementById("boxTextInput").value;
@@ -304,7 +307,10 @@
                 document.getElementById('editQuantityForZero').setAttribute('data-initial-value', data.quantity);
                 document.getElementById('preGenerateModalForZero').style.display = 'block';
             })
-            .catch(error => console.error('预生成二维码时发生错误：', error));
+            .catch(error => {
+                console.error('预生成二维码时发生错误：', error);
+                layer.alert("请输入正确的箱号");
+            });
     }
     // 当用户点击“确认”按钮时执行
     function confirmGenerateQRCode() {
@@ -413,6 +419,8 @@
                     iter: data.iter,
                     OIR: data.outerInnerRing,
                     quantity: data.quantity,
+                    steelType: data.steelType,
+                    steelGrade: data.steelGrade,
                     SL: data.storageLocation,
                     depository: data.depository
                 };
@@ -474,7 +482,7 @@
         if (newQuantity != null && !isNaN(newQuantity) && newQuantity > 0) {
             var isQuantityChanged = parseInt(newQuantity) !== defaultQuantity;
             if (preGenerateData.boxNumber > 999) {
-                // updateQRCodeQuantityForZero(parseInt(newQuantity), isQuantityChanged);
+                updateQRCodeQuantityForZero(parseInt(newQuantity), isQuantityChanged);
                 console.log("零箱零箱零箱零箱")
             } else {
                 updateQRCodeQuantity(parseInt(newQuantity), isQuantityChanged);
@@ -483,7 +491,28 @@
             alert("请输入有效的数量");
         }
     }
+    function updateQRCodeQuantityForZero(newQuantity, isQuantityChanged) {
+        fetch('/bearings/' + preGenerateData.boxText + '/' + preGenerateData.depositoryId + '/regenerateZero', {
+            method: 'POST',
+            body: JSON.stringify({ quantity: newQuantity, iter: preGenerateData.iter}),
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(updatedData => {
+                // Use the updated data to regenerate QR code
+                generateQRCode(updatedData, isQuantityChanged);
+                updateProductQuantity(updatedData.boxText, updatedData.boxNumber, newQuantity, convertDepositoryIdToMath(updatedData.depository), updatedData.iter);
 
+            })
+            .catch(error => console.error('Error updating QR code:', error));
+    }
     function updateQRCodeQuantity(newQuantity, isQuantityChanged) {
         fetch('/bearings/' + preGenerateData.boxText + '/' + preGenerateData.depositoryId + '/regenerate', {
             method: 'POST',
@@ -531,26 +560,26 @@
             height: 200,
             correctLevel: 3,
         }).appendTo(qrCodeElement);
-        // 根据 isQuantityChanged 决定是否添加图标
-        var iconHtml = isQuantityChanged ? `
-        <div class="icon-container-for-print">
-            <img src="/static/images/iic.png" alt="Icon" class="your-icon-class">
-        </div>
-    ` : '';
+            // 根据 isQuantityChanged 决定是否添加图标
+            var iconHtml = isQuantityChanged ? `
+            <div class="icon-container-for-print">
+                <img src="/static/images/iic.png" alt="Icon" class="your-icon-class">
+            </div>
+        ` : '';
 
-        // 显示信息，包括或不包括图标
-        var infoHtml = `
-        <div class="info-row print-info-row">
-            <p class="box-text"><span>${data.boxText}</span></p>
-        </div>
-        ${iconHtml}
-        <div class="info-row print-info-row">
-            <p class="box-number"><span>${data.boxNumber}</span></p>
-        </div>
-    `;
-        var infoContainer = document.querySelector("#printSection .info-container");
-        infoContainer.innerHTML = infoHtml;
-        adjustPrintFontSize(data.boxText);
+            // 显示信息，包括或不包括图标
+            var infoHtml = `
+            <div class="info-row print-info-row">
+                <p class="box-text"><span>${data.boxText}</span></p>
+            </div>
+            ${iconHtml}
+            <div class="info-row print-info-row">
+                <p class="box-number"><span>${data.boxNumber}</span></p>
+            </div>
+        `;
+            var infoContainer = document.querySelector("#printSection .info-container");
+            infoContainer.innerHTML = infoHtml;
+            adjustPrintFontSize(data.boxText);
     }
     var isListenerAdded = false;
     function showModal(operation) {
@@ -558,7 +587,6 @@
         openModal();
         var modalScanInput = document.getElementById('modalScanInput');
         modalScanInput.focus(); // 自动聚焦到输入框
-
         // 只有在监听器尚未添加的情况下才添加新的监听器
         if (!isListenerAdded) {
             modalScanInput.addEventListener('keydown', handleEnterKey);

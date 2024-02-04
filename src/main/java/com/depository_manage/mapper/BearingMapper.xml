@@ -65,8 +65,36 @@
         </set>
         WHERE id = #{id}
     </update>
-    <select id="selectAllBearings" resultMap="bearingMap">
-        SELECT * FROM bearings
+    <select id="selectAllBearings" resultMap="bearingMap" parameterType="map">
+        SELECT * FROM bearings WHERE 1=1
+        <if test="boxText != null and boxText != ''">
+            AND box_text LIKE CONCAT('%',#{boxText},'%')
+        </if>
+        <if test="model != null and model != ''">
+            AND model  LIKE CONCAT('%',#{model},'%')
+        </if>
+        <if test="customer != null and customer != ''">
+            AND customer  LIKE CONCAT('%',#{customer},'%')
+        </if>
+        <if test="productCategory != null and productCategory != ''">
+            AND product_category = #{productCategory}
+        </if>
+        <if test="outerInnerRing != null and outerInnerRing != ''">
+            AND outer_inner_ring = #{outerInnerRing}
+        </if>
+        <if test="steelType != null and steelType != ''">
+            AND steel_type = #{steelType}
+        </if>
+        <if test="steelGrade != null and steelGrade != ''">
+            AND steel_grade = #{steelGrade}
+        </if>
+        <if test="depository != null and depository != ''">
+            AND depository = #{depository}
+        </if>
+        <if test="pair != null and pair != ''">
+            AND pair = #{pair}
+        </if>
+        ORDER BY id
     </select>
     <select id="selectLatestBearingByBoxText" resultMap="bearingMap">
         SELECT * FROM bearings
