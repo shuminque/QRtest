@@ -77,13 +77,13 @@
                 steel_grade = #{steelGrade},
             </if>
             <if test="remarks != null">
-                remarks = #{remarks}
+                remarks = #{remarks},
             </if>
             <if test="size != null">
                 size = #{size},
             </if>
             <if test="dissolve != null">
-                dissolve = #{dissolve}
+                dissolve = #{dissolve},
             </if>
             <if test="pair != null">
                 pair = #{pair}

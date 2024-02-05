@@ -65,8 +65,7 @@
             <button class="layui-btn" onclick="preGenerateQRCodeByBoxTextForZero()">生成零箱二维码</button>
         </div>
         <div class="button-row">
-
-        <button class="layui-btn" onclick="printQRCode()">打印二维码</button>
+            <button class="layui-btn" onclick="printQRCode()">打印二维码</button>
         </div>
 
         <!--        <div class="button-row">-->
@@ -357,7 +356,7 @@
                     time: currentTime // 添加时间戳
                 };
                 // var qrData = JSON.stringify(newData);
-                var qrData = Object.values(newData).join('/');
+                var qrData = Object.values(newData).join('|');
                 $('<div></div>').qrcode({
                     text: qrData,
                     render: 'canvas',
@@ -442,7 +441,7 @@
                     time: currentTime
                 };
                 // var qrData = JSON.stringify(newData);
-                var qrData = Object.values(newData).join('/');
+                var qrData = Object.values(newData).join('|');
                 $('<div></div>').qrcode({
                     text: qrData,
                     render: 'canvas',
@@ -577,7 +576,7 @@
             time:currentTime
         };
         // var qrData = JSON.stringify(newData);
-        var qrData = Object.values(newData).join('/');
+        var qrData = Object.values(newData).join('|');
         $('<div></div>').qrcode({
             text: qrData,
             render: 'canvas',
@@ -651,7 +650,7 @@
             });
             console.log(correctedJson);
             // var data = JSON.parse(correctedJson);
-            var values = scannedData.split('/');
+            var values = scannedData.split('|');
             var data = {
                 CTM: values[0],
                 MDL: values[1],
@@ -871,7 +870,7 @@
         var formattedDay = day < 10 ? '0' + day : day;
         var currentTime = `${year}-${formattedMonth}-${formattedDay}`;
         var qrData = [data.CTM,data.MDL,data.boxText, data.boxNumber,data.iter,data.OIR, quantity, data.steelType,
-                      data.steelGrade,data.SL,depositoryName,currentTime].join('/');
+                      data.steelGrade,data.SL,depositoryName,currentTime].join('|');
         var qrCodeElement = document.getElementById("qrcode");
         qrCodeElement.innerHTML = ""; // 清除旧的二维码
         $('<div></div>').qrcode({
