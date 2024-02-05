@@ -78,7 +78,7 @@
     <!-- 预生成信息的模态框 -->
     <div id="preGenerateModal" style="display:none;">
         <p>即将生成的 Number号: <span id="previewBoxNumber"></span></p>
-        <p>数量: <input type="number" id="editQuantity" /></p> <!-- 替换为输入框 -->
+        <p>数量: <input type="number" id="editQuantity" readonly /></p> <!-- 替换为输入框 -->
         <button onclick="confirmGenerateQRCode()">确认</button>
         <button onclick="cancelGenerateQRCode()">取消</button>
     </div>
@@ -333,7 +333,14 @@
             .then(data => {
                 // 生成二维码
                 var qrCodeElement = document.getElementById("qrcode");
-                var currentTime = new Date().toISOString(); // 获取当前时间的ISO字符串格式
+                // 获取当前日期
+                var currentDate = new Date();
+                var year = currentDate.getFullYear(); // 年份
+                var month = currentDate.getMonth() + 1; // 月份，getMonth() 返回的月份是从0开始计数的
+                var day = currentDate.getDate(); // 日期
+                var formattedMonth = month < 10 ? '0' + month : month;
+                var formattedDay = day < 10 ? '0' + day : day;
+                var currentTime = `${year}-${formattedMonth}-${formattedDay}`;
                 qrCodeElement.innerHTML = ""; // 清除之前的二维码
                 var newData = {
                     CTM: data.customer,
@@ -347,7 +354,7 @@
                     steelGrade: data.steelGrade,
                     SL: data.storageLocation,
                     depository: data.depository,
-                    timestamp: currentTime // 添加时间戳
+                    time: currentTime // 添加时间戳
                 };
                 // var qrData = JSON.stringify(newData);
                 var qrData = Object.values(newData).join('/');
@@ -386,7 +393,7 @@
                 document.getElementById('qrcodeContainer').style.display = 'block';
                 document.getElementById('printSection').style.display = 'block';
                 document.getElementById('preGenerateModal').style.display = 'none';
-                document.getElementById('regenerateButton').style.display = 'block';
+                // document.getElementById('regenerateButton').style.display = 'block';
             })
                 .catch(error => {
                 console.error('生成二维码时发生错误：', error);
@@ -412,6 +419,13 @@
             .then(data => {
                 // 生成二维码
                 var qrCodeElement = document.getElementById("qrcode");
+                var currentDate = new Date();
+                var year = currentDate.getFullYear(); // 年份
+                var month = currentDate.getMonth() + 1; // 月份，getMonth() 返回的月份是从0开始计数的
+                var day = currentDate.getDate(); // 日期
+                var formattedMonth = month < 10 ? '0' + month : month;
+                var formattedDay = day < 10 ? '0' + day : day;
+                var currentTime = `${year}-${formattedMonth}-${formattedDay}`;
                 qrCodeElement.innerHTML = ""; // 清除之前的二维码
                 var newData = {
                     CTM: data.customer,
@@ -424,7 +438,8 @@
                     steelType: data.steelType,
                     steelGrade: data.steelGrade,
                     SL: data.storageLocation,
-                    depository: data.depository
+                    depository: data.depository,
+                    time: currentTime
                 };
                 // var qrData = JSON.stringify(newData);
                 var qrData = Object.values(newData).join('/');
@@ -539,6 +554,13 @@
     }
     function generateQRCode(data, isQuantityChanged) {
         var qrCodeElement = document.getElementById("qrcode");
+        var currentDate = new Date();
+        var year = currentDate.getFullYear(); // 年份
+        var month = currentDate.getMonth() + 1; // 月份，getMonth() 返回的月份是从0开始计数的
+        var day = currentDate.getDate(); // 日期
+        var formattedMonth = month < 10 ? '0' + month : month;
+        var formattedDay = day < 10 ? '0' + day : day;
+        var currentTime = `${year}-${formattedMonth}-${formattedDay}`;
         qrCodeElement.innerHTML = ""; // Clear existing QR code
         var newData = {
             CTM: data.customer,
@@ -551,7 +573,8 @@
             steelType: data.steelType,
             steelGrade: data.steelGrade,
             SL: data.storageLocation,
-            depository: data.depository
+            depository: data.depository,
+            time:currentTime
         };
         // var qrData = JSON.stringify(newData);
         var qrData = Object.values(newData).join('/');
@@ -840,8 +863,15 @@
         // var qrData = JSON.stringify({boxText: boxText, boxNumber: boxNumber,
         //     quantity:  quantity, depository: depositoryName, iter: iter,
         // });
+        var currentDate = new Date();
+        var year = currentDate.getFullYear(); // 年份
+        var month = currentDate.getMonth() + 1; // 月份，getMonth() 返回的月份是从0开始计数的
+        var day = currentDate.getDate(); // 日期
+        var formattedMonth = month < 10 ? '0' + month : month;
+        var formattedDay = day < 10 ? '0' + day : day;
+        var currentTime = `${year}-${formattedMonth}-${formattedDay}`;
         var qrData = [data.CTM,data.MDL,data.boxText, data.boxNumber,data.iter,data.OIR, quantity, data.steelType,
-                      data.steelGrade,data.SL,depositoryName, ].join('/');
+                      data.steelGrade,data.SL,depositoryName,currentTime].join('/');
         var qrCodeElement = document.getElementById("qrcode");
         qrCodeElement.innerHTML = ""; // 清除旧的二维码
         $('<div></div>').qrcode({
