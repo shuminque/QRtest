@@ -55,6 +55,9 @@
         min-width: 41%;
         cursor: pointer;
     }
+    a.dropdown-item {
+        font-size: 30px;
+    }
 </style>
 <body>
 <div>
@@ -152,6 +155,7 @@
                     data: { query: query, depository: userDepository }, // userDepository应该是当前用户的仓库信息
                     dataType: 'json',
                     success: function(data) {
+                        console.log(data)
                         return process(data);
                     }
                 });

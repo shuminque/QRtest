@@ -129,7 +129,7 @@
                             ]
                         },
                         {
-                            "title": "二维生成",
+                            "title": "二维码生成",
                             "href": "/GenerateAndPrintQR",
                             "icon": "fa fa-th-list",
                             "target": "_self",
