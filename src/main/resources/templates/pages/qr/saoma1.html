@@ -9,6 +9,7 @@
     <script type="text/javascript" src="/static/js/http_unpkg.com_html5-qrcode.js" charset="utf-8"></script>
     <script type="text/javascript" src="/static/js/jquery-2.1.0.js" charset="utf-8"></script>
     <script type="text/javascript" src="/static/js/jquery.qrcode.js" charset="utf-8"></script>
+    <script src="/static/js/http_cdnjs.cloudflare.com_ajax_libs_bootstrap-3-typeahead_4.0.2_bootstrap3-typeahead.js"></script>
 </head>
 <style>
     /* Layer 弹出框标题样式 */
@@ -139,6 +140,24 @@
     var currentOperationType = ''; // 全局变量，存储当前操作类型
     var html5QrcodeScanner;var userReviewGroupId;var userAuthority;
     var userDepositoryId;var userDepository;var depositoryId;var defaultQuantity;var preGenerateData; // 用于存储即将生成的数据
+    $(document).ready(function() {
+        // 初始化移动端二维码输入框的自动完成功能
+        $('#boxTextInput').typeahead({
+            source: function(query, process) {
+                return $.ajax({
+                    url: '/bearings/search', // 确保这个URL是处理搜索请求的后端接口
+                    type: 'GET',
+                    data: { query: query, depository: userDepository }, // userDepository应该是当前用户的仓库信息
+                    dataType: 'json',
+                    success: function(data) {
+                        return process(data);
+                    }
+                });
+            },
+            minLength: 1, // 最小触发自动完成的字符数
+            autoSelect: true // 自动选择第一个匹配项
+        });
+    });
 
     function getUserDepository() {
         $.ajax({
