@@ -90,7 +90,7 @@ body {
     display: none; /* 初始状态为隐藏 */
     position: fixed;
     width: 98%; /* 宽度为视窗的 50% */
-    height: 30%; /* 高度为视窗的  */
+    height: 45%; /* 高度为视窗的  */
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
