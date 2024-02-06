@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="/static/css/qr/saoma1-styles.css" media="all">
     <link rel="stylesheet" href="/static/lib/layui-v2.8.17/css/layui.css" media="all">
+    <link rel="stylesheet" href="/static/css/http_cdn.jsdelivr.net_npm_bootstrap@5.1.0_dist_css_bootstrap.css">
     <script type="text/javascript" src="/static/js/http_unpkg.com_html5-qrcode.js" charset="utf-8"></script>
     <script type="text/javascript" src="/static/js/jquery-2.1.0.js" charset="utf-8"></script>
     <script type="text/javascript" src="/static/js/jquery.qrcode.js" charset="utf-8"></script>
@@ -141,6 +142,7 @@
     var html5QrcodeScanner;var userReviewGroupId;var userAuthority;
     var userDepositoryId;var userDepository;var depositoryId;var defaultQuantity;var preGenerateData; // 用于存储即将生成的数据
     $(document).ready(function() {
+        getUserDepository(); // 假设这是获取用户仓库信息的函数
         // 初始化移动端二维码输入框的自动完成功能
         $('#boxTextInput').typeahead({
             source: function(query, process) {
