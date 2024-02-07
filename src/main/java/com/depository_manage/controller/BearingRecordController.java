@@ -40,6 +40,7 @@ public class BearingRecordController {
             record.setOuterInnerRing(bearing.getOuterInnerRing());
             record.setSize(bearing.getSize());
             record.setPair(bearing.getPair());
+            record.setState(bearing.getState());
             // ...其他需要的字段...
             // 设置记录的时间
             record.setTime(new Date());

@@ -17,6 +17,7 @@
         <result property="storageLocation" column="storage_location"/>
         <result property="size" column="size"/>
         <result property="pair" column="pair"/>
+        <result property="state" column="state"/>
     </resultMap>
 
     <select id="selectBearingByBoxTextAndDepository" resultMap="bearingMap">
@@ -60,7 +61,10 @@
                 storage_location = #{storageLocation},
             </if>
             <if test="pair != null">
-                pair = #{pair}
+                pair = #{pair},
+            </if>
+            <if test="state != null">
+                state = #{state}
             </if>
         </set>
         WHERE id = #{id}
@@ -94,6 +98,9 @@
         <if test="pair != null and pair != ''">
             AND pair = #{pair}
         </if>
+        <if test="state != null and state != ''">
+            AND state  LIKE CONCAT('%',#{state},'%')
+        </if>
         ORDER BY id
     </select>
     <select id="selectLatestBearingByBoxText" resultMap="bearingMap">
@@ -116,7 +123,8 @@
             depository,
             storage_location,
             size,
-            pair
+            pair,
+            state
         ) VALUES (
                      #{boxText},
                      #{boxNumber},
@@ -130,7 +138,8 @@
                      #{depository},
                      #{storageLocation},
                      #{size},
-                     #{pair}
+                     #{pair},
+                     #{state}
                  )
     </insert>
     <select id="calculateTotalQuantityByBoxText" resultType="java.lang.Integer">
