@@ -169,14 +169,7 @@
         var recordTable =  table.render({
             elem: '#recordTable',
             url: '/bearingRecords/filter', // 数据接口
-            parseData: function(res) { // 将原始数据格式适配成 layui 表格组件所期望的格式
-                return {
-                    "code": 0, // 解析接口状态
-                    "msg": "", // 解析提示文本
-                    "count": res.length, // 解析数据长度
-                    "data": res // 解析数据列表
-                };
-            },
+            height: 500, // 设置表格高度
             where: {
                 transactionType:"入库"
             },
@@ -239,6 +232,9 @@
             }
             if (formData.depository !== '') {
                 req.depository = formData.depository;
+            }
+            if (formData.state !== '') {
+                req.state = formData.state;
             }
             if (formData.time !== '') {
                 var dates = formData.time.split(' - ');

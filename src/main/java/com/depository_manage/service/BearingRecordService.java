@@ -9,6 +9,8 @@ public interface BearingRecordService {
     void addBearingRecord(BearingRecord record);
     void updateBearingRecord(BearingRecord record);
     void deleteBearingRecordById(int id);
+    int countBearingRecords(Map<String, Object> params);
+
     BearingRecord getBearingRecordById(int id);
     public List<BearingRecord> filterBearingRecords(Map<String, Object> params);
     public boolean hasSpecialRecord(String boxText, String boxNumber, String depository, int quantity, int iter);

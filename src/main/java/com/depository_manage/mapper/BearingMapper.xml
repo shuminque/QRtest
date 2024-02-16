@@ -5,7 +5,6 @@
     <resultMap id="bearingMap" type="com.depository_manage.entity.Bearing">
         <result property="id" column="id"/>
         <result property="boxText" column="box_text"/>
-        <result property="boxNumber" column="box_number"/>
         <result property="model" column="model"/>
         <result property="customer" column="customer"/>
         <result property="quantity" column="quantity"/>
@@ -112,7 +111,6 @@
     <insert id="insertBearing">
         INSERT INTO bearings (
             box_text,
-            box_number,
             model,
             customer,
             quantity,
@@ -127,7 +125,6 @@
             state
         ) VALUES (
                      #{boxText},
-                     #{boxNumber},
                      #{model},
                      #{customer},
                      #{quantity},
@@ -151,6 +148,10 @@
         WHERE box_text LIKE CONCAT(#{query}, '%')
           AND depository = #{depository}
     </select>
+    <delete id="deleteBearingById" parameterType="java.lang.Integer">
+        DELETE FROM bearings WHERE id = #{id}
+    </delete>
+
     <!-- Add additional SQL statements for update, delete, etc. as needed -->
 </mapper>
 

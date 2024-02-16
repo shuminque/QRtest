@@ -23,6 +23,7 @@ public interface BearingRecordMapper {
     BearingRecord selectBearingRecordById(int id);
 
     // 获取所有记录
+    int countBearingRecords(Map<String, Object> params);
     List<BearingRecord> selectAllBearingRecords(Map<String,Object> params);
 
     boolean hasSpecialRecord(@Param("boxText") String boxText,

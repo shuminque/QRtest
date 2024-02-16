@@ -5,15 +5,15 @@ import com.depository_manage.entity.BearingRecord;
 import com.depository_manage.service.BearingRecordService;
 import com.depository_manage.service.BearingService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @RestController
 @RequestMapping("/bearingRecords")
@@ -78,16 +78,34 @@ public class BearingRecordController {
     }
 
     @GetMapping("/filter")
-    public ResponseEntity<?> filterBearingRecords(@RequestParam Map<String, Object> params) {
+    public ResponseEntity<?> filterBearingRecords(
+            @RequestParam Map<String, Object> params,
+            @RequestParam(defaultValue = "1") int page, // 页码通常是从1开始
+            @RequestParam(defaultValue = "20") int size) {
         String dateRange = (String) params.get("time");
-        if (dateRange !=null && dateRange.contains(" - ")){
+        if (dateRange != null && dateRange.contains(" - ")) {
             String[] dates = dateRange.split(" - ");
             params.put("startDate", dates[0] + " 00:00:00");
             params.put("endDate", dates[1] + " 23:59:59");
         }
+
+        // 计算开始的记录索引，MyBatis分页是从0开始计算的
+        int begin = (page - 1) * size;
+        params.put("begin", begin);
+        params.put("size", size);
+
         List<BearingRecord> records = bearingRecordService.filterBearingRecords(params);
-        return ResponseEntity.ok(records);
+        int count = bearingRecordService.countBearingRecords(params); // 获取满足条件的记录总数
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("code", 0);
+        response.put("msg", "");
+        response.put("count", count);
+        response.put("data", records);
+        return ResponseEntity.ok(response);
     }
+
+
     @GetMapping("/checkSpecialRecord/{boxText}/{boxNumber}/{depositoryName}/{quantity}/{iter}")
     public ResponseEntity<?> checkSpecialRecord(@PathVariable String boxText,
                                                 @PathVariable String boxNumber,

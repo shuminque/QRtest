@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>轴承数据表</title>
+    <title>成品数据表</title>
     <!-- DataTables CSS -->
     <link rel="stylesheet" href="/static/lib/layui-v2.8.17/css/layui.css" media="all">
     <script src="/static/lib/layui-v2.8.17/layui.js" charset="utf-8"></script>
@@ -87,12 +87,125 @@
             </div>
         </div>
     </form>
+    <button type="button" class="layui-btn" id="addBearingBtn">添加成品</button>
     <table class="layui-hide" id="recordTable" lay-filter="recordTableFilter"></table>
 </div>
 <!-- 工具栏模板 -->
 <script type="text/html" id="actionBar">
     <a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
-<!--    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="delete">删除</a>-->
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="delete">删除</a>
+</script>
+<script type="text/template" id="addBearingsForm">
+    <form class="layui-form" lay-filter="addForm">
+        <!-- 箱号 -->
+        <div class="layui-form-item">
+            <label class="layui-form-label">箱号：</label>
+            <div class="layui-input-block">
+                <input type="text" name="boxText" required lay-verify="required" placeholder="请输入箱号" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+        <!-- 数量 -->
+        <div class="layui-form-item">
+            <label class="layui-form-label">数量：</label>
+            <div class="layui-input-block">
+                <input type="text" name="quantity" required lay-verify="required" placeholder="请输入数量" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+        <!-- 厂区 -->
+        <div class="layui-form-item">
+            <label class="layui-form-label">厂区：</label>
+            <div class="layui-input-block">
+                <input type="text" name="depository" placeholder="请输入厂区" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+        <!-- 客户 -->
+        <div class="layui-form-item">
+            <label class="layui-form-label">客户：</label>
+            <div class="layui-input-block">
+                <input type="text" name="customer" placeholder="请输入客户" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+        <!-- 外/内轮 -->
+        <div class="layui-form-item">
+            <label class="layui-form-label">外/内轮：</label>
+            <div class="layui-input-block">
+                <select name="outerInnerRing">
+                    <option value="" selected></option>
+                    <option value="LA" >LA</option>
+                    <option value="LB" >LB</option>
+                </select>
+            </div>
+        </div>
+        <!-- 型号 -->
+        <div class="layui-form-item">
+            <label class="layui-form-label">型号：</label>
+            <div class="layui-input-block">
+                <input type="text" name="model" placeholder="请输入型号" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+        <!-- 制品分类 -->
+        <div class="layui-form-item">
+            <label class="layui-form-label">制品分类：</label>
+            <div class="layui-input-block">
+                <select name="productCategory">
+                    <option value="" selected>搜索制品分类</option>
+                    <option th:each="product_category : ${productCategorys}"
+                            th:value="${product_category.name}"
+                            th:text="${product_category.name}"></option>
+                </select>
+            </div>
+        </div>
+        <!-- 钢种 -->
+        <div class="layui-form-item">
+            <label class="layui-form-label">钢种：</label>
+            <div class="layui-input-block">
+                <input type="text" name="steelType" placeholder="请输入钢种" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+        <!-- 钢材等级 -->
+        <div class="layui-form-item">
+            <label class="layui-form-label">钢材等级：</label>
+            <div class="layui-input-block">
+                <input type="text" name="steelGrade" placeholder="请输入钢材等级" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+        <!-- 材料尺寸 -->
+        <div class="layui-form-item">
+            <label class="layui-form-label">材料尺寸：</label>
+            <div class="layui-input-block">
+                <input type="text" name="size" placeholder="请输入材料尺寸" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+        <!-- 关联 -->
+        <div class="layui-form-item">
+            <label class="layui-form-label">内外轮配对号：</label>
+            <div class="layui-input-block">
+                <input type="text" name="pair" placeholder="请输入内外轮配对号" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+        <!-- 备注 -->
+        <!--        <div class="layui-form-item">-->
+        <!--            <label class="layui-form-label">库位：</label>-->
+        <!--            <div class="layui-input-block">-->
+        <!--                <input type="text" name="storageLocation" placeholder="请输入库位" autocomplete="off" class="layui-input">-->
+        <!--            </div>-->
+        <!--        </div>-->
+        <div class="layui-form-item">
+            <label class="layui-form-label">状态：</label>
+            <div class="layui-input-block">
+                <select name="state">
+                    <option value="">选择状态</option>
+                    <option value="正常">正常</option>
+                    <option value="死库">死库</option>
+                </select>
+            </div>
+        </div>        <!-- 提交按钮 -->
+        <div class="layui-form-item">
+            <div class="layui-input-block">
+                <button type="submit" class="layui-btn" lay-submit lay-filter="submitAddForm">添加</button>
+            </div>
+        </div>
+    </form>
 </script>
 
 <!-- 编辑bearings的表单（在弹出层中显示） -->
@@ -186,18 +299,18 @@
         </div>
         <!-- 关联 -->
         <div class="layui-form-item">
-            <label class="layui-form-label">关联：</label>
+            <label class="layui-form-label">内外轮配对号：</label>
             <div class="layui-input-block">
-                <input type="text" name="pair" placeholder="请输入关联" autocomplete="off" class="layui-input">
+                <input type="text" name="pair" placeholder="请输入内外轮配对号" autocomplete="off" class="layui-input">
             </div>
         </div>
         <!-- 备注 -->
-        <div class="layui-form-item">
-            <label class="layui-form-label">库位：</label>
-            <div class="layui-input-block">
-                <input type="text" name="storageLocation" placeholder="请输入库位" autocomplete="off" class="layui-input">
-            </div>
-        </div>
+<!--        <div class="layui-form-item">-->
+<!--            <label class="layui-form-label">库位：</label>-->
+<!--            <div class="layui-input-block">-->
+<!--                <input type="text" name="storageLocation" placeholder="请输入库位" autocomplete="off" class="layui-input">-->
+<!--            </div>-->
+<!--        </div>-->
         <div class="layui-form-item">
             <label class="layui-form-label">状态：</label>
             <div class="layui-input-block">
@@ -226,6 +339,7 @@
         var recordTable =  table.render({
             elem: '#recordTable',
             url: '/bearings/all', // 数据接口
+            height: 600, // 设置表格高度
             parseData: function(res) { // 将原始数据格式适配成 layui 表格组件所期望的格式
                 return {
                     "code": 0, // 解析接口状态
@@ -237,7 +351,7 @@
             toolbar: ['filter', 'exports', 'print'],
             cols: [ [ // 表头
                 {field: 'id', title: 'ID',  hide:true},
-                {field: 'pair', title: '关联'},
+                {field: 'pair', title: '内外轮配对号'},
                 {field: 'boxText', title: '箱号'},
                 {field: 'quantity', title: '数量'},
                 {field: 'depository', title: '厂区'},
@@ -248,7 +362,7 @@
                 {field: 'steelType', title: '钢种'},
                 {field: 'steelGrade', title: '钢材等级'},
                 {field: 'size', title: '材料尺寸'},
-                {field: 'storageLocation', title: '库位'},
+                // {field: 'storageLocation', title: '库位',  hide:true},
                 {field: 'state', title: '状态'},
                 {title: '操作', toolbar: '#actionBar'} // 添加操作列
             ]],
@@ -294,6 +408,40 @@
             });
             return false;
         });
+        // 添加按钮点击事件
+        $('#addBearingBtn').click(function() {
+            layer.open({
+                type: 1,
+                title: '添加轴承',
+                content: $('#addBearingsForm').html(), // 使用添加表单的HTML内容
+                area: ['500px', '400px'], // 调整大小
+                success: function(layero, index) {
+                    form.render(); // 重新渲染表单
+                }
+            });
+        });
+
+// 处理添加表单的提交事件
+        form.on('submit(submitAddForm)', function(data) {
+            var formData = data.field; // 获取表单数据
+            $.ajax({
+                url: '/bearings/add', // 假设这是添加轴承的API端点
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(formData),
+                success: function(response) {
+                    layer.msg('添加成功');
+                    table.reload('recordTable'); // 重新加载表格
+                    layer.closeAll(); // 关闭弹出层
+                },
+                error: function() {
+                    layer.msg('添加失败');
+                }
+            });
+            return false; // 阻止表单默认提交
+        });
+
+
         // 监听表格的编辑按钮事件
         table.on('tool(recordTableFilter)', function(obj){
             var data = obj.data; // 获取当前行的数据
@@ -304,15 +452,43 @@
             } else if(layEvent === 'delete'){
                 // 删除操作
                 console.log("sc删除删除删除")
+                // 监听表格的工具条事件
+                table.on('tool(recordTableFilter)', function(obj) {
+                    var data = obj.data; // 获取当前行的数据
+                    var layEvent = obj.event; // 获得 lay-event 对应的值（也就是自定义的事件名）
+                    if (layEvent === 'edit') {
+                        // 编辑操作
+                        editBearings(data);
+                    } else if (layEvent === 'delete') {
+                        // 删除操作
+                        layer.confirm('确定删除这条记录吗？', function(index) {
+                            // 发送AJAX请求到后端进行删除操作
+                            $.ajax({
+                                url: '/bearings/delete/' + data.id, // 假设后端删除接口的URL，需根据实际情况修改
+                                type: 'DELETE', // 使用DELETE方法，根据后端要求可能是POST
+                                success: function(res) {
+                                    // 删除成功后的UI处理
+                                    layer.close(index);
+                                    layer.msg('删除成功', {icon: 1});
+                                    table.reload('recordTable'); // 重新加载表格数据
+                                },
+                                error: function(xhr, textStatus, errorThrown) {
+                                    // 删除失败的UI处理
+                                    layer.msg('删除失败: ' + errorThrown, {icon: 2});
+                                }
+                            });
+                        });
+                    }
+                });
             }
         });
         // 编辑bearings的函数
         function editBearings(data) {
             layer.open({
                 type: 1,
-                title: '编辑Bearings数据',
+                title: '编辑成品数据',
                 content: $('#editBearingsForm').html(),
-                area: ['500px', '400px'], // 根据需要调整弹窗大小
+                area: ['550px', '90%'], // 根据需要调整弹窗大小
                 success: function(layero, index){
                     // 填充表单数据
                     form.val('editForm', {

@@ -83,6 +83,13 @@
                         <i class="layui-icon"></i> 搜 索
                     </button>
                 </div>
+                <div class="layui-input-inline">
+                    <select name="state">
+                        <option value="">搜索状态</option>
+                        <option value="正常">正常</option>
+                        <option value="死库">死库</option>
+                    </select>
+                </div>
             </div>
         </form>
 
@@ -146,6 +153,7 @@
             var recordTable =  table.render({
                 elem: '#recordTable',
                 url: '/bearingRecords/inventory', // 更新为正确的后端接口 URL
+                height: 600, // 设置表格高度
                 parseData: function(res) { // 将原始数据格式适配成 layui 表格组件所期望的格式
                     var filteredData = res.filter(function(record) {
                         return record.quantity > 0;
@@ -176,6 +184,7 @@
                     {field: 'dissolve', title: '溶解号',totalRowText: '合计数'},
                     {field: 'quantity', title: '数量', totalRowText: '合计'}, // 启用合计行文本
                     {field: 'customer', title: '客户'},
+                    {field: 'state', title: '状态'},
                     {field: 'depository', title: '厂区'},
                     {field: 'lastRecordedTime', title: '最后入库时间', templet: function(d) {
                             return formatDate(d.lastRecordedTime);
@@ -243,6 +252,9 @@
                 }
                 if (formData.depository !== '') {
                     req.depository = formData.depository;
+                }
+                if (formData.state !== '') {
+                    req.state = formData.state;
                 }
                 req.cutoffDate = formData.time;
                 // 执行搜索重载

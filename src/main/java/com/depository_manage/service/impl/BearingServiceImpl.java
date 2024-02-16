@@ -36,6 +36,12 @@ public class BearingServiceImpl implements BearingService {
     public void saveBearing(Bearing bearing) {
         bearingMapper.insertBearing(bearing);
     }
+
+    @Override
+    public void deleteBearingById(Integer id) {
+        bearingMapper.deleteBearingById(id);
+    }
+
     @Override
     public Integer calculateQuantity(String boxText, String depository) {
         // 调用 mapper 方法来获取特定 boxNumber 的 quantity 总和

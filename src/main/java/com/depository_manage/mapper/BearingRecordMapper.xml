@@ -147,6 +147,46 @@
             LIMIT #{begin},#{size}
         </if>
     </select>
+    <select id="countBearingRecords" resultType="int" parameterType="map">
+        SELECT COUNT(*) FROM bearing_records WHERE 1=1
+        <if test="transactionType != null and transactionType != ''">
+            AND transaction_type = #{transactionType}
+        </if>
+        <if test="boxText != null and boxText != ''">
+            AND box_text = #{boxText}
+        </if>
+        <if test="boxNumber != null and boxNumber != ''">
+            AND box_number = #{boxNumber}
+        </if>
+        <if test="model != null and model != ''">
+            AND model  LIKE CONCAT('%',#{model},'%')
+        </if>
+        <if test="customer != null and customer != ''">
+            AND customer  LIKE CONCAT('%',#{customer},'%')
+        </if>
+        <if test="productCategory != null and productCategory != ''">
+            AND product_category = #{productCategory}
+        </if>
+        <if test="outerInnerRing != null and outerInnerRing != ''">
+            AND outer_inner_ring = #{outerInnerRing}
+        </if>
+        <if test="steelType != null and steelType != ''">
+            AND steel_type = #{steelType}
+        </if>
+        <if test="steelGrade != null and steelGrade != ''">
+            AND steel_grade = #{steelGrade}
+        </if>
+        <if test="depository != null and depository != ''">
+            AND depository = #{depository}
+        </if>
+        <if test="state != null and state != ''">
+            AND state  LIKE CONCAT('%',#{state},'%')
+        </if>
+        <if test="startDate != null and endDate != null">
+            AND DATE(time) BETWEEN #{startDate} AND #{endDate}
+        </if>
+    </select>
+
     <select id="hasSpecialRecord" resultType="boolean">
         SELECT COUNT(*) > 0 FROM bearing_records
         WHERE box_text = #{boxText} AND box_number = #{boxNumber}
@@ -166,6 +206,7 @@
         br.steel_grade,
         br.model,
         br.size,
+        br.state,
         MAX(br.dissolve) as dissolve,
         SUM(CASE
         WHEN br.transaction_type IN ('入库', '转入') THEN br.quantity
@@ -219,6 +260,9 @@
         <if test="depository != null and depository != ''">
             AND br.depository = #{depository}
         </if>
+        <if test="state != null and state != ''">
+            AND br.state = #{state}
+        </if>
         GROUP BY
         br.box_text,
         br.box_number,
@@ -231,6 +275,7 @@
         br.quantity,
         br.model,
         br.size,
+        br.state,
         lr.last_recorded_time
         <if test="begin != null and size != null">
             LIMIT #{begin},#{size}

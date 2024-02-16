@@ -1056,7 +1056,7 @@
     function openPanKu(data) {
         layer.open({
             type: 1,
-            title: `${data.outerInnerRing} ${data.model} 在库信息`,
+            title: `在库盘点信息`,
             content: generatePanKuContent(data),
             shadeClose: true,
             area: ['80%', '35%'],
@@ -1073,7 +1073,7 @@
         var totalBoxesContent = data.totalBoxes > 0 ? `仓库内合计: ${data.totalBoxes} 箱，数量: ${data.quantityInStock} 个` : '无库存';
         var contentHTML = `
     <div style="padding: 10px;">
-        <p style="margin-bottom: 10px;"><strong>内外轮+型号:</strong> ${data.outerInnerRing} ${data.model}</p>
+        <p style="margin-bottom: 10px;"><strong>型号:</strong> ${data.outerInnerRing} ${data.model}</p>
         <p style="margin-bottom: 10px;"><strong>箱号:</strong> ${data.boxText} ${data.boxNumber}</p>
         <p style="margin-bottom: 10px;"><strong>当前状态:</strong> ${isStockedContent}</p>
         <p><strong>仓库总览:</strong> ${totalBoxesContent}</p>

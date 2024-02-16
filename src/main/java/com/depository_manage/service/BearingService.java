@@ -12,6 +12,7 @@ public interface BearingService {
 
     Bearing getLatestBearingByBoxText(String boxText);
     void saveBearing(Bearing bearing);
+    public void deleteBearingById(Integer id);
 
     Integer calculateQuantity(String boxText, String depository);
     List<String> searchBoxText(String query, String depository);

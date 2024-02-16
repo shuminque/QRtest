@@ -3,6 +3,7 @@ package com.depository_manage.controller;
 import com.depository_manage.entity.Bearing;
 import com.depository_manage.entity.BearingRecord;
 import com.depository_manage.entity.ProductId;
+import com.depository_manage.entity.SteelGrade;
 import com.depository_manage.service.BearingService;
 import com.depository_manage.service.ProductIdService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +34,17 @@ public class BearingController {
             return ResponseEntity.notFound().build();
         }
     }
+    @PostMapping("/add")
+    public ResponseEntity<?> addBearing(@RequestBody Bearing bearing) {
+        bearingService.saveBearing(bearing);
+        return ResponseEntity.ok().build();
+    }
+    @DeleteMapping("delete/{id}")
+    public ResponseEntity<?> deleteBearing(@PathVariable Integer id) {
+        bearingService.deleteBearingById(id);
+        return ResponseEntity.ok("Deleted successfully");
+    }
+
     @PutMapping("/{id}")
     public ResponseEntity<?> updateBearing(@PathVariable int id, @RequestBody Bearing bearing) {
         bearing.setId(id);

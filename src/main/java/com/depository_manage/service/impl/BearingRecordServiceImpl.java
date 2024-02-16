@@ -35,7 +35,10 @@ public class BearingRecordServiceImpl implements BearingRecordService {
     public BearingRecord getBearingRecordById(int id) {
         return bearingRecordMapper.selectBearingRecordById(id);
     }
-
+    @Override
+    public int countBearingRecords(Map<String, Object> params) {
+        return bearingRecordMapper.countBearingRecords(params);
+    }
     @Override
     public List<BearingRecord> filterBearingRecords(Map<String, Object> params) {
         Integer size = 8, page = 1;
