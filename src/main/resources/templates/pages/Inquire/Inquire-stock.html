@@ -169,7 +169,6 @@
                     pageName:'page',
                     limitName:'size'
                 },
-                page: true, //开启分页,
                 totalRow: true, // 开启合计行
                 toolbar: ['filter', 'exports', 'print'],
                 cols: [ [ // 表头
@@ -210,8 +209,8 @@
                         }
                     }
                 },
-                limits:[54,100,200,500],
-                limit:54,
+                limits:[20,200,2000,20000],
+                limit:20000,
             });
             function formatDate(dateStr) {
                 if (!dateStr) return '';
