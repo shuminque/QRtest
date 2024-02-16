@@ -72,6 +72,13 @@
                                 th:text="${steel_grade.grade}"></option>
                     </select>
                 </div>
+                <div class="layui-input-inline">
+                    <select name="state">
+                        <option value="">搜索状态</option>
+                        <option value="正常">正常</option>
+                        <option value="死库">死库</option>
+                    </select>
+                </div>
             </div>
             <div class="layui-inline">
                 <button type="submit" class="layui-btn layui-btn-primary" lay-submit lay-filter="data-search-btn">
@@ -191,6 +198,16 @@
                 <input type="text" name="storageLocation" placeholder="请输入库位" autocomplete="off" class="layui-input">
             </div>
         </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">状态：</label>
+            <div class="layui-input-block">
+                <select name="state">
+                    <option value="">选择状态</option>
+                    <option value="正常">正常</option>
+                    <option value="死库">死库</option>
+                </select>
+            </div>
+        </div>
         <!-- 提交按钮 -->
         <div class="layui-form-item">
             <div class="layui-input-block">
@@ -267,6 +284,9 @@
             if (formData.depository !== '') {
                 req.depository = formData.depository;
             }
+            if (formData.state !== '') {
+                req.state = formData.state;
+            }
             // 重新加载表格数据
             recordTable.reload({
                 url: '/bearings/all', // 数据接口
@@ -308,7 +328,8 @@
                         'steelGrade': data.steelGrade, // 钢材等级
                         'size': data.size, // 材料尺寸
                         'pair': data.pair,
-                        'storageLocation': data.storageLocation // 备注
+                        'storageLocation': data.storageLocation, // 备注
+                        'state': data.state
                     });
                     layui.form.render();
                 }
