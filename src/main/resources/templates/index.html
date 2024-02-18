@@ -157,13 +157,21 @@
                 if (userDepositoryId === 0) {
                     role = "ALL";
                 } else if (userDepositoryId === 1) {
-                    role = userAuthority === '审核人' ? "SAB_sh" : "SAB_cg";
+                    if(userAuthority === '仅查看'){
+                        role = "onlyRead"
+                    }else{
+                        role = userAuthority === '审核人' ? "SAB_sh" : "SAB_cg";
+                    }
                 } else {
+                    if(userAuthority === '仅查看'){
+                        role = "onlyRead"
+                    }else{
                     role = userAuthority === '审核人' ? "ZAB_sh" : "ZAB_cg";
+                    }
                 }
                 console.log(role);
                 // 加载统一的菜单JSON
-                $.getJSON("/static/api/menu_roles.json", function(menuData) {
+                $.getJSON("/static/api/" + (role === "onlyRead" ? "menu_onlyRead.json" : "menu_roles.json"), function(menuData) {
                     if (userDepositoryId === 0) {
                         menuData.logoInfo.title = "综合仓库";
                     } else if (userDepositoryId === 1) {
@@ -186,6 +194,7 @@
                     };
                     miniAdmin.render(options);
                 });
+
             },
             error: function() {
                 alert('无法获取初始化数据');
@@ -217,6 +226,7 @@
             });
             return result;
         }
+
         // $(document).ready(function() {
         //     function loadNotifications() {
         //         $.ajax({
