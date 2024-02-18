@@ -171,7 +171,8 @@
                 }
                 console.log(role);
                 // 加载统一的菜单JSON
-                $.getJSON("/static/api/" + (role === "onlyRead" ? "menu_onlyRead.json" : "menu_roles.json"), function(menuData) {
+                // $.getJSON("/static/api/" + (role === "onlyRead" ? "menu_onlyRead.json" : "menu_roles.json"), function(menuData) {
+                $.getJSON("/static/api/menu_roles.json", function(menuData) {
                     if (userDepositoryId === 0) {
                         menuData.logoInfo.title = "综合仓库";
                     } else if (userDepositoryId === 1) {
@@ -192,38 +193,60 @@
                         pageAnim: true,
                         maxTabNum: 20,
                     };
+                    console.log(filteredMenu);
                     miniAdmin.render(options);
                 });
-
             },
             error: function() {
                 alert('无法获取初始化数据');
             }
         });
+        // function filterMenuByRole(menuData, role) {
+        //     var result = {};
+        //     result.homeInfo = menuData.homeInfo;
+        //     result.logoInfo = menuData.logoInfo;
+        //     result.menuInfo = menuData.menuInfo.filter(item => {
+        //         let includeItem = false;
+        //         // 如果菜单项有子项，进一步过滤
+        //         if (item.child) {
+        //             item.child = item.child.filter(subItem => {
+        //                 // 只有当子菜单项的 roles 和其父菜单项的 roles 都包含指定的 role 时，子菜单项才会被包括
+        //                 return subItem.roles.includes(role) && item.roles.includes(role);
+        //             });
+        //             // 如果至少有一个子项应该被包括，标记菜单项为应该包括
+        //             includeItem = item.child.length > 0;
+        //         } else if (item.roles && item.roles.includes(role)) {
+        //             // 如果没有子项但菜单项包含了 role，也标记为应该包括
+        //             includeItem = true;
+        //         }
+        //         return includeItem;
+        //     });
+        //     return result;
+        // }
         function filterMenuByRole(menuData, role) {
-            var result = {};
-            result.homeInfo = menuData.homeInfo;
-            result.logoInfo = menuData.logoInfo;
-
-            result.menuInfo = menuData.menuInfo.filter(item => {
-                let includeItem = false;
-
-                // 如果菜单项有子项，进一步过滤
-                if (item.child) {
-                    item.child = item.child.filter(subItem => {
-                        // 只有当子菜单项的 roles 和其父菜单项的 roles 都包含指定的 role 时，子菜单项才会被包括
-                        return subItem.roles.includes(role) && item.roles.includes(role);
-                    });
-
-                    // 如果至少有一个子项应该被包括，标记菜单项为应该包括
-                    includeItem = item.child.length > 0;
-                } else if (item.roles && item.roles.includes(role)) {
-                    // 如果没有子项但菜单项包含了 role，也标记为应该包括
-                    includeItem = true;
-                }
-
-                return includeItem;
-            });
+            function filterItems(items) {
+                return items.filter(item => {
+                    // 首先检查当前菜单项是否包含指定角色
+                    if (!item.roles.includes(role)) {
+                        return false; // 如果当前菜单项不包含指定角色，则不包括它
+                    }
+                    // 如果当前菜单项有子菜单项，则递归地过滤这些子菜单项
+                    if (item.child && item.child.length > 0) {
+                        item.child = filterItems(item.child);
+                        // 过滤后，如果子菜单项为空，也可以选择不显示当前菜单项
+                        // 但这取决于具体需求，如果需要，可以取消下面这行代码的注释
+                        // return item.child.length > 0;
+                    }
+                    // 如果当前菜单项包含指定角色，并且（如果有子菜单项的话）经过过滤后还有子菜单项，则包括它
+                    return true;
+                });
+            }
+            // 对menuData.menuInfo应用过滤逻辑
+            var result = {
+                homeInfo: menuData.homeInfo,
+                logoInfo: menuData.logoInfo,
+                menuInfo: filterItems(menuData.menuInfo) // 使用递归函数过滤
+            };
             return result;
         }
 

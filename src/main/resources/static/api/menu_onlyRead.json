@@ -118,6 +118,24 @@
               "roles": [
                 "SAB_cg", "SAB_sh", "ZAB_cg", "ZAB_sh", "ALL", "onlyRead"
               ]
+            },
+            {
+              "title": "溶解号登记",
+              "href": "/Inquire-dissolve",
+              "icon": "fa fa-th-list",
+              "target": "_self",
+              "roles": [
+                "SAB_cg", "SAB_sh", "ZAB_cg", "ZAB_sh", "ALL"
+              ]
+            },
+            {
+              "title": "二维码生成",
+              "href": "/GenerateAndPrintQR",
+              "icon": "fa fa-th-list",
+              "target": "_self",
+              "roles": [
+                "SAB_cg", "SAB_sh", "ZAB_cg", "ZAB_sh", "ALL"
+              ]
             }
           ]
         },
@@ -180,7 +198,7 @@
               "icon": "layui-icon layui-icon-list",
               "target": "_self",
               "roles": [
-                "SAB_cg", "SAB_sh", "ZAB_cg", "ZAB_sh", "ALL"
+                "SAB_cg", "SAB_sh", "ZAB_cg", "ZAB_sh", "ALL", "onlyRead"
               ]
             }
           ]

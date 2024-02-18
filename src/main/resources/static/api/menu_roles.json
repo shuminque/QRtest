@@ -198,7 +198,7 @@
                             "icon": "layui-icon layui-icon-list",
                             "target": "_self",
                             "roles": [
-                                "SAB_cg", "SAB_sh", "ZAB_cg", "ZAB_sh", "ALL"
+                                "SAB_cg", "SAB_sh", "ZAB_cg", "ZAB_sh", "ALL", "onlyRead"
                             ]
                         }
                     ]
