@@ -164,6 +164,16 @@
                     <input type="text" name="depository" class="layui-input" readonly>
                 </div>
             </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">状态：</label>
+                <div class="layui-input-block">
+                    <select name="state">
+                        <option value="">选择状态</option>
+                        <option value="正常">正常</option>
+                        <option value="死库">死库</option>
+                    </select>
+                </div>
+            </div>
             <div class="layui-form-item" style="text-align: center;">
                 <button class="layui-btn layui-btn-normal" lay-submit lay-filter="editGradeSubmitBtnFilter">
                     更新
@@ -242,9 +252,6 @@
                 {field: 'boxText', title: '箱号'},
                 {field: 'boxNumber', title: '箱号编号'},
                 {field: 'quantity', title: '数量'},
-                {field: 'time', title: '时间', templet: function(d) {
-                        return formatDate(d.time);
-                    }},
                 {field: 'depository', title: '厂区'},
                 {field: 'customer', title: '客户'},
                 {field: 'outerInnerRing', title: '外/内轮'},
@@ -255,6 +262,9 @@
                 {field: 'size', title: '尺寸'},
                 {field: 'dissolve', title: '溶解号'}, // 添加编辑功能
                 {field: 'state', title: '状态'},
+                {field: 'time', title: '时间', templet: function(d) {
+                        return formatDate(d.time);
+                    }},
                 {field: 'remarks', title: '备注'}
             ]],
             limits:[20,54,100,200,500],
@@ -356,7 +366,8 @@
                         'steelGrade': data.steelGrade,
                         'size': data.size,
                         'dissolve': data.dissolve,
-                        'remarks': data.remarks
+                        'remarks': data.remarks,
+                        'state': data.state
                     });
                     layui.form.render();
                 }
