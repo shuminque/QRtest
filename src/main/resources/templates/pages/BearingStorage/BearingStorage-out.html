@@ -48,7 +48,7 @@
         </div>
         <div class="mb-3">
             <label for="quantity" class="form-label">数量</label>
-            <input type="number" class="form-control" id="quantity" placeholder="请输入数量" required>
+            <input type="number" class="form-control" id="quantity" placeholder="请输入数量" readonly>
         </div>
         <button type="submit" class="btn btn-custom w-100">提交出库</button>
     </form>
@@ -93,19 +93,21 @@
             },
             minLength: 1, autoSelect: true
         });
-        // 当用户选择一个选项或填写箱号时更新输入框并获取最新的箱号编号
+
         $('#boxText').on('typeahead:select change', function(event) {
-            // 获取选择或输入的箱号
             const boxText = $(this).val();
             fetchLatestBoxNumberAndQuantity(boxText);
         });
-        // 监听箱号编号输入框的变化
-        $('#boxNumber').on('change', function() {
+
+        // 监听箱号编号输入框的变化并触发数量的重新获取
+        $('#boxNumber').on('input', function() {
             const boxText = $('#boxText').val();
             const boxNumber = $(this).val();
+            // 重新获取与当前箱号和箱号编号匹配的数量
             fetchQuantityForBoxNumber(boxText, boxNumber);
         });
     });
+
     // 获取最新的箱号编号和数量
     function fetchLatestBoxNumberAndQuantity(boxText) {
         $.ajax({

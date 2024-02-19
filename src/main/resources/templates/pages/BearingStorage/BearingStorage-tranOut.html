@@ -48,7 +48,7 @@
         </div>
         <div class="mb-3">
             <label for="quantity" class="form-label">数量</label>
-            <input type="number" class="form-control" id="quantity" placeholder="请输入数量" required>
+            <input type="number" class="form-control" id="quantity" placeholder="请输入数量" readonly>
         </div>
         <button type="submit" class="btn btn-custom w-100">提交转出</button>
     </form>
@@ -100,7 +100,7 @@
             fetchLatestBoxNumberAndQuantity(boxText);
         });
         // 监听箱号编号输入框的变化
-        $('#boxNumber').on('change', function() {
+        $('#boxNumber').on('input', function() {
             const boxText = $('#boxText').val();
             const boxNumber = $(this).val();
             fetchQuantityForBoxNumber(boxText, boxNumber);
