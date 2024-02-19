@@ -55,7 +55,7 @@
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    var userReviewGroupId;var userAuthority;var userDepositoryId;var userDepository;var depositoryId;
+    var userReviewGroupId;var userAuthority;var userDepositoryId;var userDepository;var depositoryId;var newiter;
     function getUserDepository() {
         $.ajax({
             url: '/get_user_depository',
@@ -116,6 +116,7 @@
                 // 填充最新的箱号编号和数量到对应输入框
                 $('#boxNumber').val(response.boxNumber);
                 $('#quantity').val(response.quantity);
+                newiter= response.iter;
             },
             error: function() {
                 $('#boxNumber').val('');
@@ -145,16 +146,17 @@
         const boxNumber = document.getElementById('boxNumber').value;
         const quantity = document.getElementById('quantity').value;
 
-        stockOut(boxText, boxNumber, quantity, '转出', depositoryId);
+        stockOut(boxText, boxNumber, quantity, '转出', depositoryId,newiter);
     });
-    function stockOut(boxText, boxNumber, quantity, operationType, depositoryId) {
+    function stockOut(boxText, boxNumber, quantity, operationType, depositoryId,newiter) {
         const operationTypeChinese = getOperationTypeInChinese(operationType);
         var inventoryDto = {
             boxText: boxText,
             boxNumber: boxNumber,
             quantityInStock: quantity,
             operationType: operationTypeChinese,
-            depositoryId: depositoryId
+            depositoryId: depositoryId,
+            iter:newiter
         };
         fetch('/bearingInventory/stockOut', {
             method: 'POST',
@@ -174,7 +176,7 @@
                     console.log("转出成功", data);
                     toastr.success('转出操作成功');
                     clearForm();
-                    return addBearingRecord(operationTypeChinese, boxText, boxNumber, quantity, depositoryId);
+                    return addBearingRecord(operationTypeChinese, boxText, boxNumber, quantity, depositoryId,newiter);
                 })
             .catch(error => {
                 console.error('转出操作失败:', error);
@@ -187,10 +189,10 @@
         document.getElementById('quantity').value = '';
         $('#boxText').focus(); // 重新聚焦到箱号输入框
     }
-    function addBearingRecord(transactionType, boxText, boxNumber, quantity, depositoryId) {
+    function addBearingRecord(transactionType, boxText, boxNumber, quantity, depositoryId,newiter) {
         var depositoryText = convertDepositoryIdToText(depositoryId);
         var recordDto = {
-            transactionType: transactionType, boxText: boxText, boxNumber: boxNumber, quantity: quantity, depository: depositoryText
+            transactionType: transactionType, boxText: boxText, boxNumber: boxNumber, quantity: quantity, depository: depositoryText,iter:newiter
         };
         return fetch('/bearingRecords', {
             method: 'POST',
