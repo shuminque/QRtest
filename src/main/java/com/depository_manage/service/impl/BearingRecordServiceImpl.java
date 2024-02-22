@@ -7,6 +7,7 @@ import com.depository_manage.utils.ObjectFormatUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -75,5 +76,9 @@ public class BearingRecordServiceImpl implements BearingRecordService {
     @Override
     public List<Map<String, Object>> getEveryPairData(String startDate, String endDate, String depository) {
         return bearingRecordMapper.everyPair(startDate, endDate, depository);
+    }
+    @Override
+    public List<Map<String, Object>> getInventoryStatus(Date cutoffDate) {
+        return bearingRecordMapper.selectInventoryStatus(cutoffDate);
     }
 }

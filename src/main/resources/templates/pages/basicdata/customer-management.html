@@ -2,10 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>钢种管理</title>
-    <!-- LayUI CSS -->
+    <title>客户管理</title>
     <link rel="stylesheet" href="/static/lib/layui-v2.8.17/css/layui.css" media="all">
-    <!-- jQuery 库 -->
     <script src="/static/js/http_ajax.googleapis.com_ajax_libs_jquery_3.5.1_jquery.js"></script>
     <script src="/static/lib/layui-v2.8.17/layui.js" charset="utf-8"></script>
     <style>
@@ -19,8 +17,8 @@
 </head>
 <body>
 <div class="container">
-    <button id="addSteelTypeBtn" class="layui-btn">添加钢种</button>
-    <table id="steelTypeTable" lay-filter="steelTypeTableFilter"></table>
+    <button id="addCustomerBtn" class="layui-btn">添加客户</button>
+    <table id="customerTable" lay-filter="customerTableFilter"></table>
 </div>
 
 <script type="text/html" id="actionBar">
@@ -28,13 +26,18 @@
     <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="delete">删除</a>
 </script>
 
-<!-- 添加钢种的表单（在弹出层中显示） -->
-<div id="addSteelTypeForm" style="display: none; padding: 20px;">
+<div id="addCustomerForm" style="display: none; padding: 20px;">
     <form class="layui-form" lay-filter="addForm">
         <div class="layui-form-item">
-            <label class="layui-form-label">名称：</label>
+            <label class="layui-form-label">客户名称：</label>
             <div class="layui-input-block">
-                <input type="text" name="name" required lay-verify="required" placeholder="请输入钢种名称" autocomplete="off" class="layui-input">
+                <input type="text" name="name" required lay-verify="required" placeholder="请输入客户名称" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">备注：</label>
+            <div class="layui-input-block">
+                <input type="text" name="introduce" placeholder="备注信息" autocomplete="off" class="layui-input">
             </div>
         </div>
         <div class="layui-form-item">
@@ -54,9 +57,15 @@
             </div>
         </div>
         <div class="layui-form-item">
-            <label class="layui-form-label">名称：</label>
+            <label class="layui-form-label">客户名称：</label>
             <div class="layui-input-block">
-                <input type="text" name="name" required lay-verify="required" placeholder="请输入名称" autocomplete="off" class="layui-input">
+                <input type="text" name="name" required lay-verify="required" placeholder="请输入客户名称" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">备注：</label>
+            <div class="layui-input-block">
+                <input type="text" name="introduce" placeholder="备注信息" autocomplete="off" class="layui-input">
             </div>
         </div>
         <div class="layui-form-item" style="text-align: center;">
@@ -68,14 +77,13 @@
 </script>
 <script>
     layui.use(['table', 'form', 'layer'], function(){
-        var table = layui.table;
-        var form = layui.form;
-        var layer = layui.layer;
+        var table = layui.table,
+            form = layui.form,
+            layer = layui.layer;
 
-        // 渲染表格
         table.render({
-            elem: '#steelTypeTable',
-            url: '/steelTypes/', // 数据接口
+            elem: '#customerTable',
+            url: '/customers/',
             parseData: function(res) { // 将原始数据格式适配成 layui 表格组件所期望的格式
                 return {
                     "code": 0,
@@ -86,8 +94,8 @@
             },
             cols: [ [
                 {field: 'id', title: 'ID', sort: true},
-                {field: 'name', title: '名称'},
-                // {field: 'manufacturer', title: '厂商'},
+                {field: 'name', title: '客户名称'},
+                {field: 'introduce', title: '备注'},
                 {title: '操作', toolbar: '#actionBar'}
             ]],
             limits: [50,100,200],
@@ -95,11 +103,11 @@
             page: true
         });
 
-        $('#addSteelTypeBtn').click(function() {
+        $('#addCustomerBtn').click(function() {
             layer.open({
                 type: 1,
-                title: '添加钢种',
-                content: $('#addSteelTypeForm'),
+                title: '添加客户',
+                content: $('#addCustomerForm'),
                 area: ['500px', '300px']
             });
         });
@@ -108,7 +116,7 @@
             var formData = data.field;
             // 发送 AJAX 请求到服务器
             $.ajax({
-                url: '/steelTypes/', // 服务器端的添加分类接口
+                url: '/customers/', // 服务器端的添加分类接口
                 type: 'POST',
                 contentType: 'application/json', // 发送数据的格式
                 data: JSON.stringify(formData), // 将表单数据转换为 JSON 字符串
@@ -116,7 +124,7 @@
                     // 这里处理请求成功的情况
                     console.log(response); // 打印服务器返回的数据
                     layer.msg('添加成功！', {icon: 1, time: 2000}); // 弹出成功消息
-                    table.reload('steelTypeTable'); // 重新加载表格数据
+                    table.reload('customerTable'); // 重新加载表格数据
                 },
                 error: function(xhr, status, error) {
                     // 这里处理请求失败的情况
@@ -126,14 +134,15 @@
                 complete: function () {
                     form.val("addForm",{
                         'id':"",
-                        'name':""
+                        'name':"",
+                        'introduce':"",
                     })
                 }
             });
             return false;
         });
 
-        table.on('tool(steelTypeTableFilter)', function(obj) {
+        table.on('tool(customerTableFilter)', function(obj) {
             var data = obj.data;
             var layEvent = obj.event;
             if (layEvent === 'edit') {
@@ -154,7 +163,8 @@
                     // 使用 layui.form 来填充表单数据
                     layui.form.val('editGradeFormFilter', {
                         'id': data.id,
-                        'name': data.name
+                        'name': data.name,
+                        'introduce': data.introduce
                     });
                     layui.form.render();
                 }
@@ -165,7 +175,7 @@
             var formData = data.field; // 获取表单数据
             // 发送 AJAX 请求来更新数据
             $.ajax({
-                url: '/steelTypes/' + formData.id, // 假设这是更新分类的接口
+                url: '/customers/' + formData.id, // 假设这是更新分类的接口
                 type: 'PUT', // 使用 PUT 方法更新
                 contentType: 'application/json', // 发送数据的格式
                 data: JSON.stringify(formData), // 将表单数据转换为 JSON 字符串
@@ -173,7 +183,7 @@
                     layer.close(this.layerIndex);
                     // 处理请求成功的情况
                     layer.msg('更新成功！', {icon: 1, time: 3000});
-                    table.reload('steelTypeTable'); // 重新加载表格数据
+                    table.reload('customerTable'); // 重新加载表格数据
                     layer.closeAll(); // 关闭所有弹出层
                 },
                 error: function(xhr, status, error) {
@@ -186,11 +196,11 @@
         function deleteSteelGrade(id) {
             layer.confirm('确定要删除吗？', function (index) {
                 $.ajax({
-                    url: '/steelTypes/' + id,
+                    url: '/customers/' + id,
                     type: 'DELETE',
                     success: function(res) {
                         layer.msg('删除成功！');
-                        layui.table.reload('steelTypeTable'); // 重新加载表格
+                        layui.table.reload('customerTable'); // 重新加载表格
                     },
                     error: function(err) {
                         layer.msg('删除失败！');
@@ -199,6 +209,7 @@
                 layer.close(index);
             });
         }
+
     });
 </script>
 </body>

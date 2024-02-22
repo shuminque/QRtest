@@ -97,34 +97,6 @@
 </script>
 <script type="text/template" id="addBearingsForm">
     <form class="layui-form" lay-filter="addForm">
-        <!-- 箱号 -->
-        <div class="layui-form-item">
-            <label class="layui-form-label">箱号：</label>
-            <div class="layui-input-block">
-                <input type="text" name="boxText" required lay-verify="required" placeholder="请输入箱号" autocomplete="off" class="layui-input">
-            </div>
-        </div>
-        <!-- 数量 -->
-        <div class="layui-form-item">
-            <label class="layui-form-label">数量：</label>
-            <div class="layui-input-block">
-                <input type="text" name="quantity" required lay-verify="required" placeholder="请输入数量" autocomplete="off" class="layui-input">
-            </div>
-        </div>
-        <!-- 厂区 -->
-        <div class="layui-form-item">
-            <label class="layui-form-label">厂区：</label>
-            <div class="layui-input-block">
-                <input type="text" name="depository" placeholder="请输入厂区" autocomplete="off" class="layui-input">
-            </div>
-        </div>
-        <!-- 客户 -->
-        <div class="layui-form-item">
-            <label class="layui-form-label">客户：</label>
-            <div class="layui-input-block">
-                <input type="text" name="customer" placeholder="请输入客户" autocomplete="off" class="layui-input">
-            </div>
-        </div>
         <!-- 外/内轮 -->
         <div class="layui-form-item">
             <label class="layui-form-label">外/内轮：</label>
@@ -136,11 +108,25 @@
                 </select>
             </div>
         </div>
+        <!-- 客户 -->
+        <div class="layui-form-item">
+            <label class="layui-form-label">客户：</label>
+            <div class="layui-input-block">
+                <input type="text" name="customer" placeholder="请输入客户" autocomplete="off" class="layui-input">
+            </div>
+        </div>
         <!-- 型号 -->
         <div class="layui-form-item">
             <label class="layui-form-label">型号：</label>
             <div class="layui-input-block">
                 <input type="text" name="model" placeholder="请输入型号" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+        <!-- 关联 -->
+        <div class="layui-form-item">
+            <label class="layui-form-label">配对号：</label>
+            <div class="layui-input-block">
+                <input type="text" name="pair" placeholder="请输入内外轮配对号" autocomplete="off" class="layui-input">
             </div>
         </div>
         <!-- 制品分类 -->
@@ -159,14 +145,38 @@
         <div class="layui-form-item">
             <label class="layui-form-label">钢种：</label>
             <div class="layui-input-block">
-                <input type="text" name="steelType" placeholder="请输入钢种" autocomplete="off" class="layui-input">
+                <select name="steelType">
+                    <option value="" selected></option>
+                    <option th:each="steel_type : ${steelTypes}"
+                            th:value="${steel_type.name}"
+                            th:text="${steel_type.name}"></option>
+                </select>
             </div>
         </div>
         <!-- 钢材等级 -->
         <div class="layui-form-item">
             <label class="layui-form-label">钢材等级：</label>
             <div class="layui-input-block">
-                <input type="text" name="steelGrade" placeholder="请输入钢材等级" autocomplete="off" class="layui-input">
+                <select name="steelGrade">
+                    <option value="" selected></option>
+                    <option th:each="steel_grade : ${steelGrades}"
+                            th:value="${steel_grade.grade}"
+                            th:text="${steel_grade.grade}"></option>
+                </select>
+            </div>
+        </div>
+        <!-- 箱号 -->
+        <div class="layui-form-item">
+            <label class="layui-form-label">箱号：</label>
+            <div class="layui-input-block">
+                <input type="text" name="boxText" required lay-verify="required" placeholder="请输入箱号" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+        <!-- 数量 -->
+        <div class="layui-form-item">
+            <label class="layui-form-label">装箱数：</label>
+            <div class="layui-input-block">
+                <input type="text" name="quantity" required lay-verify="required" placeholder="请输入装箱数" autocomplete="off" class="layui-input">
             </div>
         </div>
         <!-- 材料尺寸 -->
@@ -176,11 +186,15 @@
                 <input type="text" name="size" placeholder="请输入材料尺寸" autocomplete="off" class="layui-input">
             </div>
         </div>
-        <!-- 关联 -->
+        <!-- 厂区 -->
         <div class="layui-form-item">
-            <label class="layui-form-label">内外轮配对号：</label>
+            <label class="layui-form-label">厂区：</label>
             <div class="layui-input-block">
-                <input type="text" name="pair" placeholder="请输入内外轮配对号" autocomplete="off" class="layui-input">
+                <select name="depository">
+                    <option value="" selected></option>
+                    <option value="SAB" >SAB</option>
+                    <option value="ZAB" >ZAB</option>
+                </select>
             </div>
         </div>
         <!-- 备注 -->
@@ -227,16 +241,20 @@
         </div>
         <!-- 数量 -->
         <div class="layui-form-item">
-            <label class="layui-form-label">数量：</label>
+            <label class="layui-form-label">装箱数：</label>
             <div class="layui-input-block">
-                <input type="text" name="quantity" required lay-verify="required" placeholder="请输入数量" autocomplete="off" class="layui-input">
+                <input type="text" name="quantity" required lay-verify="required" placeholder="请输入装箱数" autocomplete="off" class="layui-input">
             </div>
         </div>
         <!-- 厂区 -->
         <div class="layui-form-item">
             <label class="layui-form-label">厂区：</label>
             <div class="layui-input-block">
-                <input type="text" name="depository" placeholder="请输入厂区" autocomplete="off" class="layui-input">
+                <select name="depository">
+                    <option value="" selected></option>
+                    <option value="SAB" >SAB</option>
+                    <option value="ZAB" >ZAB</option>
+                </select>
             </div>
         </div>
         <!-- 客户 -->
@@ -257,13 +275,6 @@
                 </select>
             </div>
         </div>
-        <!-- 型号 -->
-        <div class="layui-form-item">
-            <label class="layui-form-label">型号：</label>
-            <div class="layui-input-block">
-                <input type="text" name="model" placeholder="请输入型号" autocomplete="off" class="layui-input">
-            </div>
-        </div>
         <!-- 制品分类 -->
         <div class="layui-form-item">
             <label class="layui-form-label">制品分类：</label>
@@ -280,14 +291,24 @@
         <div class="layui-form-item">
             <label class="layui-form-label">钢种：</label>
             <div class="layui-input-block">
-                <input type="text" name="steelType" placeholder="请输入钢种" autocomplete="off" class="layui-input">
+                <select name="steelType">
+                    <option value="" selected></option>
+                    <option th:each="steel_type : ${steelTypes}"
+                            th:value="${steel_type.name}"
+                            th:text="${steel_type.name}"></option>
+                </select>
             </div>
         </div>
         <!-- 钢材等级 -->
         <div class="layui-form-item">
             <label class="layui-form-label">钢材等级：</label>
             <div class="layui-input-block">
-                <input type="text" name="steelGrade" placeholder="请输入钢材等级" autocomplete="off" class="layui-input">
+                <select name="steelGrade">
+                    <option value="" selected></option>
+                    <option th:each="steel_grade : ${steelGrades}"
+                            th:value="${steel_grade.grade}"
+                            th:text="${steel_grade.grade}"></option>
+                </select>
             </div>
         </div>
         <!-- 材料尺寸 -->
@@ -353,7 +374,7 @@
                 {field: 'id', title: 'ID',  hide:true},
                 {field: 'pair', title: '内外轮配对号'},
                 {field: 'boxText', title: '箱号'},
-                {field: 'quantity', title: '数量'},
+                {field: 'quantity', title: '装箱数'},
                 {field: 'depository', title: '厂区'},
                 {field: 'customer', title: '客户'},
                 {field: 'outerInnerRing', title: '外/内轮'},
@@ -414,7 +435,7 @@
                 type: 1,
                 title: '添加轴承',
                 content: $('#addBearingsForm').html(), // 使用添加表单的HTML内容
-                area: ['500px', '400px'], // 调整大小
+                area: ['500px', '80%'], // 调整大小
                 success: function(layero, index) {
                     form.render(); // 重新渲染表单
                 }
@@ -494,7 +515,7 @@
                     form.val('editForm', {
                         'id': data.id, // ID，假设这是从表格行数据获取的
                         'boxText': data.boxText, // 箱号
-                        'quantity': data.quantity, // 数量
+                        'quantity': data.quantity, // 装箱数
                         'depository': data.depository, // 厂区
                         'customer': data.customer, // 客户
                         'outerInnerRing': data.outerInnerRing, // 外/内轮

@@ -130,5 +130,11 @@ public class BearingRecordController {
         List<Map<String, Object>> data = bearingRecordService.getEveryPairData(startDate, endDate, depository);
         return ResponseEntity.ok(data);
     }
-
+    // 新端点获取库存状态信息
+    @GetMapping("/customer-status")
+    public ResponseEntity<List<Map<String, Object>>> getInventoryStatus(
+            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") Date cutoffDate) {
+        List<Map<String, Object>> inventoryStatus = bearingRecordService.getInventoryStatus(cutoffDate);
+        return ResponseEntity.ok(inventoryStatus);
+    }
 }

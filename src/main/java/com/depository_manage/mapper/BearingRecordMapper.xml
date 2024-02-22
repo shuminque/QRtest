@@ -372,5 +372,33 @@
         ORDER BY
             MAX(b.size);
     </select>
+    <select id="selectInventoryStatus" resultType="map">
+        SELECT
+        customer,
+        SUM(CASE WHEN transaction_type IN ('入库', '转入') AND outer_inner_ring = 'LA' THEN quantity ELSE 0 END) -
+        SUM(CASE WHEN transaction_type IN ('出库', '转出', '返库') AND outer_inner_ring = 'LA' THEN quantity ELSE 0 END) AS LA_quantity,
+        SUM(CASE WHEN transaction_type IN ('入库', '转入') AND outer_inner_ring = 'LB' THEN quantity ELSE 0 END) -
+        SUM(CASE WHEN transaction_type IN ('出库', '转出', '返库') AND outer_inner_ring = 'LB' THEN quantity ELSE 0 END) AS LB_quantity
+        FROM
+        bearing_records br
+        JOIN (
+        SELECT
+        box_text,
+        box_number,
+        MAX(time) as last_recorded_time
+        FROM
+        bearing_records
+        WHERE
+        transaction_type IN ('入库', '转入') AND bearing_records.time &lt;= DATE_ADD(#{date}, INTERVAL 1 DAY)
+        GROUP BY
+        box_text,
+        box_number
+        ) lr ON br.box_text = lr.box_text AND br.box_number = lr.box_number
+        WHERE
+        br.quantity > 0
+        AND br.time &lt;= DATE_ADD(#{date} , INTERVAL 1 DAY)
+        GROUP BY
+        br.customer
+    </select>
 
 </mapper>

@@ -2,6 +2,7 @@ package com.depository_manage.service;
 
 import com.depository_manage.entity.BearingRecord;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -17,5 +18,6 @@ public interface BearingRecordService {
 
     List<BearingRecord> selectInventoryByCutoffDate(Map<String, Object> params);
     List<Map<String, Object>> getEveryPairData(String startDate, String endDate, String depository);
+    List<Map<String, Object>> getInventoryStatus(Date cutoffDate);
 
 }

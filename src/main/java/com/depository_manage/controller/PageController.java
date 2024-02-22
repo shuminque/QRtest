@@ -130,6 +130,11 @@ public class PageController {
         ModelAndView mv = new ModelAndView();
         mv.setViewName("pages/basicdata/bearing-steel-type");return mv;
     }
+    @GetMapping("/customer-management")
+    public ModelAndView customerManagement() {
+        ModelAndView mv = new ModelAndView();
+        mv.setViewName("pages/basicdata/customer-management");return mv;
+    }
     @GetMapping("/every_pair")
     public String every_pair() {
         return "pages/chart/every_pair";
@@ -144,7 +149,12 @@ public class PageController {
 //        return numberFormat.format(number);
 //    }
 
+
     @GetMapping("/welcome")
+    public String acac() {
+        return "014/index";
+    }
+    @GetMapping("/welcome1")
     public ModelAndView welcome(HttpServletRequest request) {
         ModelAndView mv = new ModelAndView();
         mv.setViewName("pages/other/welcome");

@@ -84,13 +84,13 @@
                     </select>
                 </div>
                 <div class="layui-input-inline">
-                <select name="steelGrade">
-                    <option value="" selected>搜索钢材等级</option>
-                    <option th:each="steel_grade : ${steelGrades}"
-                            th:value="${steel_grade.grade}"
-                            th:text="${steel_grade.grade}"></option>
-                </select>
-            </div>
+                    <select name="steelGrade">
+                        <option value="" selected>搜索钢材等级</option>
+                        <option th:each="steel_grade : ${steelGrades}"
+                                th:value="${steel_grade.grade}"
+                                th:text="${steel_grade.grade}"></option>
+                    </select>
+                </div>
             </div>
             <div class="layui-inline">
                 <button type="submit" class="layui-btn layui-btn-primary" lay-submit lay-filter="data-search-btn">
