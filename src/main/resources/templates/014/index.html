@@ -98,56 +98,56 @@
                     bottom: '10%',
                     containLabel: true,
                 },
-                // xAxis: {
-                //     type: 'value',
-                //     position:'top',
-                //     splitLine: {show: false},
-                //     boundaryGap: [0, 0.01],
-                //     axisTick: {
-                //         show: false
-                //     },
-                //     axisLine: { show: false }, // 如果您也想隐藏轴线，可以设置为 false
-                //     axisLabel: { show: false }, // 设置为false来隐藏轴的刻度标签
-                // },
-                // yAxis: {
-                //     type: 'category',
-                //     data: yAxisData,
-                //     position:'left',
-                //     axisTick: {
-                //         show: false
-                //     },
-                //     splitLine: {
-                //         show: false
-                //     },
-                //     axisLabel: {
-                //         textStyle: {
-                //             color: '#FFFFFF',
-                //             fontSize: 12
-                //         }
-                //     },
-                //     axisLine: {
-                //         show: true,
-                //         lineStyle: {
-                //             color: '#6173A3'
-                //         }
-                //     },
-                // },
+                xAxis: {
+                    type: 'value',
+                    position:'top',
+                    splitLine: {show: false},
+                    boundaryGap: [0, 0.01],
+                    axisTick: {
+                        show: false
+                    },
+                    axisLine: { show: false }, // 如果您也想隐藏轴线，可以设置为 false
+                    axisLabel: { show: false }, // 设置为false来隐藏轴的刻度标签
+                },
+                yAxis: {
+                    type: 'category',
+                    data: yAxisData,
+                    position:'left',
+                    axisTick: {
+                        show: false
+                    },
+                    splitLine: {
+                        show: false
+                    },
+                    axisLabel: {
+                        textStyle: {
+                            color: '#FFFFFF',
+                            fontSize: 12
+                        }
+                    },
+                    axisLine: {
+                        show: true,
+                        lineStyle: {
+                            color: '#6173A3'
+                        }
+                    },
+                },
                 series: [
-                //     {
-                //     name: '',
-                //     itemStyle: {
-                //         normal: {
-                //             color: function(params) {
-                //                 // 这里使用params.dataIndex来获取当前数据项的索引，然后使用该索引从colors数组中获取颜色
-                //                 return colors[params.dataIndex % colors.length]; // 使用模运算确保索引不会超出数组长度
-                //             },
-                //             shadowBlur: 20,
-                //             shadowColor: 'rgba(0, 0, 0, 0.5)'
-                //         }
-                //     },
-                //     type: 'bar',
-                //     data: barSeriesData
-                // },
+                    {
+                    name: '',
+                    itemStyle: {
+                        normal: {
+                            color: function(params) {
+                                // 这里使用params.dataIndex来获取当前数据项的索引，然后使用该索引从colors数组中获取颜色
+                                return colors[params.dataIndex % colors.length]; // 使用模运算确保索引不会超出数组长度
+                            },
+                            shadowBlur: 20,
+                            shadowColor: 'rgba(0, 0, 0, 0.5)'
+                        }
+                    },
+                    type: 'bar',
+                    data: barSeriesData
+                },
                     {
                     type: 'pie',
                     radius: ['50%', '80%'],
@@ -162,11 +162,15 @@
                             normal: {
                                 textStyle: {
                                     color: '#FFFFFF',
-                                    fontSize: 11
+                                    fontSize: 13
                                 },
                                 formatter: function(param) {
                                     // return param.name + ':\n' + Math.round(param.percent) + '%';
-                                    return `${param.name}: \n外轮:${param.data.LA_quantity}\n内轮:${param.data.LB_quantity}`;
+                                    // return `${param.name}: \n外轮:${param.data.LA_quantity}\n内轮:${param.data.LB_quantity}`;
+                                    const formatter = new Intl.NumberFormat('en-US');
+                                    const LA_quantityFormatted = formatter.format(param.data.LA_quantity);
+                                    const LB_quantityFormatted = formatter.format(param.data.LB_quantity);
+                                    return `${param.name}: \n外轮:${LA_quantityFormatted}\n内轮:${LB_quantityFormatted}`;
                                 }
                             }
                         },

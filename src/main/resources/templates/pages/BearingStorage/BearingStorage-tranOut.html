@@ -145,7 +145,11 @@
         const boxText = document.getElementById('boxText').value;
         const boxNumber = document.getElementById('boxNumber').value;
         const quantity = document.getElementById('quantity').value;
-
+        // 检查数量是否已输入
+        if (!quantity || quantity <= 0) {
+            toastr.error('数量为0，请再次检查！');
+            return; // 如果没有数量或数量为零，阻止表单提交
+        }
         stockOut(boxText, boxNumber, quantity, '转出', depositoryId,newiter);
     });
     function stockOut(boxText, boxNumber, quantity, operationType, depositoryId,newiter) {
