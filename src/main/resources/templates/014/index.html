@@ -88,8 +88,8 @@
                     axisPointer: { type: 'shadow' }
                 },
                 grid: {
-                    left: '2%',
-                    right: '70%',
+                    left: '5%',
+                    right: '80%',
                     top: '10%',
                     bottom: '10%',
                     containLabel: true,
@@ -99,14 +99,14 @@
                     data: ['LA', 'LB'], // X轴显示LA和LB
                     axisLine: { show: true },
                     axisLabel: {
-                        show: true,
+                        show: false,
                         color: '#FFFFFF' // 设置X轴标签颜色为白色
                     }
                 },
                 yAxis: {
                     type: 'value',
                     axisLine: { show: true },
-                    axisLabel: { show: true, color: '#FFFFFF' }
+                    axisLabel: { show: false, color: '#FFFFFF' }
                 },
                 legend: {
                     data: legendData, // 设置图例数据
@@ -169,8 +169,40 @@
                     {
                         name: '总量',
                         type: 'bar',
-                        data: [totals.totalLA, totals.totalLB], // 将LA总量和LB总量作为数据点
-                        label: { show: true, position: 'top' },
+                        data: [
+                            {
+                                value: totals.totalLA,
+                                label: {
+                                    show: true,
+                                    position: 'top',
+                                    color: '#FFFFFF',
+                                    formatter: function(params) {
+                                        // 使用Intl.NumberFormat进行千分位格式化
+                                        const formattedValue = new Intl.NumberFormat('en-US').format(params.value);
+                                        return `外轮库存总数: \n ${formattedValue}`;
+                                    }
+                                },
+                                itemStyle: {
+                                    color: '#1f77b4' // 为总LA设置一种颜色
+                                }
+                            },
+                            {
+                                value: totals.totalLB,
+                                label: {
+                                    show: true,
+                                    position: 'top',
+                                    color: '#FFFFFF',
+                                    formatter: function(params) {
+                                        // 使用Intl.NumberFormat进行千分位格式化
+                                        const formattedValue = new Intl.NumberFormat('en-US').format(params.value);
+                                        return `内轮库存总数: \n ${formattedValue}`;
+                                    }
+                                },
+                                itemStyle: {
+                                    color: '#ff7f0e' // 为总LB设置另一种颜色
+                                }
+                            }
+                        ],
                         itemStyle: {
                             color: function(params) {
                                 // 根据条目的类型（LA或LB）为其分配颜色
@@ -179,68 +211,76 @@
                         }
                     },
                     {
-                    type: 'pie',
-                    radius: ['50%', '80%'],
-                    center: ['55%', '50%'],
-                    roseType: 'radius',
-                        color: function(params) {
-                            // 这里使用params.dataIndex来获取当前数据项的索引，然后使用该索引从colors数组中获取颜色
-                            return colors[params.dataIndex % colors.length]; // 使用模运算确保索引不会超出数组长度
-                        },
-                    data: pieSeriesData,
+                        type: 'pie',
+                        radius: ['50%', '77%'],
+                        center: ['55%', '50%'],
+                        roseType: 'radius',
+                            color: function(params) {
+                                // 这里使用params.dataIndex来获取当前数据项的索引，然后使用该索引从colors数组中获取颜色
+                                return colors[params.dataIndex % colors.length]; // 使用模运算确保索引不会超出数组长度
+                            },
+                        data: pieSeriesData,
                         label: {
                             normal: {
-                                textStyle: {
-                                    color: '#FFFFFF',
-                                    fontSize: 13
+                                rich: {
+                                    nameStyle: {
+                                        // 名称样式
+                                        color: '#FFFFFF',
+                                        align: 'left',
+                                        fontSize: 13,
+                                        lineHeight: 12
+                                    },
+                                    valueStyle: {
+                                        // 数值样式
+                                        color: '#FFFFFF',
+                                        align: 'left',
+                                        fontSize: 13,
+                                        lineHeight: 12
+                                    }
                                 },
                                 formatter: function(param) {
                                     const formatter = new Intl.NumberFormat('en-US');
                                     const LA_quantityFormatted = formatter.format(param.data.LA_quantity);
                                     const LB_quantityFormatted = formatter.format(param.data.LB_quantity);
-                                    // 计算外轮和内轮之前的填充空间，假设“外轮”和“内轮”字样是对齐的
-                                    const itemLabel = "外轮:";
-                                    const itemLabel2 = "内轮:";
-                                    // 对齐数字
-                                    const maxNumberLength = Math.max(LA_quantityFormatted.length, LB_quantityFormatted.length);
-                                    const LA_padding = ' '.repeat(maxNumberLength - LA_quantityFormatted.length);
-                                    const LB_padding = ' '.repeat(maxNumberLength - LB_quantityFormatted.length);
 
-                                    // 构造对齐后的文本
-                                    return `${param.name}\n${itemLabel} ${LA_padding}${LA_quantityFormatted}\n${itemLabel2} ${LB_padding}${LB_quantityFormatted}`;
-                                }
-
+                                    return [
+                                        '{nameStyle|' + param.name + '}',
+                                        '{valueStyle|外轮: ' + LA_quantityFormatted + '}',
+                                        '{valueStyle|内轮: ' + LB_quantityFormatted + '}'
+                                    ].join('\n');
+                                },
+                                padding: [0, 10] // 根据需要调整padding来对齐文本
                             }
                         },
                         // tooltip: {
-                        //     trigger: 'item',
-                        //     formatter: function(param) {
-                        //         return `${param.name}: <br>外轮:${param.data.LA_quantity}<br>内轮:${param.data.LB_quantity}`;
-                        //     }
-                        // },
-                        labelLine: {
-                            normal: {
-                                length: 5, // 调整指向线的起始部分长度
-                                length2: 10, // 调整指向线从转折点到标签的部分长度
-                                smooth: 0.2, // 可以尝试启用平滑
-                                lineStyle: {
-                                    color: '#FFFFFF' // 设置线条颜色为白色
+                            //     trigger: 'item',
+                            //     formatter: function(param) {
+                            //         return `${param.name}: <br>外轮:${param.data.LA_quantity}<br>内轮:${param.data.LB_quantity}`;
+                            //     }
+                            // },
+                            labelLine: {
+                                normal: {
+                                    length: 30, // 调整指向线的起始部分长度
+                                    length2: 15, // 调整指向线从转折点到标签的部分长度
+                                    smooth: 0.2, // 可以尝试启用平滑
+                                    lineStyle: {
+                                        color: '#FFFFFF' // 设置线条颜色为白色
+                                    }
                                 }
+                            },
+                            itemStyle: {
+                            normal: {
+                                shadowBlur: 30,
+                                shadowColor: 'rgba(0, 0, 0, 0.4)'
                             }
                         },
-                        itemStyle: {
-                        normal: {
-                            shadowBlur: 30,
-                            shadowColor: 'rgba(0, 0, 0, 0.4)'
+                        animationType: 'scale',
+                        animationEasing: 'elasticOut',
+                        animationDelay: function(idx) {
+                            return Math.random() * 200;
                         }
-                    },
-
-                    animationType: 'scale',
-                    animationEasing: 'elasticOut',
-                    animationDelay: function(idx) {
-                        return Math.random() * 200;
                     }
-                }]
+                ]
             });
         }
 
