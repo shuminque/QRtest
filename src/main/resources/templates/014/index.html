@@ -55,6 +55,13 @@
             const colors = customers.map(() => generateRandomColor());
             // 处理从后端获取的数据
             const yAxisData = chartData.map(item => item.customer); // 顾客名称
+            const totalLA = chartData.reduce((sum, item) => sum + item.LA_quantity, 0);
+            const totalLB = chartData.reduce((sum, item) => sum + item.LB_quantity, 0);
+            const totals = chartData.reduce((acc, item) => {
+                acc.totalLA += item.LA_quantity;
+                acc.totalLB += item.LB_quantity;
+                return acc;
+            }, { totalLA: 0, totalLB: 0 });
             const legendData = yAxisData;
             const barSeriesData = chartData.map(item => item.LA_quantity + item.LB_quantity); // 假设后端数据有LA_quantity属性
             const pieSeriesData = chartData.map(item => ({
@@ -78,9 +85,28 @@
                 // },
                 tooltip: {
                     trigger: 'axis',
-                    axisPointer: {
-                        type: 'shadow'
+                    axisPointer: { type: 'shadow' }
+                },
+                grid: {
+                    left: '2%',
+                    right: '70%',
+                    top: '10%',
+                    bottom: '10%',
+                    containLabel: true,
+                },
+                xAxis: {
+                    type: 'category',
+                    data: ['LA', 'LB'], // X轴显示LA和LB
+                    axisLine: { show: true },
+                    axisLabel: {
+                        show: true,
+                        color: '#FFFFFF' // 设置X轴标签颜色为白色
                     }
+                },
+                yAxis: {
+                    type: 'value',
+                    axisLine: { show: true },
+                    axisLabel: { show: true, color: '#FFFFFF' }
                 },
                 legend: {
                     data: legendData, // 设置图例数据
@@ -91,63 +117,67 @@
                         color: '#FFFFFF' // 设置图例文字颜色为白色
                     }
                 },
-                grid: {
-                    left: '2%',
-                    right: '70%',
-                    top: '10%',
-                    bottom: '10%',
-                    containLabel: true,
-                },
-                xAxis: {
-                    type: 'value',
-                    position:'top',
-                    splitLine: {show: false},
-                    boundaryGap: [0, 0.01],
-                    axisTick: {
-                        show: false
-                    },
-                    axisLine: { show: false }, // 如果您也想隐藏轴线，可以设置为 false
-                    axisLabel: { show: false }, // 设置为false来隐藏轴的刻度标签
-                },
-                yAxis: {
-                    type: 'category',
-                    data: yAxisData,
-                    position:'left',
-                    axisTick: {
-                        show: false
-                    },
-                    splitLine: {
-                        show: false
-                    },
-                    axisLabel: {
-                        textStyle: {
-                            color: '#FFFFFF',
-                            fontSize: 12
-                        }
-                    },
-                    axisLine: {
-                        show: true,
-                        lineStyle: {
-                            color: '#6173A3'
-                        }
-                    },
-                },
+                // xAxis: {
+                //     type: 'value',
+                //     position:'top',
+                //     splitLine: {show: false},
+                //     boundaryGap: [0, 0.01],
+                //     axisTick: {
+                //         show: false
+                //     },
+                //     axisLine: { show: false }, // 如果您也想隐藏轴线，可以设置为 false
+                //     axisLabel: { show: false }, // 设置为false来隐藏轴的刻度标签
+                // },
+                // yAxis: {
+                //     type: 'category',
+                //     data: yAxisData,
+                //     position:'left',
+                //     axisTick: {
+                //         show: false
+                //     },
+                //     splitLine: {
+                //         show: false
+                //     },
+                //     axisLabel: {
+                //         textStyle: {
+                //             color: '#FFFFFF',
+                //             fontSize: 12
+                //         }
+                //     },
+                //     axisLine: {
+                //         show: true,
+                //         lineStyle: {
+                //             color: '#6173A3'
+                //         }
+                //     },
+                // },
                 series: [
+                //     {
+                //         type: 'bar',
+                //         itemStyle: {
+                //         normal: {
+                //             color: function(params) {
+                //                 // 这里使用params.dataIndex来获取当前数据项的索引，然后使用该索引从colors数组中获取颜色
+                //                 return colors[params.dataIndex % colors.length]; // 使用模运算确保索引不会超出数组长度
+                //             },
+                //             shadowBlur: 20,
+                //             shadowColor: 'rgba(0, 0, 0, 0.5)'
+                //         }
+                //     },
+                //     data: barSeriesData
+                // },    上述注释为各客户具体数量，目前为LA,LB总量统计
                     {
-                    name: '',
-                    itemStyle: {
-                        normal: {
+                        name: '总量',
+                        type: 'bar',
+                        data: [totals.totalLA, totals.totalLB], // 将LA总量和LB总量作为数据点
+                        label: { show: true, position: 'top' },
+                        itemStyle: {
                             color: function(params) {
-                                // 这里使用params.dataIndex来获取当前数据项的索引，然后使用该索引从colors数组中获取颜色
-                                return colors[params.dataIndex % colors.length]; // 使用模运算确保索引不会超出数组长度
-                            },
-                            shadowBlur: 20,
-                            shadowColor: 'rgba(0, 0, 0, 0.5)'
+                                // 根据条目的类型（LA或LB）为其分配颜色
+                                return params.dataIndex === 0 ? '#1f77b4' : '#ff7f0e';
+                            }
                         }
                     },
-                    type: 'bar',
-                    data: barSeriesData
-                },
                     {
                     type: 'pie',
                     radius: ['50%', '80%'],
@@ -165,13 +195,21 @@
                                     fontSize: 13
                                 },
                                 formatter: function(param) {
-                                    // return param.name + ':\n' + Math.round(param.percent) + '%';
-                                    // return `${param.name}: \n外轮:${param.data.LA_quantity}\n内轮:${param.data.LB_quantity}`;
                                     const formatter = new Intl.NumberFormat('en-US');
                                     const LA_quantityFormatted = formatter.format(param.data.LA_quantity);
                                     const LB_quantityFormatted = formatter.format(param.data.LB_quantity);
-                                    return `${param.name}: \n外轮:${LA_quantityFormatted}\n内轮:${LB_quantityFormatted}`;
+                                    // 计算外轮和内轮之前的填充空间，假设“外轮”和“内轮”字样是对齐的
+                                    const itemLabel = "外轮:";
+                                    const itemLabel2 = "内轮:";
+                                    // 对齐数字
+                                    const maxNumberLength = Math.max(LA_quantityFormatted.length, LB_quantityFormatted.length);
+                                    const LA_padding = ' '.repeat(maxNumberLength - LA_quantityFormatted.length);
+                                    const LB_padding = ' '.repeat(maxNumberLength - LB_quantityFormatted.length);
+
+                                    // 构造对齐后的文本
+                                    return `${param.name}\n${itemLabel} ${LA_padding}${LA_quantityFormatted}\n${itemLabel2} ${LB_padding}${LB_quantityFormatted}`;
                                 }
+
                             }
                         },
                         // tooltip: {
