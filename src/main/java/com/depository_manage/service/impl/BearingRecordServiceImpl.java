@@ -78,7 +78,7 @@ public class BearingRecordServiceImpl implements BearingRecordService {
         return bearingRecordMapper.everyPair(startDate, endDate, depository);
     }
     @Override
-    public List<Map<String, Object>> getInventoryStatus(Date cutoffDate) {
-        return bearingRecordMapper.selectInventoryStatus(cutoffDate);
+    public List<Map<String, Object>> getInventoryStatus(Date cutoffDate, String depository) {
+        return bearingRecordMapper.selectInventoryStatus(cutoffDate, depository);
     }
 }

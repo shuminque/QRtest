@@ -395,6 +395,9 @@
         box_number
         ) lr ON br.box_text = lr.box_text AND br.box_number = lr.box_number
         WHERE
+        <if test="depository != null and depository != 'ALL'">
+            br.depository = #{depository} AND
+        </if>
         br.quantity > 0
         AND br.time &lt;= DATE_ADD(#{date} , INTERVAL 1 DAY)
         GROUP BY

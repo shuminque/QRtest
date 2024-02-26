@@ -17,7 +17,14 @@
         <main class="t_main">
             <header class="t_title">
                 <h2>各客户库存概况</h2>
-                <input type="date" id="cutoff-date">
+                <div>
+                    <input type="date" id="cutoff-date">
+                    <select id="depository-select">
+                        <option value="ALL">所有厂区</option>
+                        <option value="SAB">SAB</option>
+                        <option value="ZAB">ZAB</option>
+                    </select>
+                </div>
             </header>
             <div class="t_box">
                 <div id="chart_2" style="width: 100%; height: 100%;"></div>
@@ -25,21 +32,29 @@
         </main>
     </div>
     <script>
-        // 为日期选择器添加事件监听器，以便在日期改变时自动更新图表
-        document.getElementById('cutoff-date').addEventListener('change', function() {
-            const selectedDate = this.value;
+        // 添加事件监听器，当日期或厂区改变时，更新图表数据
+        document.getElementById('cutoff-date').addEventListener('change', updateChartData);
+        document.getElementById('depository-select').addEventListener('change', updateChartData);
+
+        function updateChartData() {
+            const selectedDate = document.getElementById('cutoff-date').value;
+            const selectedDepository = document.getElementById('depository-select').value;
             if (selectedDate) {
-                fetchChartDataAndUpdateEchart(selectedDate);
+                fetchChartDataAndUpdateEchart(selectedDate, selectedDepository);
             }
-        });
+        }
         function loadInitialChartData() {
             const today = new Date().toISOString().split('T')[0]; // 获取今天的日期，格式为YYYY-MM-DD
             document.getElementById('cutoff-date').value = today; // 设置日期选择器为今天
-            fetchChartDataAndUpdateEchart(today); // 使用今天的日期加载图表数据
+            updateChartData(); // 使用今天的日期加载图表数据
         }
         // 获取并更新图表数据的函数，根据指定的截止日期
-        function fetchChartDataAndUpdateEchart(cutoffDate) {
-            const url = `/bearingRecords/customer-status?cutoffDate=${cutoffDate}`;
+        function fetchChartDataAndUpdateEchart(cutoffDate, depository) {
+            // 构建请求URL，根据是否选择了“所有厂区”来调整参数
+            let url = `/bearingRecords/customer-status?cutoffDate=${cutoffDate}`;
+            if (depository !== 'ALL') {
+                url += `&depository=${depository}`;
+            }
             fetch(url)
                 .then(response => response.json())
                 .then(data => {
@@ -286,6 +301,8 @@
 
         // 页面加载完成后，自动加载数据
         document.addEventListener('DOMContentLoaded', loadInitialChartData);
+
+
         function generateRandomColor() {
             const letters = '0123456789ABCDEF';
             let color = '#';
