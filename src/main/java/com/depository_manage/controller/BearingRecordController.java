@@ -134,8 +134,9 @@ public class BearingRecordController {
     @GetMapping("/customer-status")
     public ResponseEntity<List<Map<String, Object>>> getInventoryStatus(
             @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") Date cutoffDate,
-            @RequestParam(required = false) String depository) {
-        List<Map<String, Object>> inventoryStatus = bearingRecordService.getInventoryStatus(cutoffDate, depository);
+            @RequestParam(required = false, defaultValue = "ALL") String depository,
+            @RequestParam(required = false, defaultValue = "ALL") String state) {
+        List<Map<String, Object>> inventoryStatus = bearingRecordService.getInventoryStatus(cutoffDate, depository, state);
         return ResponseEntity.ok(inventoryStatus);
     }
 }

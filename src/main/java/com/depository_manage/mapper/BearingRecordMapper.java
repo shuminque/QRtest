@@ -36,8 +36,7 @@ public interface BearingRecordMapper {
     List<Map<String, Object>> everyPair(@Param("StartDate") String startDate, @Param("EndDate") String endDate, @Param("depository") String depository);
     List<Map<String, Object>> selectInventoryStatus(
             @Param("date") Date cutoffDate,
-            @Param("depository") String depository
+            @Param("depository") String depository,
+            @Param("state") String state
     );
-
-
 }

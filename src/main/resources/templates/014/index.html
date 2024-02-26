@@ -24,6 +24,11 @@
                         <option value="SAB">SAB</option>
                         <option value="ZAB">ZAB</option>
                     </select>
+                    <select id="state-select">
+                        <option value="ALL">所有状态</option>
+                        <option value="正常">正常</option>
+                        <option value="死库">死库</option>
+                    </select>
                 </div>
             </header>
             <div class="t_box">
@@ -35,12 +40,14 @@
         // 添加事件监听器，当日期或厂区改变时，更新图表数据
         document.getElementById('cutoff-date').addEventListener('change', updateChartData);
         document.getElementById('depository-select').addEventListener('change', updateChartData);
+        document.getElementById('state-select').addEventListener('change', updateChartData);
 
         function updateChartData() {
             const selectedDate = document.getElementById('cutoff-date').value;
             const selectedDepository = document.getElementById('depository-select').value;
+            const selectedState = document.getElementById('state-select').value;
             if (selectedDate) {
-                fetchChartDataAndUpdateEchart(selectedDate, selectedDepository);
+                fetchChartDataAndUpdateEchart(selectedDate, selectedDepository, selectedState);
             }
         }
         function loadInitialChartData() {
@@ -49,11 +56,14 @@
             updateChartData(); // 使用今天的日期加载图表数据
         }
         // 获取并更新图表数据的函数，根据指定的截止日期
-        function fetchChartDataAndUpdateEchart(cutoffDate, depository) {
+        function fetchChartDataAndUpdateEchart(cutoffDate, depository, state) {
             // 构建请求URL，根据是否选择了“所有厂区”来调整参数
             let url = `/bearingRecords/customer-status?cutoffDate=${cutoffDate}`;
             if (depository !== 'ALL') {
                 url += `&depository=${depository}`;
+            }
+            if (state !== 'ALL') {
+                url += `&state=${state}`;
             }
             fetch(url)
                 .then(response => response.json())

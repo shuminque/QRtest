@@ -18,6 +18,6 @@ public interface BearingRecordService {
 
     List<BearingRecord> selectInventoryByCutoffDate(Map<String, Object> params);
     List<Map<String, Object>> getEveryPairData(String startDate, String endDate, String depository);
-    List<Map<String, Object>> getInventoryStatus(Date cutoffDate, String depository);
+    List<Map<String, Object>> getInventoryStatus(Date cutoffDate, String depository, String state);
 
 }
