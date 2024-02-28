@@ -300,7 +300,11 @@
         bearings b ON br.box_text = b.box_text
         WHERE
             br.depository = #{depository} AND  -- 使用depository作为过滤条件
-            br.time > #{StartDate} AND br.time &lt; DATE_ADD(#{EndDate},interval 1 DAY)
+            <if test="state != null">
+                br.state = #{state} AND
+            </if>
+            br.time > #{StartDate} AND
+            br.time &lt; DATE_ADD(#{EndDate},interval 1 DAY)
         GROUP BY
         b.pair, br.outer_inner_ring,br.model
         ),

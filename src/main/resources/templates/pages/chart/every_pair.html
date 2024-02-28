@@ -21,7 +21,7 @@
     </style>
 </head>
 <body>
-<div class="layui-container">
+<div class="container">
     <form class="layui-form" action="/bearingRecords/everyPair" method="get">
         <div class="layui-form-item">
             <label class="layui-form-label">厂区选择</label>
@@ -30,11 +30,17 @@
                     <!-- 初始值，稍后会根据用户信息进行更新 -->
                 </select>
             </div>
-            <label class="layui-form-label">开始日期</label>
+            <label class="layui-form-label">状态选择</label>
+            <div class="layui-input-inline">
+                <select name="state" id="stateSelect">
+                    <option value="正常">正常</option>
+                    <option value="死库">死库</option>
+                    <option value="ALL">全部</option>
+                </select>
+            </div>
             <div class="layui-input-inline">
                 <input type="text" class="layui-input" id="startDatePicker" placeholder="选择开始日期">
             </div>
-            <label class="layui-form-label">结束日期</label>
             <div class="layui-input-inline">
                 <input type="text" class="layui-input" id="endDatePicker" placeholder="选择结束日期">
             </div>
@@ -60,8 +66,9 @@
         var depository = depositoryMap[depositoryId] || '未知'; // 如果没有匹配到，可以设置一个默认值
         var startDate = document.getElementById('startDatePicker').value;
         var endDate = document.getElementById('endDatePicker').value;
+        var state = document.getElementById('stateSelect').value;  // 获取状态选择器的值
         // 创建新的URL
-        var url = `/bearingRecords/everyPair?depository=${depository}&startDate=${startDate}&endDate=${endDate}`;
+        var url = `/bearingRecords/everyPair?depository=${depository}&state=${state}&startDate=${startDate}&endDate=${endDate}`;
         // 更新表格的URL
         tableInstance.render({
             elem: "#currentTableId",

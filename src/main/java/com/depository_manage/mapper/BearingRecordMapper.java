@@ -33,7 +33,14 @@ public interface BearingRecordMapper {
                              @Param("iter") int iter);
 
     List<BearingRecord> selectInventoryByCutoffDate(Map<String, Object> params);
-    List<Map<String, Object>> everyPair(@Param("StartDate") String startDate, @Param("EndDate") String endDate, @Param("depository") String depository);
+
+    List<Map<String, Object>> everyPair(
+            @Param("depository") String depository,
+            @Param("StartDate") String startDate,
+            @Param("EndDate") String endDate,
+            @Param("state") String state
+    );
+
     List<Map<String, Object>> selectInventoryStatus(
             @Param("date") Date cutoffDate,
             @Param("depository") String depository,

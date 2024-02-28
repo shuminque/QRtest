@@ -126,8 +126,9 @@ public class BearingRecordController {
     public ResponseEntity<?> getEveryPairData(
             @RequestParam("startDate") @DateTimeFormat(pattern = "yyyy-MM-dd") String startDate,
             @RequestParam("endDate") @DateTimeFormat(pattern = "yyyy-MM-dd") String endDate,
-            @RequestParam("depository") String depository) {
-        List<Map<String, Object>> data = bearingRecordService.getEveryPairData(startDate, endDate, depository);
+            @RequestParam("depository") String depository,
+            @RequestParam(required = false) String state) {
+        List<Map<String, Object>> data = bearingRecordService.getEveryPairData(depository, startDate, endDate, state);
         return ResponseEntity.ok(data);
     }
     // 新端点获取库存状态信息
