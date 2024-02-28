@@ -300,7 +300,7 @@
         bearings b ON br.box_text = b.box_text
         WHERE
             br.depository = #{depository} AND  -- 使用depository作为过滤条件
-            <if test="state != null">
+            <if test="state != null and state != 'ALL'">
                 br.state = #{state} AND
             </if>
             br.time > #{StartDate} AND
