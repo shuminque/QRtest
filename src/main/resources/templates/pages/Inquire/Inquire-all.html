@@ -42,7 +42,6 @@
                     <option value="转出">转出</option>
                 </select>
             </div>
-
             <div class="layui-input-inline">
                 <input type="text" name="boxText" id="boxText" placeholder="搜索箱号" class="layui-input">
             </div>
@@ -111,7 +110,7 @@
     <!-- 工具栏模板 -->
     <script type="text/html" id="actionBar">
         <a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
-<!--        <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="delete">删除</a>-->
+        <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="delete">删除</a>
     </script>
     <script type="text/template" id="editGradeModelTemplate">
         <form class="layui-form" lay-filter="editGradeFormFilter">
@@ -334,6 +333,11 @@
         table.on('tool(recordTableFilter)', function(obj) {
             var data = obj.data;
             var layEvent = obj.event;
+
+            function deleteSteelGrade(id) {
+                console.log(id);
+            }
+
             if (layEvent === 'edit') {
                 editSteelGrade(data);
             } else if (layEvent === 'delete') {
@@ -349,6 +353,15 @@
                 content: $('#editGradeModelTemplate').html(), // 使用模板的内容
                 area: ['500px', '80%'],
                 success: function(layero, index) {
+                    // 动态设置交易类型选项
+                    var transactionTypeOptions = '';
+                    if (['入库', '转入'].includes(data.transactionType)) {
+                        transactionTypeOptions = '<option value="入库">入库</option><option value="转入">转入</option>';
+                    } else if (['出库', '返库', '转出'].includes(data.transactionType)) {
+                        transactionTypeOptions = '<option value="出库">出库</option><option value="返库">返库</option><option value="转出">转出</option>';
+                    }
+                    // 设置交易类型选项
+                    $(layero).find('select[name="transactionType"]').html(transactionTypeOptions);
                     // 使用 layui.form 来填充表单数据
                     layui.form.val('editGradeFormFilter', {
                         'id': data.id,
