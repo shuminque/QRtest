@@ -11,4 +11,5 @@ public interface BearingInventoryService {
 //    boolean isOperationAlreadyDone(String boxText, String boxNumber,String operationType);
     InventoryInfo getInventoryInfo(String boxText, String boxNumber, int depositoryId);
 
+    void adjustStockForDeletion(BearingInventory inventory, boolean increaseStock);
 }

@@ -1,12 +1,17 @@
 package com.depository_manage.service.impl;
 
+import com.depository_manage.entity.BearingInventory;
 import com.depository_manage.entity.BearingRecord;
 import com.depository_manage.mapper.BearingRecordMapper;
+import com.depository_manage.service.BearingInventoryService;
 import com.depository_manage.service.BearingRecordService;
+import com.depository_manage.service.ProductIdService;
 import com.depository_manage.utils.ObjectFormatUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityNotFoundException;
+import javax.transaction.Transactional;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -16,7 +21,10 @@ public class BearingRecordServiceImpl implements BearingRecordService {
 
     @Autowired
     private BearingRecordMapper bearingRecordMapper;
-
+    @Autowired
+    private BearingInventoryService bearingInventoryService;
+    @Autowired
+    private ProductIdService productIdService;
     @Override
     public void addBearingRecord(BearingRecord record) {
         bearingRecordMapper.insertBearingRecord(record);
@@ -27,10 +35,48 @@ public class BearingRecordServiceImpl implements BearingRecordService {
         bearingRecordMapper.updateBearingRecord(record);
     }
 
-    @Override
-    public void deleteBearingRecordById(int id) {
-        bearingRecordMapper.deleteBearingRecordById(id);
+    private int getDepositoryIdFromString(String depository) {
+        switch (depository) {
+            case "SAB":
+                return 1;
+            case "ZAB":
+                return 2;
+            default:
+                return 0; // 或者抛出一个异常，如果没有找到匹配的仓库
+        }
     }
+    @Transactional
+    public void deleteBearingRecordById(int id) {
+        // 首先根据ID获取记录详情
+        BearingRecord record = bearingRecordMapper.selectBearingRecordById(id);
+
+        if (record != null) {
+            int depositoryId = getDepositoryIdFromString(record.getDepository()); // 转换仓库字符为ID
+            // 准备库存调整对象
+            BearingInventory inventoryAdjustment = new BearingInventory();
+            inventoryAdjustment.setBoxText(record.getBoxText());
+            inventoryAdjustment.setDepositoryId(depositoryId);
+            inventoryAdjustment.setQuantityInStock(record.getQuantity());
+
+            // 确定是否增加库存
+            boolean increaseStock = false; // 默认为减少库存
+
+            // 如果是出库、返库或转出操作，删除后需要增加库存
+            if ("出库".equals(record.getTransactionType()) || "返库".equals(record.getTransactionType()) || "转出".equals(record.getTransactionType())) {
+                increaseStock = true;
+            }
+            // 使用专门的方法调整库存
+            bearingInventoryService.adjustStockForDeletion(inventoryAdjustment, increaseStock);
+
+            // 更新product_ids表的状态，这里的逻辑需要根据您的业务规则调整
+            productIdService.updateStockedStatus(record.getBoxText(), record.getBoxNumber(), depositoryId, increaseStock ? 1 : 0, record.getIter());
+            // 在更新库存和product_ids状态之后，删除该记录
+            bearingRecordMapper.deleteBearingRecordById(id);
+        } else {
+            throw new EntityNotFoundException("The record with ID " + id + " does not exist.");
+        }
+    }
+
 
     @Override
     public BearingRecord getBearingRecordById(int id) {

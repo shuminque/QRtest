@@ -61,7 +61,7 @@ public class BearingRecordController {
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/delete/{id}")
     public ResponseEntity<?> deleteBearingRecord(@PathVariable int id) {
         bearingRecordService.deleteBearingRecordById(id);
         return ResponseEntity.ok().build();

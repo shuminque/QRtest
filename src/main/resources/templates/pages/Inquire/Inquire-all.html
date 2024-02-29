@@ -334,16 +334,35 @@
             var data = obj.data;
             var layEvent = obj.event;
 
-            function deleteSteelGrade(id) {
-                console.log(id);
-            }
-
             if (layEvent === 'edit') {
                 editSteelGrade(data);
             } else if (layEvent === 'delete') {
                 deleteSteelGrade(data.id);
             }
         });
+      function deleteSteelGrade(id) {
+            // 弹出确认框询问用户是否确定删除
+            layer.confirm('确定删除这条记录吗？', {
+                icon: 3,
+                title: '提示'
+            }, function(index) {
+                // 用户确认删除操作，发送AJAX请求到服务器执行删除
+                $.ajax({
+                    url: '/bearingRecords/delete/' + id, // 请根据实际的URL调整
+                    type: 'DELETE',
+                    success: function(res) {
+                        // 删除成功的处理逻辑
+                        layer.msg('删除成功', {icon: 1});
+                        table.reload('recordTable'); // 重新加载表格数据
+                    },
+                    error: function(xhr, status, error) {
+                        // 删除失败的处理逻辑
+                        layer.msg('删除失败: ' + error, {icon: 2});
+                    }
+                });
+                layer.close(index); // 关闭确认框
+            });
+        }
 
         function editSteelGrade(data) {
             // 打开弹出层

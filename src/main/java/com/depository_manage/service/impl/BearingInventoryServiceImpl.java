@@ -88,4 +88,21 @@ public class BearingInventoryServiceImpl implements BearingInventoryService {
     public InventoryInfo getInventoryInfo(String boxText, String boxNumber, int depositoryId) {
         return bearingInventoryMapper.selectInventoryInfo(boxText, boxNumber, depositoryId);
     }
+    @Override
+    public void adjustStockForDeletion(BearingInventory inventory, boolean increaseStock) {
+        BearingInventory existingInventory = bearingInventoryMapper.selectBearingInventoryByBoxTextAndDepositoryId(
+                inventory.getBoxText(), inventory.getDepositoryId());
+
+        if (existingInventory != null) {
+            int newQuantity = existingInventory.getQuantityInStock() + (increaseStock ? inventory.getQuantityInStock() : -inventory.getQuantityInStock());
+            existingInventory.setQuantityInStock(newQuantity);
+
+            // 根据增减库存调整总箱数
+            int adjustment = increaseStock ? 1 : -1;
+            existingInventory.setTotalBoxes(Math.max(0, existingInventory.getTotalBoxes() + adjustment));
+
+            bearingInventoryMapper.updateBearingInventory(existingInventory);
+        }
+    }
+
 }
