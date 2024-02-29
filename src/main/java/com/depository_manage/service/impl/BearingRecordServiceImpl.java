@@ -68,7 +68,7 @@ public class BearingRecordServiceImpl implements BearingRecordService {
             // 使用专门的方法调整库存
             bearingInventoryService.adjustStockForDeletion(inventoryAdjustment, increaseStock);
 
-            // 更新product_ids表的状态，这里的逻辑需要根据您的业务规则调整
+            // 更新product_ids表的状态
             productIdService.updateStockedStatus(record.getBoxText(), record.getBoxNumber(), depositoryId, increaseStock ? 1 : 0, record.getIter());
             // 在更新库存和product_ids状态之后，删除该记录
             bearingRecordMapper.deleteBearingRecordById(id);
