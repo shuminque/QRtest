@@ -60,23 +60,31 @@ public class BearingRecordServiceImpl implements BearingRecordService {
 
             // 确定是否增加库存
             boolean increaseStock = false; // 默认为减少库存
-
             // 如果是出库、返库或转出操作，删除后需要增加库存
             if ("出库".equals(record.getTransactionType()) || "返库".equals(record.getTransactionType()) || "转出".equals(record.getTransactionType())) {
                 increaseStock = true;
             }
             // 使用专门的方法调整库存
             bearingInventoryService.adjustStockForDeletion(inventoryAdjustment, increaseStock);
-
             // 更新product_ids表的状态
             productIdService.updateStockedStatus(record.getBoxText(), record.getBoxNumber(), depositoryId, increaseStock ? 1 : 0, record.getIter());
+            boolean isUniqueInOrTransferIn = isUniqueInOrTransferInRecord(record.getBoxText(), record.getBoxNumber(), record.getDepository(), record.getIter());
+            if (isUniqueInOrTransferIn) {
+                productIdService.deleteProductIdsRecord(record.getBoxText(), record.getBoxNumber(), depositoryId, record.getIter());
+            }
             // 在更新库存和product_ids状态之后，删除该记录
             bearingRecordMapper.deleteBearingRecordById(id);
         } else {
             throw new EntityNotFoundException("The record with ID " + id + " does not exist.");
         }
     }
-
+    @Override
+    public boolean isUniqueInOrTransferInRecord(String boxText, String boxNumber, String depository, int iter) {
+        // 假设有一个mapper方法可以查询入库或转入记录的数量
+        int count = bearingRecordMapper.countInOrTransferInRecords(boxText, boxNumber, depository, iter);
+        // 如果记录数为1，则为唯一记录
+        return count == 1;
+    }
 
     @Override
     public BearingRecord getBearingRecordById(int id) {
@@ -114,6 +122,7 @@ public class BearingRecordServiceImpl implements BearingRecordService {
             params.put("size", size);
         }
         if (params.containsKey("page")) {
+
             page = ObjectFormatUtil.toInteger(params.get("page"));
             params.put("begin", (page - 1) * size);
         }
@@ -127,4 +136,5 @@ public class BearingRecordServiceImpl implements BearingRecordService {
     public List<Map<String, Object>> getInventoryStatus(Date cutoffDate, String depository, String state) {
         return bearingRecordMapper.selectInventoryStatus(cutoffDate, depository, state);
     }
+
 }

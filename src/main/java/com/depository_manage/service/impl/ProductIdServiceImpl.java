@@ -174,4 +174,9 @@ public class ProductIdServiceImpl implements ProductIdService {
         return productIdMapper.updateQuantity(productId) > 0;
     }
 
+    @Override
+    public void deleteProductIdsRecord(String boxText, String boxNumber, int depositoryId, int iter) {
+        productIdMapper.deleteProductIdsRecord(boxText, boxNumber, depositoryId, iter);
+    }
+
 }

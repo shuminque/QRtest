@@ -410,5 +410,12 @@
         GROUP BY
         br.customer
     </select>
-
+    <!-- 定义查询入库或转入记录的数量 -->
+    <select id="countInOrTransferInRecords" resultType="int">
+        SELECT COUNT(*) FROM bearing_records
+        WHERE box_text = #{boxText}
+          AND box_number = #{boxNumber}
+          AND depository = #{depository}
+          AND iter = #{iter}
+    </select>
 </mapper>

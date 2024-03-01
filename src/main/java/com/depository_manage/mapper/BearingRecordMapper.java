@@ -46,4 +46,8 @@ public interface BearingRecordMapper {
             @Param("depository") String depository,
             @Param("state") String state
     );
+    int countInOrTransferInRecords(@Param("boxText") String boxText,
+                                   @Param("boxNumber") String boxNumber,
+                                   @Param("depository") String depository,
+                                   @Param("iter") int iter);
 }

@@ -41,6 +41,8 @@ public interface ProductIdService {
     boolean isProductStocked(String boxText, String boxNumber, int depositoryId, int iter);
     int getQuantityByBoxTextAndBoxNumber(String boxText, String boxNumber, int depositoryId);
     public boolean updateQuantity(ProductId productId);
+    void deleteProductIdsRecord(String boxText, String boxNumber, int depositoryId, int iter);
+
     // 根据需要可以添加更多方法
 
 }
