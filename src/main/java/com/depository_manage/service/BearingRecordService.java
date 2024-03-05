@@ -21,5 +21,6 @@ public interface BearingRecordService {
 
     List<Map<String, Object>> getInventoryStatus(Date cutoffDate, String depository, String state);
     boolean isUniqueInOrTransferInRecord(String boxText, String boxNumber, String depositoryId, int iter);
+    int calculateNetInOrTransferInVsOut(String boxText, String boxNumber, String depository, int iter);
 
 }

@@ -57,7 +57,6 @@ public class BearingRecordServiceImpl implements BearingRecordService {
             inventoryAdjustment.setBoxText(record.getBoxText());
             inventoryAdjustment.setDepositoryId(depositoryId);
             inventoryAdjustment.setQuantityInStock(record.getQuantity());
-
             // 确定是否增加库存
             boolean increaseStock = false; // 默认为减少库存
             // 如果是出库、返库或转出操作，删除后需要增加库存
@@ -66,14 +65,18 @@ public class BearingRecordServiceImpl implements BearingRecordService {
             }
             // 使用专门的方法调整库存
             bearingInventoryService.adjustStockForDeletion(inventoryAdjustment, increaseStock);
+
+            bearingRecordMapper.deleteBearingRecordById(id);
+            boolean inOut = this.calculateNetInOrTransferInVsOut(
+                    record.getBoxText(), record.getBoxNumber(), record.getDepository(), record.getIter()) > 0;
             // 更新product_ids表的状态
-            productIdService.updateStockedStatus(record.getBoxText(), record.getBoxNumber(), depositoryId, increaseStock ? 1 : 0, record.getIter());
+            int isStocked = inOut ? 1 : 0; // 将boolean转换为int
+            productIdService.updateStockedStatus(
+                    record.getBoxText(), record.getBoxNumber(), depositoryId, isStocked, record.getIter());
             boolean isUniqueInOrTransferIn = isUniqueInOrTransferInRecord(record.getBoxText(), record.getBoxNumber(), record.getDepository(), record.getIter());
             if (isUniqueInOrTransferIn) {
                 productIdService.deleteProductIdsRecord(record.getBoxText(), record.getBoxNumber(), depositoryId, record.getIter());
             }
-            // 在更新库存和product_ids状态之后，删除该记录
-            bearingRecordMapper.deleteBearingRecordById(id);
         } else {
             throw new EntityNotFoundException("The record with ID " + id + " does not exist.");
         }
@@ -82,8 +85,8 @@ public class BearingRecordServiceImpl implements BearingRecordService {
     public boolean isUniqueInOrTransferInRecord(String boxText, String boxNumber, String depository, int iter) {
         // 假设有一个mapper方法可以查询入库或转入记录的数量
         int count = bearingRecordMapper.countInOrTransferInRecords(boxText, boxNumber, depository, iter);
-        // 如果记录数为1，则为唯一记录
-        return count == 1;
+        // 如果记录数为0，则为唯一记录
+        return count == 0;
     }
 
     @Override
@@ -136,5 +139,8 @@ public class BearingRecordServiceImpl implements BearingRecordService {
     public List<Map<String, Object>> getInventoryStatus(Date cutoffDate, String depository, String state) {
         return bearingRecordMapper.selectInventoryStatus(cutoffDate, depository, state);
     }
-
+    @Override
+    public int calculateNetInOrTransferInVsOut(String boxText, String boxNumber, String depository, int iter) {
+        return bearingRecordMapper.calculateNetInOrTransferInVsOut(boxText, boxNumber, depository, iter);
+    }
 }

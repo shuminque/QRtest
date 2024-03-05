@@ -418,4 +418,13 @@
           AND depository = #{depository}
           AND iter = #{iter}
     </select>
+    <select id="calculateNetInOrTransferInVsOut" resultType="int">
+        SELECT COALESCE(SUM(CASE WHEN transaction_type IN ('入库', '转入') THEN 1
+                                 WHEN transaction_type IN ('出库', '返库', '转出') THEN -1 ELSE 0 END), 0)
+        FROM bearing_records
+        WHERE box_text = #{boxText}
+          AND box_number = #{boxNumber}
+          AND depository = #{depository}
+          AND iter = #{iter}
+    </select>
 </mapper>

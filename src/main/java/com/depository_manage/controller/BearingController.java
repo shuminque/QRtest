@@ -156,7 +156,7 @@ public class BearingController {
         Map<String, Object> response = new HashMap<>();
         response.put("boxNumber", mockNewProductId);
         response.put("quantity", mockQuantity);
-
+        
         // 返回即将生成的数据
         return ResponseEntity.ok(response);
     }

@@ -50,4 +50,8 @@ public interface BearingRecordMapper {
                                    @Param("boxNumber") String boxNumber,
                                    @Param("depository") String depository,
                                    @Param("iter") int iter);
+    int calculateNetInOrTransferInVsOut(@Param("boxText") String boxText,
+                                        @Param("boxNumber") String boxNumber,
+                                        @Param("depository") String depository,
+                                        @Param("iter") int iter);
 }
