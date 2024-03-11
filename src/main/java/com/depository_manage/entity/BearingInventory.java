@@ -11,7 +11,7 @@ public class BearingInventory {
     private int totalBoxes; // 新增字段，用于存储总箱数
     private int depositoryId; // 保持为 int 类型
     private int iter;
-
+    private String operationType; // 新增字段，用于区分操作类型
 
     // Lombok @Data 注解将自动生成构造方法、getter 和 setter
 }

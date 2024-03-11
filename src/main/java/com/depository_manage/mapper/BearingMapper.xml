@@ -17,6 +17,7 @@
         <result property="size" column="size"/>
         <result property="pair" column="pair"/>
         <result property="state" column="state"/>
+        <result property="currentDepository" column="current_depository"/>
     </resultMap>
 
     <select id="selectBearingByBoxTextAndDepository" resultMap="bearingMap">
@@ -151,7 +152,9 @@
     <delete id="deleteBearingById" parameterType="java.lang.Integer">
         DELETE FROM bearings WHERE id = #{id}
     </delete>
-
+    <select id="getMaxPairNumber" resultType="string">
+        SELECT MAX(pair) FROM bearings
+    </select>
     <!-- Add additional SQL statements for update, delete, etc. as needed -->
 </mapper>
 

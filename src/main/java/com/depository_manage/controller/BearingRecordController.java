@@ -25,9 +25,24 @@ public class BearingRecordController {
     private BearingService bearingService;
     @PostMapping
     public ResponseEntity<?> addBearingRecord(@RequestBody BearingRecord record) {
+        System.out.println("Adding Bearing Record: " + record);
+        String record2 = record.getBoxText();
+        // 默认设置为record本身的Depository，只有在转入操作中才进行修改
+        String currentDepository = record.getDepository();
+        if ("转入".equals(record.getTransactionType())) {
+            boolean isFromZABToSAB = "SAB".equals(record.getDepository()) && record.getBoxText().startsWith("Z");
+            boolean isFromSABToZAB = "ZAB".equals(record.getDepository()) && !record.getBoxText().startsWith("Z");
+            if (isFromZABToSAB) {
+                record2 = record.getBoxText().substring(1);
+                currentDepository = "ZAB";
+            } else if (isFromSABToZAB) {
+                record2 = "Z" + record.getBoxText();
+                currentDepository = "SAB";
+            }
+        }
         // 获取与boxText相关的Bearing数据
         System.out.println(record);
-        Bearing bearing = bearingService.getBearingByBoxTextAndDepository(record.getBoxText(), record.getDepository());
+        Bearing bearing = bearingService.getBearingByBoxTextAndDepository(record2, record.getDepository());
         if (bearing != null) {
             // 使用Bearing数据填充BearingRecord
             record.setCustomer(bearing.getCustomer());
@@ -41,6 +56,7 @@ public class BearingRecordController {
             record.setSize(bearing.getSize());
             record.setPair(bearing.getPair());
             record.setState(bearing.getState());
+            record.setCurrentDepository(currentDepository); // 设置当前仓库为bearing的当前仓库
             // ...其他需要的字段...
             // 设置记录的时间
             record.setTime(new Date());

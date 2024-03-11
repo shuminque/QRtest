@@ -9,6 +9,8 @@ import com.depository_manage.service.ProductIdService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Objects;
+
 @Service
 public class BearingInventoryServiceImpl implements BearingInventoryService {
 
@@ -38,6 +40,12 @@ public class BearingInventoryServiceImpl implements BearingInventoryService {
         if (isStocked) {
             throw new OperationAlreadyDoneException("产品已入库，不能再次入库");
         }
+        if (Objects.equals(inventory.getOperationType(), "转入") && inventory.getDepositoryId() ==1) {
+            inventory.setDepositoryId(2);
+        }
+        else if (Objects.equals(inventory.getOperationType(), "转入") && inventory.getDepositoryId() ==2) {
+            inventory.setDepositoryId(1);
+        }
         // 执行入库操作
         BearingInventory existingInventory = bearingInventoryMapper.selectBearingInventoryByBoxTextAndDepositoryId(
                 inventory.getBoxText(), inventory.getDepositoryId());
@@ -55,7 +63,9 @@ public class BearingInventoryServiceImpl implements BearingInventoryService {
         }
         // 更新状态为已入库
         productIdService.updateStockedStatus(
-                inventory.getBoxText(), inventory.getBoxNumber(), inventory.getDepositoryId(),  1, inventory.getIter());
+                inventory.getBoxText(), inventory.getBoxNumber(),
+                inventory.getDepositoryId(),  1, inventory.getIter()
+        );
     }
 
     @Override
@@ -69,6 +79,7 @@ public class BearingInventoryServiceImpl implements BearingInventoryService {
         }
 
         // 执行出库操作
+
         BearingInventory existingInventory = bearingInventoryMapper.selectBearingInventoryByBoxTextAndDepositoryId(
                 inventory.getBoxText(), inventory.getDepositoryId());
         if (existingInventory != null && existingInventory.getQuantityInStock() >= inventory.getQuantityInStock()) {
@@ -79,10 +90,10 @@ public class BearingInventoryServiceImpl implements BearingInventoryService {
         } else {
             throw new IllegalStateException("库存不足或记录不存在，无法执行出库。");
         }
-
         // 更新状态为已入库
         productIdService.updateStockedStatus(
-                inventory.getBoxText(), inventory.getBoxNumber(), inventory.getDepositoryId(),  0, inventory.getIter());
+                inventory.getBoxText(), inventory.getBoxNumber(),
+                inventory.getDepositoryId(),  0, inventory.getIter());
     }
     @Override
     public InventoryInfo getInventoryInfo(String boxText, String boxNumber, int depositoryId) {

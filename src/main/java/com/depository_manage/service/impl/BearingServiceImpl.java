@@ -51,4 +51,16 @@ public class BearingServiceImpl implements BearingService {
     public List<String> searchBoxText(String query, String depository) {
         return bearingMapper.searchBoxText(query, depository);
     }
+    @Override
+    public String getNextPairNumber() {
+        String maxPairNumber = bearingMapper.getMaxPairNumber();
+        if (maxPairNumber != null) {
+            // 假设配对号是纯数字格式，直接转换并加一
+            int nextPairNumber = Integer.parseInt(maxPairNumber) + 1;
+            return String.valueOf(nextPairNumber);
+        } else {
+            // 如果数据库为空，则从某个值开始
+            return "1001"; // 或其他适合你业务的起始值
+        }
+    }
 }

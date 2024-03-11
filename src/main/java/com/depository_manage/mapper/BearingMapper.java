@@ -22,4 +22,6 @@ public interface BearingMapper {
     List<String> searchBoxText(@Param("query") String query, @Param("depository") String depository);
 
     void deleteBearingById(Integer id);
+    String getMaxPairNumber();
+
 }

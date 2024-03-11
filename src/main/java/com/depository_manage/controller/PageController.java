@@ -36,6 +36,8 @@ public class PageController {
     private SteelGradeService steelGradeService;
     @Autowired
     private SteelTypeService steelTypeService;
+    @Autowired
+    private CustomerService customerService;
     @GetMapping("/login")
     public String login() {
         return "pages/user/login";
@@ -82,6 +84,7 @@ public class PageController {
         mv.addObject("productCategorys", productCategoryService.findAll());
         mv.addObject("steelGrades", steelGradeService.findAll());
         mv.addObject("steelTypes", steelTypeService.findAll());
+        mv.addObject("customers", customerService.findAll());
         return mv;
     }
     @GetMapping("/Inquire-dissolve")
@@ -90,6 +93,8 @@ public class PageController {
         mv.addObject("productCategorys", productCategoryService.findAll());
         mv.addObject("steelGrades", steelGradeService.findAll());
         mv.addObject("steelTypes", steelTypeService.findAll());
+        mv.addObject("customers", customerService.findAll());
+
         return mv;
     }
     @GetMapping("/GenerateAndPrintQR")
@@ -104,6 +109,8 @@ public class PageController {
         mv.addObject("productCategorys", productCategoryService.findAll());
         mv.addObject("steelGrades", steelGradeService.findAll());
         mv.addObject("steelTypes", steelTypeService.findAll());
+        mv.addObject("customers", customerService.findAll());
+
         return mv;
     }
     @GetMapping("/bearings")
@@ -113,6 +120,8 @@ public class PageController {
         mv.addObject("productCategorys", productCategoryService.findAll());
         mv.addObject("steelGrades", steelGradeService.findAll());
         mv.addObject("steelTypes", steelTypeService.findAll());
+        mv.addObject("customers", customerService.findAll());
+
         return mv;
     }
     @GetMapping("/bearing-category")

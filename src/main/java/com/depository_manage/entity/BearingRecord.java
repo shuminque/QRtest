@@ -27,5 +27,6 @@ public class BearingRecord {
     private String dissolve;         // 新增字段：溶解号
     private int pair;
     private String state;
+    private String currentDepository;
     // Lombok @Data 注解会自动生成构造函数、getter 和 setter 方法、toString 方法等
 }

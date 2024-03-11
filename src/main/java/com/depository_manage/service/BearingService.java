@@ -17,4 +17,5 @@ public interface BearingService {
     Integer calculateQuantity(String boxText, String depository);
     List<String> searchBoxText(String query, String depository);
 
+    String getNextPairNumber();
 }

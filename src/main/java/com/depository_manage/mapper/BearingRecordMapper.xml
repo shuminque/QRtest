@@ -24,13 +24,14 @@
         <result property="dissolve" column="dissolve"/>
         <result property="pair" column="pair"/>
         <result property="state" column="state"/>
+        <result property="currentDepository" column="current_depository"/>
     </resultMap>
 
     <insert id="insertBearingRecord">
         INSERT INTO bearing_records
-        (transaction_type, box_text, box_number, quantity, time, operator, depository, storage_location, customer, outer_inner_ring, model, product_category, steel_type, steel_grade, remarks, iter, size, dissolve, pair, state)
+        (transaction_type, box_text, box_number, quantity, time, operator, depository, storage_location, customer, outer_inner_ring, model, product_category, steel_type, steel_grade, remarks, iter, size, dissolve, pair, state, current_depository)
         VALUES
-            (#{transactionType}, #{boxText}, #{boxNumber}, #{quantity}, #{time}, #{operator}, #{depository}, #{storageLocation}, #{customer}, #{outerInnerRing}, #{model}, #{productCategory}, #{steelType}, #{steelGrade}, #{remarks}, #{iter}, #{size}, #{dissolve}, #{pair}, #{state})
+            (#{transactionType}, #{boxText}, #{boxNumber}, #{quantity}, #{time}, #{operator}, #{depository}, #{storageLocation}, #{customer}, #{outerInnerRing}, #{model}, #{productCategory}, #{steelType}, #{steelGrade}, #{remarks}, #{iter}, #{size}, #{dissolve}, #{pair}, #{state}, #{currentDepository})
     </insert>
     <update id="updateBearingRecord">
         UPDATE bearing_records
@@ -92,6 +93,9 @@
             <if test="state != null">
                 state = #{state}
             </if>
+            <if test="currentDepository != null">
+                current_depository = #{currentDepository},
+            </if>
         </set>
         WHERE id = #{id}
     </update>
@@ -138,6 +142,9 @@
         </if>
         <if test="state != null and state != ''">
             AND state  LIKE CONCAT('%',#{state},'%')
+        </if>
+        <if test="currentDepository != null and currentDepository != ''">
+            AND current_depository = #{currentDepository}
         </if>
         <if test="startDate != null and endDate != null">
             AND DATE(time) BETWEEN #{startDate} AND #{endDate}

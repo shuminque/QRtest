@@ -51,6 +51,16 @@ public class BearingController {
         bearingService.updateBearing(bearing);
         return ResponseEntity.ok().build();
     }
+    @GetMapping("/nextPairNumber")
+    public ResponseEntity<?> getNextPairNumber() {
+        String nextPairNumber = bearingService.getNextPairNumber();
+        if (nextPairNumber != null) {
+            return ResponseEntity.ok(Collections.singletonMap("pairNumber", nextPairNumber));
+        } else {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Collections.singletonMap("error", "Unable to generate next pair number."));
+        }
+    }
 
     @PostMapping("/{boxText}/{depositoryId}/regenerate")
     public ResponseEntity<?> regenerateProductId(@PathVariable String boxText,
@@ -103,8 +113,9 @@ public class BearingController {
         response.put("boxText", boxText);
         response.put("boxNumber", boxNumber);
         response.put("quantity", productId.getQuantity());
-        // 添加其他必要的数据从 bearing 对象
         response.put("model", bearing.getModel());
+        response.put("steelType", bearing.getSteelType());             // 钢种
+        response.put("steelGrade", bearing.getSteelGrade());           // 钢材等级
         response.put("customer", bearing.getCustomer());
         response.put("outerInnerRing", bearing.getOuterInnerRing());
         response.put("depository", bearing.getDepository());

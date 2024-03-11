@@ -112,7 +112,12 @@
         <div class="layui-form-item">
             <label class="layui-form-label">客户：</label>
             <div class="layui-input-block">
-                <input type="text" name="customer" placeholder="请输入客户" autocomplete="off" class="layui-input">
+                <select name="customer">
+                    <option value="" selected>搜索客户</option>
+                    <option th:each="customer : ${customers}"
+                            th:value="${customer.name}"
+                            th:text="${customer.name}"></option>
+                </select>
             </div>
         </div>
         <!-- 型号 -->
@@ -261,7 +266,12 @@
         <div class="layui-form-item">
             <label class="layui-form-label">客户：</label>
             <div class="layui-input-block">
-                <input type="text" name="customer" placeholder="请输入客户" autocomplete="off" class="layui-input">
+                <select name="customer">
+                    <option value="" selected>搜索客户</option>
+                    <option th:each="customer : ${customers}"
+                            th:value="${customer.name}"
+                            th:text="${customer.name}"></option>
+                </select>
             </div>
         </div>
         <!-- 外/内轮 -->
@@ -429,20 +439,40 @@
             });
             return false;
         });
-        // 添加按钮点击事件
+        // 添加按钮点击事件，整合获取配对号的逻辑
         $('#addBearingBtn').click(function() {
-            layer.open({
-                type: 1,
-                title: '添加轴承',
-                content: $('#addBearingsForm').html(), // 使用添加表单的HTML内容
-                area: ['500px', '80%'], // 调整大小
-                success: function(layero, index) {
-                    form.render(); // 重新渲染表单
+            $.ajax({
+                url: '/bearings/nextPairNumber', // 请求下一个配对号的API
+                type: 'GET',
+                success: function(response) {
+                    // 请求成功时，打开添加轴承的表单并自动填入配对号
+                    layer.open({
+                        type: 1,
+                        title: '添加轴承',
+                        content: $('#addBearingsForm').html(), // 使用添加表单的HTML内容
+                        area: ['500px', '80%'], // 调整弹窗大小
+                        success: function(layero, index) {
+                            form.render(); // 重新渲染表单
+                            $("input[name='pair']").val(response.pairNumber); // 自动填入配对号
+                        }
+                    });
+                },
+                error: function() {
+                    layer.msg('获取配对号失败');
+                    // 即使获取配对号失败，也提供给用户添加轴承的能力，但不自动填入配对号
+                    layer.open({
+                        type: 1,
+                        title: '添加轴承',
+                        content: $('#addBearingsForm').html(),
+                        area: ['500px', '80%'],
+                        success: function(layero, index) {
+                            form.render();
+                        }
+                    });
                 }
             });
         });
-
-// 处理添加表单的提交事件
+        // 处理添加表单的提交事件
         form.on('submit(submitAddForm)', function(data) {
             var formData = data.field; // 获取表单数据
             $.ajax({

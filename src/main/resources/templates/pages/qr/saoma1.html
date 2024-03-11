@@ -73,11 +73,12 @@
             <button class="layui-btn" onclick="printQRCode()">打印二维码</button>
         </div>
 
-        <!--        <div class="button-row">-->
+<!--        <div class="button-row">-->
 <!--            <input type="text" id="existingBoxTextInput" placeholder="请输入现有的boxText" class="layui-input">-->
 <!--            <input type="text" id="existingBoxNumberInput" placeholder="请输入现有的boxNumber" class="layui-input">-->
 <!--            <button class="layui-btn" onclick="generateExistingQRCode()">生成现有二维码</button>-->
 <!--        </div>-->
+
     </div>
     <!-- 预生成信息的模态框 -->
     <div id="preGenerateModal" style="display:none;">
@@ -240,10 +241,33 @@
                 return response.json();
             })
             .then(data => {
-                // 使用获取的数据生成二维码
+                // 生成二维码
                 var qrCodeElement = document.getElementById("qrcode");
+                // 获取当前日期
+                var currentDate = new Date();
+                var year = currentDate.getFullYear(); // 年份
+                var month = currentDate.getMonth() + 1; // 月份，getMonth() 返回的月份是从0开始计数的
+                var day = currentDate.getDate(); // 日期
+                var formattedMonth = month < 10 ? '0' + month : month;
+                var formattedDay = day < 10 ? '0' + day : day;
+                var currentTime = `${year}-${formattedMonth}-${formattedDay}`;
                 qrCodeElement.innerHTML = ""; // 清除之前的二维码
-                var qrData = JSON.stringify(data);
+                var newData = {
+                    CTM: data.customer,
+                    MDL: data.model,
+                    boxText: data.boxText,
+                    boxNumber: data.boxNumber,
+                    iter: data.iter,
+                    OIR: data.outerInnerRing,
+                    quantity: data.quantity,
+                    steelType: data.steelType,
+                    steelGrade: data.steelGrade,
+                    SL: data.storageLocation,
+                    depository: data.depository,
+                    time: currentTime // 添加时间戳
+                };
+                // var qrData = JSON.stringify(newData);
+                var qrData = Object.values(newData).join('|');
                 $('<div></div>').qrcode({
                     text: qrData,
                     render: 'canvas',
@@ -503,6 +527,7 @@
                 document.getElementById('printSection').style.display = 'block';
                 document.getElementById('preGenerateModalForZero').style.display = 'none';
                 document.getElementById('regenerateButton').style.display = 'block';
+
             })
             .catch(error => {
                 console.error('生成二维码时发生错误：', error);
@@ -669,8 +694,9 @@
     function processScannedData() {
         var scannedData = document.getElementById('modalScanInput').value;
         console.log(scannedData);
+        var depositoryQRid;
         try {
-            var correctedJson = scannedData.replace(/(\w+:)|(\w+ :)/g, function(matchedString) {
+            var correctedJson = scannedData.replace(/(\w+:)|(\w+ :)/g, function (matchedString) {
                 return '"' + matchedString.substring(0, matchedString.length - 1) + '":';
             });
             console.log(correctedJson);
@@ -690,21 +716,33 @@
                 depository: values[10]
             };
             console.log(data);
+            depositoryQRid = convertDepositoryIdToMath(data.depository);
+            console.log(data.boxText);
             switch (currentOperation) {
                 case 'stockIn':
-                    stockIn(data,  currentOperation, depositoryId);
+                    stockIn(data, currentOperation, depositoryQRid);
                     break;
                 case 'stockOut':
-                    stockOut(data.boxText, data.boxNumber, data.quantity, currentOperation, depositoryId, data.iter);
+                    if(userDepository === 'SAB' && data.depository !== 'SAB') {
+                        data.boxText = data.boxText.substring(1); // 如果目标是SAB且来源不是SAB，去掉箱号开头的'Z'
+                    } else if (userDepository === 'ZAB' && data.depository !== 'ZAB'){
+                        data.boxText = "Z" + data.boxText; // 如果目标是ZAB且来源不是ZAB，加上箱号开头的'Z'
+                    }
+                    stockOut(data.boxText, data.boxNumber, data.quantity, currentOperation, depositoryQRid, data.iter);
                     break;
                 case 'transferIn':
-                    stockIn(data,  currentOperation, depositoryId);
+                    if(userDepository === 'SAB' && data.depository !== 'SAB') {
+                        data.boxText = data.boxText.substring(1); // 如果目标是SAB且来源不是SAB，去掉箱号开头的'Z'
+                    } else if (userDepository === 'ZAB' && data.depository !== 'ZAB'){
+                        data.boxText = "Z" + data.boxText; // 如果目标是ZAB且来源不是ZAB，加上箱号开头的'Z'
+                    }
+                    stockIn(data, currentOperation, depositoryQRid);
                     break;
                 case 'transferOut':
-                    stockOut(data.boxText, data.boxNumber, data.quantity, currentOperation, depositoryId, data.iter);
+                    stockOut(data.boxText, data.boxNumber, data.quantity, currentOperation, depositoryQRid, data.iter);
                     break;
                 case 'return':
-                    stockOut(data.boxText, data.boxNumber, data.quantity, currentOperation, depositoryId, data.iter);
+                    stockOut(data.boxText, data.boxNumber, data.quantity, currentOperation, depositoryQRid, data.iter);
                     break;
                 case 'panKu':
                     fetchPanKuInfo(data.boxText, data.boxNumber, data.depository, data.quantity,); // 使用二维码内的depositoryId
