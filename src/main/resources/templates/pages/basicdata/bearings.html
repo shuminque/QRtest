@@ -40,7 +40,12 @@
                 <input type="text" name="boxText" id="boxText" placeholder="搜索箱号" class="layui-input">
             </div>
             <div class="layui-input-inline">
-                <input type="text" name="customer" placeholder="搜索客户" class="layui-input">
+                <select name="customer">
+                    <option value="" selected>搜索客户</option>
+                    <option th:each="customer : ${customers}"
+                            th:value="${customer.name}"
+                            th:text="${customer.name}"></option>
+                </select>
             </div>
             <div class="layui-input-inline">
                 <select name="outerInnerRing">

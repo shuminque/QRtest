@@ -44,7 +44,14 @@
                 </div>
                 <div class="layui-inline" id="advancedSearchForm" style="display: none;">
                     <div class="layui-input-inline">
-                        <input type="text" name="customer" placeholder="搜索客户" class="layui-input">
+                        <div class="layui-input-inline">
+                            <select name="customer">
+                                <option value="" selected>搜索客户</option>
+                                <option th:each="customer : ${customers}"
+                                        th:value="${customer.name}"
+                                        th:text="${customer.name}"></option>
+                            </select>
+                        </div>
                     </div>
                     <div class="layui-input-inline">
                         <select name="outerInnerRing">

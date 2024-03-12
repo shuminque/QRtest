@@ -62,7 +62,12 @@
             </div>
             <div class="layui-inline" id="advancedSearchForm" style="display: none;">
                 <div class="layui-input-inline">
-                    <input type="text" name="customer" placeholder="搜索客户" class="layui-input">
+                    <select name="customer">
+                        <option value="" selected>搜索客户</option>
+                        <option th:each="customer : ${customers}"
+                                th:value="${customer.name}"
+                                th:text="${customer.name}"></option>
+                    </select>
                 </div>
                 <div class="layui-input-inline">
                     <select name="outerInnerRing">
@@ -154,13 +159,13 @@
             <div class="layui-form-item">
                 <label class="layui-form-label">时间：</label>
                 <div class="layui-input-block">
-                    <input type="text" name="time" class="layui-input" readonly>
+                    <input type="text" name="time" id="date2" class="layui-input" >
                 </div>
             </div>
             <div class="layui-form-item">
                 <label class="layui-form-label">厂区：</label>
                 <div class="layui-input-block">
-                    <input type="text" name="depository" class="layui-input" readonly>
+                    <input type="text" name="depository" class="layui-input" >
                 </div>
             </div>
             <div class="layui-form-item">
@@ -372,6 +377,14 @@
                 content: $('#editGradeModelTemplate').html(), // 使用模板的内容
                 area: ['500px', '80%'],
                 success: function(layero, index) {
+                    layui.use('laydate', function() {
+                        var laydate = layui.laydate;
+                        laydate.render({
+                            elem: layero.find('#date2')[0], // 此处使用jQuery找到模态框中的输入框
+                            type: 'date',
+                            format: 'yyyy-MM-dd'
+                        });
+                    });
                     // 动态设置交易类型选项
                     var transactionTypeOptions = '';
                     if (['入库', '转入'].includes(data.transactionType)) {
