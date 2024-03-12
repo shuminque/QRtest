@@ -434,4 +434,13 @@
           AND depository = #{depository}
           AND iter = #{iter}
     </select>
+    <select id="findTransferInRecord" resultType="boolean">
+        SELECT CASE WHEN COUNT(*) > 0 THEN true ELSE false END
+        FROM bearing_records
+        WHERE box_text = #{boxText}
+          AND box_number = #{boxNumber}
+          AND iter = #{iter}
+          AND transaction_type = '转入'
+    </select>
+
 </mapper>

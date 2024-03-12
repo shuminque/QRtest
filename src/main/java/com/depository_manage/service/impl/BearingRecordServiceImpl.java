@@ -143,4 +143,9 @@ public class BearingRecordServiceImpl implements BearingRecordService {
     public int calculateNetInOrTransferInVsOut(String boxText, String boxNumber, String depository, int iter) {
         return bearingRecordMapper.calculateNetInOrTransferInVsOut(boxText, boxNumber, depository, iter);
     }
+    @Override
+    public boolean hasTransferInRecord(String boxText, String boxNumber, int iter) {
+        return bearingRecordMapper.findTransferInRecord(boxText, boxNumber, iter);
+    }
+
 }

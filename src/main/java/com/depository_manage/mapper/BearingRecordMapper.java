@@ -54,4 +54,8 @@ public interface BearingRecordMapper {
                                         @Param("boxNumber") String boxNumber,
                                         @Param("depository") String depository,
                                         @Param("iter") int iter);
+    boolean findTransferInRecord(@Param("boxText") String boxText,
+                                 @Param("boxNumber") String boxNumber,
+                                 @Param("iter") int iter);
+
 }

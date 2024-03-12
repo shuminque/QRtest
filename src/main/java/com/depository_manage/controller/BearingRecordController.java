@@ -25,24 +25,23 @@ public class BearingRecordController {
     private BearingService bearingService;
     @PostMapping
     public ResponseEntity<?> addBearingRecord(@RequestBody BearingRecord record) {
-        System.out.println("Adding Bearing Record: " + record);
-        String record2 = record.getBoxText();
-        // 默认设置为record本身的Depository，只有在转入操作中才进行修改
-        String currentDepository = record.getDepository();
-        if ("转入".equals(record.getTransactionType())) {
-            boolean isFromZABToSAB = "SAB".equals(record.getDepository()) && record.getBoxText().startsWith("Z");
-            boolean isFromSABToZAB = "ZAB".equals(record.getDepository()) && !record.getBoxText().startsWith("Z");
+        String adjustedBoxText = record.getBoxText(); // 初始化调整后的箱号
+        String currentDepository = record.getDepository(); // 使用记录中的原始仓库信息
+        // 检查是否存在转入记录
+        boolean hasTransferIn = bearingRecordService.hasTransferInRecord(record.getBoxText(), record.getBoxNumber(), record.getIter());
+        if ("转入".equals(record.getTransactionType()) || ("出库".equals(record.getTransactionType()) && hasTransferIn)) {
+            boolean isFromZABToSAB = "SAB".equals(currentDepository) && adjustedBoxText.startsWith("Z");
+            boolean isFromSABToZAB = "ZAB".equals(currentDepository) && !adjustedBoxText.startsWith("Z");
             if (isFromZABToSAB) {
-                record2 = record.getBoxText().substring(1);
+                adjustedBoxText = adjustedBoxText.substring(1);
                 currentDepository = "ZAB";
             } else if (isFromSABToZAB) {
-                record2 = "Z" + record.getBoxText();
+                adjustedBoxText = "Z" + adjustedBoxText;
                 currentDepository = "SAB";
             }
         }
-        // 获取与boxText相关的Bearing数据
         System.out.println(record);
-        Bearing bearing = bearingService.getBearingByBoxTextAndDepository(record2, record.getDepository());
+        Bearing bearing = bearingService.getBearingByBoxTextAndDepository(adjustedBoxText, record.getDepository());
         if (bearing != null) {
             // 使用Bearing数据填充BearingRecord
             record.setCustomer(bearing.getCustomer());
