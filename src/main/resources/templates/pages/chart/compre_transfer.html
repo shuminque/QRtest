@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>转移记录查询</title>
+    <link rel="stylesheet" href="/static/lib/layui-v2.8.17/css/layui.css" media="all">
+    <script src="/static/lib/layui-v2.8.17/layui.js" charset="utf-8"></script></head>
+<body>
+
+<div class="layui-container">
+    <div class="layui-row" style="margin-top: 20px;">
+        <div class="layui-col-xs12">
+            <form class="layui-form" id="searchForm">
+                <div class="layui-form-item">
+                    <label class="layui-form-label">选择日期</label>
+                    <div class="layui-input-inline">
+                        <input type="text" name="date" id="date" placeholder="请选择起止日期" autocomplete="off" class="layui-input">
+                    </div>
+                    <div class="layui-input-inline">
+                        <button type="button" class="layui-btn" id="searchBtn">搜索</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <table id="recordsTable" lay-filter="recordsTableFilter" class="layui-table"></table>
+</div>
+<script src="/static/js/http_code.jquery.com_jquery-3.6.0.min.js"></script>
+<script>
+    layui.use(['table', 'form', 'laydate'], function(){
+        var table = layui.table;
+        var form = layui.form;
+        var laydate = layui.laydate;
+// 获取当前日期并格式化为 YYYY-MM-DD
+        var currentDate = new Date();
+        var year = currentDate.getFullYear();
+        var month = ("0" + (currentDate.getMonth() + 1)).slice(-2); // 月份从0开始计算，需要加1
+        var day = ("0" + currentDate.getDate()).slice(-2);
+        var formattedDate = year + '-' + month + '-' + day;
+        // 初始化日期选择器
+        laydate.render({
+            elem: '#date',
+            range: true,
+            rangeLinked: true,
+            value: formattedDate + ' - ' + formattedDate // 设置默认选中的起止日期为当前日期
+        });
+        // 初始化表格
+        table.render({
+            elem: '#recordsTable',
+            url: '/bearingRecords/comprehensiveTransfers', // 数据接口
+            height: 600, // 设置表格高度
+            // page: true, // 开启分页
+            toolbar: ['filter', 'exports', 'print'],
+            cols: [ [ // 表头
+                {field: 'out_id', title: '转出ID'},
+                {field: 'in_id', title: '转入ID'},
+                {field: 'out_box_text', title: '转出箱号',sort: true},
+                {field: 'in_box_text', title: '转入箱号'},
+                {field: 'box_number', title: '箱号编号'},
+                {field: 'quantity', title: 'Quantity'},
+                {field: 'out_depository', title: '转出地'},
+                {field: 'in_depository', title: '转入地'},
+                {field: 'out_time', title: '转出时间'},
+                {field: 'in_time', title: '转入时间'},
+
+                // {field: 'out_time', title: '转出时间', templet: function(d) {
+                //         return formatDate(d.out_time);}},
+                // {field: 'in_time', title: '转入时间', templet: function(d) {
+                //         return formatDate(d.in_time);}},
+            ]]
+        });
+        // function formatDate(dateStr) {
+        //     if (!dateStr) return '';
+        //     let date = new Date(dateStr);
+        //     let year = date.getFullYear();
+        //     let month = (date.getMonth() + 1).toString().padStart(2, '0');
+        //     let day = date.getDate().toString().padStart(2, '0');
+        //     return `${year}-${month}-${day}`;
+        // }
+        // 监听搜索按钮点击事件
+        $('#searchBtn').on('click', function(){
+            // 重新加载表格数据
+            table.reload('recordsTable', {
+                where: {
+                    date: $('#date').val() // 获取日期选择器的值
+                }
+            });
+        });
+    });
+</script>
+
+</body>
+</html>

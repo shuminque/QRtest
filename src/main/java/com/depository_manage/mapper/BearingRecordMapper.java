@@ -57,5 +57,6 @@ public interface BearingRecordMapper {
     boolean findTransferInRecord(@Param("boxText") String boxText,
                                  @Param("boxNumber") String boxNumber,
                                  @Param("iter") int iter);
-
+    List<Map<String, Object>> selectComprehensiveTransferRecords(Map<String, Object> params);
+    int selectComprehensiveTransferRecordsCount();
 }

@@ -148,6 +148,10 @@ public class PageController {
     public String every_pair() {
         return "pages/chart/every_pair";
     }
+    @GetMapping("/compre_transfer")
+    public String compre_transfer() {
+        return "pages/chart/compre_transfer";
+    }
 //
 //    @GetMapping("/register")
 //    public String register() {

@@ -42,5 +42,9 @@ public interface ProductIdMapper {
                                 @Param("boxNumber") String boxNumber,
                                 @Param("depositoryId") int depositoryId,
                                 @Param("iter") int iter);
+    // 新增方法：获取跨仓库共享的最新箱号
+    ProductId selectLatestBoxNumberSharedAcrossDepositories(@Param("boxText") String boxText);
 
+    // 新增方法：获取跨仓库共享的最新零箱号
+    ProductId selectLatestBoxNumberSharedAcrossDepositoriesForZero(@Param("boxText") String boxText);
 }

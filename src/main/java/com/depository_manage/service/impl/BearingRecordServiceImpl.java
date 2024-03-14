@@ -125,7 +125,6 @@ public class BearingRecordServiceImpl implements BearingRecordService {
             params.put("size", size);
         }
         if (params.containsKey("page")) {
-
             page = ObjectFormatUtil.toInteger(params.get("page"));
             params.put("begin", (page - 1) * size);
         }
@@ -146,6 +145,14 @@ public class BearingRecordServiceImpl implements BearingRecordService {
     @Override
     public boolean hasTransferInRecord(String boxText, String boxNumber, int iter) {
         return bearingRecordMapper.findTransferInRecord(boxText, boxNumber, iter);
+    }
+    @Override
+    public List<Map<String, Object>> getComprehensiveTransferRecords(Map<String, Object> params) {
+        return bearingRecordMapper.selectComprehensiveTransferRecords(params);
+    }
+    @Override
+    public int getComprehensiveTransferRecordsCount() {
+        return bearingRecordMapper.selectComprehensiveTransferRecordsCount();
     }
 
 }

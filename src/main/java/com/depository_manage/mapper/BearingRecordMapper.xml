@@ -443,4 +443,94 @@
           AND transaction_type = '转入'
     </select>
 
+    <!-- 综合查询转入和转出记录，包括无匹配的记录 &lt;-->
+    <select id="selectComprehensiveTransferRecords" resultType="map" parameterType="map">
+        -- 查找匹配的转出和转入的记录
+        SELECT
+        out_rec.id AS out_id,
+        in_rec.id AS in_id,
+        out_rec.box_text AS out_box_text,
+        in_rec.box_text AS in_box_text,
+        out_rec.box_number AS box_number,
+        out_rec.quantity AS quantity,
+        out_rec.current_depository AS out_depository,
+        in_rec.current_depository AS in_depository,
+        out_rec.time AS out_time,
+        in_rec.time AS in_time
+        FROM
+        bearing_records AS out_rec
+        INNER JOIN
+        bearing_records AS in_rec ON REPLACE(out_rec.box_text, 'Z', '') = REPLACE(in_rec.box_text, 'Z', '')
+        AND out_rec.box_number = in_rec.box_number
+        AND out_rec.iter = in_rec.iter
+        AND out_rec.time &lt; in_rec.time
+        WHERE
+            out_rec.transaction_type = '转出'
+          AND in_rec.transaction_type = '转入'
+          AND out_rec.time BETWEEN #{startDate} AND #{endDate}
+
+        UNION ALL
+        -- 查找有转出但没有匹配的转入的记录
+        SELECT
+        out_rec.id AS out_id,
+        NULL AS in_id,
+        out_rec.box_text AS out_box_text,
+        NULL AS in_box_text,
+        out_rec.box_number AS box_number,
+        out_rec.quantity AS quantity,
+        out_rec.current_depository AS out_depository,
+        NULL AS in_depository,
+        out_rec.time AS out_time,
+        NULL AS in_time
+        FROM
+        bearing_records AS out_rec
+        LEFT JOIN
+        bearing_records AS in_rec ON REPLACE(out_rec.box_text, 'Z', '') = REPLACE(in_rec.box_text, 'Z', '')
+        AND out_rec.box_number = in_rec.box_number
+        AND out_rec.iter = in_rec.iter
+        AND out_rec.time &lt; in_rec.time
+        AND in_rec.transaction_type = '转入'
+        WHERE
+        out_rec.transaction_type = '转出'
+        AND in_rec.id IS NULL
+        AND out_rec.time BETWEEN #{startDate} AND #{endDate}
+
+        UNION ALL
+
+        -- 查找有转入但没有匹配的转出的记录
+        SELECT
+        NULL AS out_id,
+        in_rec.id AS in_id,
+        NULL AS out_box_text,
+        in_rec.box_text AS in_box_text,
+        in_rec.box_number AS box_number,
+        in_rec.quantity AS quantity,
+        NULL AS out_depository,
+        in_rec.current_depository AS in_depository,
+        NULL AS out_time,
+        in_rec.time AS in_time
+        FROM
+        bearing_records AS in_rec
+        LEFT JOIN
+        bearing_records AS out_rec ON REPLACE(out_rec.box_text, 'Z', '') = REPLACE(in_rec.box_text, 'Z', '')
+        AND out_rec.box_number = in_rec.box_number
+        AND out_rec.iter = in_rec.iter
+        AND out_rec.time &lt; in_rec.time
+        AND out_rec.transaction_type = '转出'
+        WHERE
+        in_rec.transaction_type = '转入'
+        AND out_rec.id IS NULL
+        AND in_rec.time BETWEEN #{startDate} AND #{endDate}
+
+        ORDER BY
+            COALESCE(out_time, in_time);
+    </select>
+    <select id="selectComprehensiveTransferRecordsCount" resultType="int">
+        SELECT (
+                   SELECT COUNT(*) FROM bearing_records WHERE transaction_type = '转出'
+               ) + (
+                   SELECT COUNT(*) FROM bearing_records WHERE transaction_type = '转入'
+               ) AS total_count
+    </select>
+
 </mapper>

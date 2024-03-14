@@ -36,10 +36,18 @@ public class ProductIdServiceImpl implements ProductIdService {
         productIdMapper.insertOrUpdateBoxNumber(boxNumber);
         return boxNumber;
     }
+    public ProductId getLatestBoxNumberSharedAcrossDepositories(String boxText) {
+        return productIdMapper.selectLatestBoxNumberSharedAcrossDepositories(boxText);
+    }
 
+    // 新增服务方法：获取跨仓库共享的最新零箱号
+    public ProductId getLatestBoxNumberSharedAcrossDepositoriesForZero(String boxText) {
+        return productIdMapper.selectLatestBoxNumberSharedAcrossDepositoriesForZero(boxText);
+    }
     @Override
     public String incrementAndSaveBoxNumber(String boxText, int depositoryId, int quantity) {
-        ProductId current = productIdMapper.selectBoxNumberByBoxTextAndDepositoryId(boxText, depositoryId);
+//        ProductId current = productIdMapper.selectBoxNumberByBoxTextAndDepositoryId(boxText, depositoryId);
+        ProductId current = getLatestBoxNumberSharedAcrossDepositories(boxText);
         String newBoxNumber;
         int newIter;
         if (current != null) {
@@ -67,7 +75,8 @@ public class ProductIdServiceImpl implements ProductIdService {
     @Override
     public String calculateNextBoxNumber(String boxText, int depositoryId) {
         // 获取当前的 BoxNumber
-        ProductId current = productIdMapper.selectBoxNumberByBoxTextAndDepositoryId(boxText, depositoryId);
+//        ProductId current = productIdMapper.selectBoxNumberByBoxTextAndDepositoryId(boxText, depositoryId);
+        ProductId current = getLatestBoxNumberSharedAcrossDepositories(boxText);
         // 计算新的 BoxNumber
         String newBoxNumber;
         if (current != null) {
@@ -93,7 +102,9 @@ public class ProductIdServiceImpl implements ProductIdService {
     }
     @Override
     public String incrementAndSaveBoxNumberForZero(String boxText, int depositoryId, int quantity) {
-        ProductId current = productIdMapper.selectBoxNumberByBoxTextAndDepositoryIdForZero(boxText, depositoryId);
+//        ProductId current = productIdMapper.selectBoxNumberByBoxTextAndDepositoryIdForZero(boxText, depositoryId);
+        ProductId current = getLatestBoxNumberSharedAcrossDepositoriesForZero(boxText);
+
         String newBoxNumber;
         int newIter;
 
@@ -126,7 +137,8 @@ public class ProductIdServiceImpl implements ProductIdService {
 
     @Override
     public String calculateNextBoxNumberForZero(String boxText, int depositoryId) {
-        ProductId current = productIdMapper.selectBoxNumberByBoxTextAndDepositoryIdForZero(boxText, depositoryId);
+//        ProductId current = productIdMapper.selectBoxNumberByBoxTextAndDepositoryIdForZero(boxText, depositoryId);
+        ProductId current = getLatestBoxNumberSharedAcrossDepositoriesForZero(boxText);
         String newBoxNumber;
 
         if (current != null) {
@@ -178,5 +190,6 @@ public class ProductIdServiceImpl implements ProductIdService {
     public void deleteProductIdsRecord(String boxText, String boxNumber, int depositoryId, int iter) {
         productIdMapper.deleteProductIdsRecord(boxText, boxNumber, depositoryId, iter);
     }
+    // 新增服务方法：获取跨仓库共享的最新箱号
 
 }

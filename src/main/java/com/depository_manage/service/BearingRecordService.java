@@ -23,6 +23,7 @@ public interface BearingRecordService {
     boolean isUniqueInOrTransferInRecord(String boxText, String boxNumber, String depositoryId, int iter);
     int calculateNetInOrTransferInVsOut(String boxText, String boxNumber, String depository, int iter);
     boolean hasTransferInRecord(String boxText, String boxNumber, int iter);
-
+    List<Map<String, Object>> getComprehensiveTransferRecords(Map<String, Object> params);
+    int getComprehensiveTransferRecordsCount();
 
 }

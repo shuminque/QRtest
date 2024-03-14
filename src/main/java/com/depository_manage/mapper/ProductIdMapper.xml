@@ -11,7 +11,6 @@
         <result property="iter" column="iter"/> <!-- 新增字段映射 -->
     </resultMap>
 
-
     <select id="selectBoxNumberByBoxTextAndDepositoryId" resultType="com.depository_manage.entity.ProductId">
         SELECT * FROM product_ids
         WHERE box_text = #{boxText} AND depository_id = #{depositoryId} AND CAST(box_number as UNSIGNED) &lt; 1000
@@ -24,12 +23,30 @@
         ORDER BY iter DESC, CAST(box_number as UNSIGNED) DESC
             LIMIT 1
     </select>
+    <!-- 对于正常箱号 -->
+    <select id="selectLatestBoxNumberSharedAcrossDepositories" resultType="com.depository_manage.entity.ProductId">
+        SELECT * FROM product_ids
+        WHERE REPLACE(box_text, 'Z', '') = REPLACE(#{boxText}, 'Z', '')
+        AND CAST(box_number as UNSIGNED) &lt; 1000
+        ORDER BY iter DESC, CAST(box_number as UNSIGNED) DESC
+        LIMIT 1
+    </select>
+    <!-- 对于零箱号 -->
+    <select id="selectLatestBoxNumberSharedAcrossDepositoriesForZero" resultType="com.depository_manage.entity.ProductId">
+        SELECT * FROM product_ids
+        WHERE REPLACE(box_text, 'Z', '') = REPLACE(#{boxText}, 'Z', '')
+          AND CAST(box_number as UNSIGNED) > 1000
+        ORDER BY iter DESC, CAST(box_number as UNSIGNED) DESC
+            LIMIT 1
+    </select>
+
     <select id="selectOldBoxNumberByBoxTextAndDepositoryId" resultType="com.depository_manage.entity.ProductId">
         SELECT * FROM product_ids
         WHERE box_text = #{boxText} AND depository_id = #{depositoryId} AND is_stocked =1
         ORDER BY CAST(box_number as UNSIGNED)
             LIMIT 1
     </select>
+
     <select id="selectProductIdByBoxTextAndDepositoryId" resultMap="productIdMap">
         SELECT * FROM product_ids
         WHERE box_text = #{boxText} AND box_number = #{boxNumber} AND depository_id = #{depositoryId}
@@ -49,7 +66,6 @@
         is_stocked = VALUES(is_stocked),
         iter = VALUES(iter); <!-- Update iter field -->
     </insert>
-
 
     <!-- 更新 is_stocked 状态 -->
     <update id="updateStockedStatus">
@@ -71,11 +87,13 @@
         WHERE box_text = #{boxText} AND box_number = #{boxNumber} AND depository_id = #{depositoryId}
             LIMIT 1
     </select>
+
     <update id="updateQuantity">
         UPDATE product_ids
         SET quantity = #{quantity}
         WHERE box_text = #{boxText} AND box_number = #{boxNumber} AND depository_id = #{depositoryId} AND iter = #{iter}
     </update>
+
     <delete id="deleteProductIdsRecord" parameterType="map">
         DELETE FROM product_ids
         WHERE box_text = #{boxText}
