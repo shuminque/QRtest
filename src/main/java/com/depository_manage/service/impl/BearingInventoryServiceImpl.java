@@ -107,7 +107,7 @@ public class BearingInventoryServiceImpl implements BearingInventoryService {
         // 更新状态为已入库
         productIdService.updateStockedStatus(
                 inventory.getBoxText(), inventory.getBoxNumber(),
-                inventory.getDepositoryId(),  0, inventory.getIter());
+                adjustedDepositoryId,  0, inventory.getIter());
     }
     private int adjustDepositoryIdBasedOnTransferIn(BearingInventory inventory) {
         boolean hasTransferIn = bearingRecordService.hasTransferInRecord(
