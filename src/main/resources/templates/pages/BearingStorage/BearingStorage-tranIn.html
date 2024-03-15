@@ -137,6 +137,7 @@
             success: function(response) {
                 // 更新数量到输入框
                 $('#quantity').val(response.quantity);
+                newiter= response.iter;
             },
             error: function() {
                 $('#quantity').val('');
