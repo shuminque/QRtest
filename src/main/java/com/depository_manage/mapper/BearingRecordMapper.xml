@@ -532,5 +532,12 @@
                    SELECT COUNT(*) FROM bearing_records WHERE transaction_type = '转入'
                ) AS total_count
     </select>
+    <select id="selectCountsByDateAndDepository" resultType="map">
+        SELECT
+            SUM(CASE WHEN transaction_type = '入库' AND depository = #{depository} THEN 1 ELSE 0 END) AS stockInCount,
+            SUM(CASE WHEN transaction_type = '出库' AND depository = #{depository} THEN 1 ELSE 0 END) AS stockOutCount
+        FROM bearing_records
+        WHERE date(time) = #{date}
+    </select>
 
 </mapper>

@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
 import javax.transaction.Transactional;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -49,7 +50,6 @@ public class BearingRecordServiceImpl implements BearingRecordService {
     public void deleteBearingRecordById(int id) {
         // 首先根据ID获取记录详情
         BearingRecord record = bearingRecordMapper.selectBearingRecordById(id);
-
         if (record != null) {
             int depositoryId = getDepositoryIdFromString(record.getDepository()); // 转换仓库字符为ID
             // 准备库存调整对象
@@ -85,7 +85,8 @@ public class BearingRecordServiceImpl implements BearingRecordService {
     public boolean isUniqueInOrTransferInRecord(String boxText, String boxNumber, String depository, int iter) {
         // 假设有一个mapper方法可以查询入库或转入记录的数量
         int count = bearingRecordMapper.countInOrTransferInRecords(boxText, boxNumber, depository, iter);
-        // 如果记录数为0，则为唯一记录
+        // 如果记录数为1，则为唯一记录
+        System.out.println(count);
         return count == 0;
     }
 
@@ -155,4 +156,10 @@ public class BearingRecordServiceImpl implements BearingRecordService {
         return bearingRecordMapper.selectComprehensiveTransferRecordsCount();
     }
 
+    @Override
+    public Map<String, Object> getCountsByDateAndDepository(Date date, String depository) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        String formattedDate = sdf.format(date);
+        return bearingRecordMapper.selectCountsByDateAndDepository(formattedDate, depository);
+    }
 }

@@ -65,6 +65,7 @@ public class BearingInventoryServiceImpl implements BearingInventoryService {
             bearingInventoryMapper.insertBearingInventory(inventory);
         }
         // 更新状态为已入库
+        System.out.println(inventory);
         productIdService.updateStockedStatus(
                 inventory.getBoxText(), inventory.getBoxNumber(),
                 inventory.getDepositoryId(),  1, inventory.getIter()

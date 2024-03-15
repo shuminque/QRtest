@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/productIds")
@@ -45,9 +46,9 @@ public class ProductIdController {
             @RequestParam String boxNumber,
             @RequestParam int depositoryId) {
 
-        int quantity = productIdService.getQuantityByBoxTextAndBoxNumber(boxText, boxNumber, depositoryId);
-        if (quantity >= 0) {
-            return ResponseEntity.ok(Collections.singletonMap("quantity", quantity));
+        Map<String, Object> result = productIdService.getQuantityByBoxTextAndBoxNumber(boxText, boxNumber, depositoryId);
+        if (!result.isEmpty()) {
+            return ResponseEntity.ok(result);
         } else {
             return ResponseEntity.notFound().build();
         }

@@ -55,7 +55,8 @@
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    var userReviewGroupId;var userAuthority;var userDepositoryId;var userDepository;var depositoryId;var newiter;
+    var userReviewGroupId;var userAuthority;var userDepositoryId;
+    var userDepository;var depositoryId;var newiter;let TDepository; let TdepositoryId;
     function getUserDepository() {
         $.ajax({
             url: '/get_user_depository',
@@ -66,8 +67,10 @@
                 userDepositoryId = data.depositoryId;userAuthority = data.authority;userReviewGroupId = data.review_group_id;
                 if (userDepositoryId ===1){
                     userDepository='SAB';depositoryId=1;
+                    TDepository='ZAB';  TdepositoryId=2;
                 } else if (userDepositoryId===2){
                     userDepository='ZAB';depositoryId=2;
+                    TDepository='SAB';  TdepositoryId=1;
                 }else{
                     userDepository="ALL";depositoryId=0;
                 }
@@ -84,7 +87,7 @@
                 return $.ajax({
                     url: '/bearings/search',
                     type: 'GET',
-                    data: { query: query, depository: userDepository },
+                    data: { query: query, depository: TDepository },
                     dataType: 'json',
                     success: function(data) {
                         return process(data);
@@ -111,7 +114,7 @@
         $.ajax({
             url: "/productIds/",
             type: "GET",
-            data: { boxText: boxText, depositoryId: depositoryId },
+            data: { boxText: boxText, depositoryId: TdepositoryId },
             success: function(response) {
                 // 填充最新的箱号编号和数量到对应输入框
                 $('#boxNumber').val(response.boxNumber);
@@ -130,7 +133,7 @@
         $.ajax({
             url: "/productIds/quantity",
             type: "GET",
-            data: { boxText: boxText, boxNumber: boxNumber, depositoryId: depositoryId },
+            data: { boxText: boxText, boxNumber: boxNumber, depositoryId: TdepositoryId },
             success: function(response) {
                 // 更新数量到输入框
                 $('#quantity').val(response.quantity);
@@ -142,7 +145,7 @@
     }
     document.getElementById('stockInForm').addEventListener('submit', function(event) {
         event.preventDefault();
-        const boxText = document.getElementById('boxText').value;
+        let boxText = document.getElementById('boxText').value;
         const boxNumber = document.getElementById('boxNumber').value;
         const quantity = document.getElementById('quantity').value;
         // 检查数量是否已输入
@@ -150,7 +153,12 @@
             toastr.error('请前往生成对应箱号和编号及其数量！');
             return; // 如果没有数量或数量为零，阻止表单提交
         }
-        stockIn(boxText, boxNumber, quantity, '转入', depositoryId, newiter);
+        if(userDepository === 'SAB') {
+            boxText = boxText.substring(1); // 如果目标是SAB且来源不是SAB，去掉箱号开头的'Z'
+        } else if (userDepository === 'ZAB'){
+            boxText = "Z" + boxText; // 如果目标是ZAB且来源不是ZAB，加上箱号开头的'Z'
+        }
+        stockIn(boxText, boxNumber, quantity, '转入', TdepositoryId, newiter);
     });
     function stockIn(boxText, boxNumber, quantity, operationType, depositoryId, newiter) {
         const operationTypeChinese = getOperationTypeInChinese(operationType);

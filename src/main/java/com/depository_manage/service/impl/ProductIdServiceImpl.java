@@ -6,7 +6,9 @@ import com.depository_manage.service.ProductIdService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class ProductIdServiceImpl implements ProductIdService {
@@ -164,8 +166,13 @@ public class ProductIdServiceImpl implements ProductIdService {
     }
 
     @Override
-    public int getQuantityByBoxTextAndBoxNumber(String boxText, String boxNumber, int depositoryId) {
-        return productIdMapper.selectQuantityByBoxTextAndBoxNumber(boxText, boxNumber, depositoryId);
+    public Map<String, Object> getQuantityByBoxTextAndBoxNumber(String boxText, String boxNumber, int depositoryId) {
+        Map<String, Object> result = productIdMapper.selectQuantityByBoxTextAndBoxNumber(boxText, boxNumber, depositoryId);
+        if (result != null && !result.isEmpty()) {
+            return result;
+        } else {
+            return Collections.emptyMap();
+        }
     }
 
     @Override

@@ -13,7 +13,7 @@
 
     <select id="selectBoxNumberByBoxTextAndDepositoryId" resultType="com.depository_manage.entity.ProductId">
         SELECT * FROM product_ids
-        WHERE box_text = #{boxText} AND depository_id = #{depositoryId} AND CAST(box_number as UNSIGNED) &lt; 1000
+        WHERE box_text = #{boxText} AND depository_id = #{depositoryId} AND CAST(box_number as UNSIGNED) &lt; 2000
         ORDER BY iter DESC, CAST(box_number as UNSIGNED) DESC
             LIMIT 1
     </select>
@@ -81,8 +81,8 @@
         WHERE box_text = #{boxText} AND box_number = #{boxNumber} AND depository_id = #{depositoryId} AND iter = #{iter}
     </select>
 
-    <select id="selectQuantityByBoxTextAndBoxNumber" resultType="int">
-        SELECT quantity
+    <select id="selectQuantityByBoxTextAndBoxNumber" resultType="map">
+        SELECT *
         FROM product_ids
         WHERE box_text = #{boxText} AND box_number = #{boxNumber} AND depository_id = #{depositoryId}
             LIMIT 1

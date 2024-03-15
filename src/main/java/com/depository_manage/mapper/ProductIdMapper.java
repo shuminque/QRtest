@@ -5,6 +5,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
+import java.util.Map;
 
 @Mapper
 public interface ProductIdMapper {
@@ -34,9 +35,9 @@ public interface ProductIdMapper {
                            @Param("boxNumber") String boxNumber,
                            @Param("depositoryId") int depositoryId,
                            @Param("iter") int iter);
-    int selectQuantityByBoxTextAndBoxNumber(@Param("boxText") String boxText,
-                                            @Param("boxNumber") String boxNumber,
-                                            @Param("depositoryId") int depositoryId);
+    Map<String, Object> selectQuantityByBoxTextAndBoxNumber(@Param("boxText") String boxText,
+                                                            @Param("boxNumber") String boxNumber,
+                                                            @Param("depositoryId") int depositoryId);
     int updateQuantity(ProductId productId);
     void deleteProductIdsRecord(@Param("boxText") String boxText,
                                 @Param("boxNumber") String boxNumber,

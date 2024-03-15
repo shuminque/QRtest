@@ -59,4 +59,7 @@ public interface BearingRecordMapper {
                                  @Param("iter") int iter);
     List<Map<String, Object>> selectComprehensiveTransferRecords(Map<String, Object> params);
     int selectComprehensiveTransferRecordsCount();
+    Map<String, Object> selectCountsByDateAndDepository(@Param("date") String date,
+                                                        @Param("depository") String depository);
+
 }

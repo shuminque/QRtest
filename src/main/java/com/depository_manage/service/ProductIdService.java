@@ -3,6 +3,7 @@ package com.depository_manage.service;
 import com.depository_manage.entity.ProductId;
 
 import java.util.List;
+import java.util.Map;
 
 public interface ProductIdService {
     ProductId getBoxNumberByBoxTextAndDepositoryId(String boxText, int depositoryId);
@@ -39,7 +40,8 @@ public interface ProductIdService {
 
     // 检查产品是否已入库
     boolean isProductStocked(String boxText, String boxNumber, int depositoryId, int iter);
-    int getQuantityByBoxTextAndBoxNumber(String boxText, String boxNumber, int depositoryId);
+    Map<String, Object> getQuantityByBoxTextAndBoxNumber(String boxText, String boxNumber, int depositoryId);
+
     public boolean updateQuantity(ProductId productId);
     void deleteProductIdsRecord(String boxText, String boxNumber, int depositoryId, int iter);
 
