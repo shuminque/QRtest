@@ -13,6 +13,11 @@
     <script src="/static/js/http_cdnjs.cloudflare.com_ajax_libs_bootstrap-3-typeahead_4.0.2_bootstrap3-typeahead.js"></script>
 </head>
 <style>
+    @media print {
+        .layui-input-block, #updateCountButton {
+            display: none;
+        }
+    }
     /* Layer 弹出框标题样式 */
     .layui-layer-title {
         text-align: center; /* 标题居中 */
@@ -58,6 +63,7 @@
     a.dropdown-item {
         font-size: 30px;
     }
+
 </style>
 <body>
 <div>
@@ -129,7 +135,7 @@
 <div class="button-row">
     <div class="layui-form-item layui-row">
         <div class="layui-col-xs8">
-            <div class="layui-input-block" style="margin-left: 10px;">
+            <div class="layui-input-block" style="margin-left: 10px;" >
                 <input type="text" name="date" id="datePicker" class="layui-input" placeholder="请选择日期"
                        style="margin-bottom: 0;font-size: 25px">
             </div>
@@ -145,7 +151,7 @@
 <div class="button-row" style="font-size: 28px">
     出库箱数：<span id="stockOutCount">0</span>箱
 </div>
-<!--<h3 style="text-align: center">二维码</h3>-->
+<h3 style="text-align: center">二维码</h3>
 <button id="regenerateButton" onclick="regenerateQRCode()" style="display: none;">修改数量</button>
 <div id="printContainer">
     <div id="qrcodeContainer">

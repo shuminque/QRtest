@@ -91,7 +91,7 @@
                 pair = #{pair},
             </if>
             <if test="state != null">
-                state = #{state}
+                state = #{state},
             </if>
             <if test="currentDepository != null">
                 current_depository = #{currentDepository},
