@@ -14,6 +14,13 @@
 </head>
 <style>
     @media print {
+        body * {
+            display: none;
+        }
+        #printContainer, #printContainer * {
+            display: block;
+            visibility: visible;
+        }
         .layui-input-block, #updateCountButton {
             display: none;
         }
