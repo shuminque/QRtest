@@ -14,48 +14,11 @@
 </head>
 <style>
     @media print {
-        @page  {
-            margin: 0 0 0 0;
-        }
-        /* 隐藏页面上所有非打印内容 */
-        body * {
+        .layui-input-block, #updateCountButton {
             display: none;
         }
-
-        /* 仅显示打印容器及其内部的元素 */
-        #printContainer, #printContainer * {
-            display: block;
-            visibility: visible;
-        }
-
-        /* 设置打印容器的样式 */
-        #printContainer {
-            position: absolute;
-            margin: 0 0 0 0;
-            left: 0;
-            top: 0;
-            width: 50%;
-            max-height: 1100px; /* 根据需要调整 */
-        }
-
-        /* 设置二维码的大小和位置 */
-        #qrcode {
-            width: 200px;
-            height: 200px; /* 保持与宽度一致 */
-            margin: 0 0 0 0; /* 移除外边距 */
-            position: absolute; /* 绝对定位 */
-            left: 0px; /* 对齐到左边 */
-            top: 350px; /* 对齐到顶部 */
-        }
-        .print-info-row p:first-child {
-            /* 第一个p元素（boxText）的样式 */
-            margin-right: 50px; /* 或者适当的值 */
-            white-space: nowrap; /* 防止自动换行 */
-
-        }
-        .print-info-row p:last-child {
-            /* 第二个p元素（boxNumber）的样式 */
-            margin-left: 1px; /* 增加间距 */
+        body * {
+            display: none;
         }
         .print-info-row p.box-text {
             font-size: 140px; /* boxText字体大小 */
@@ -64,26 +27,10 @@
         .print-info-row p.box-number {
             font-size: 130px; /* boxNumber字体大小 */
         }
-
-        .print-info-row  p {
-            font-weight: bold;
-            line-height: normal;
-            text-align: center; /* 新增：使得文字居中 */
-        }
-        /* 设置信息容器的样式 */
-        .info-container {
-            position: absolute; /* 绝对定位 */
-            word-wrap: break-word; /* 允许在必要时文字换行 */
-            text-align: left;
-            width: 500px; /* 限制宽度，以适应布局 */
-            left: 0px; /* 对齐页面左侧 */
-            /*padding-left: 200px;*/
-            top: 0; /* 根据需要进行调整 */
-            writing-mode: vertical-rl; /* 设置文本为竖直从右到左排列 */
-            /*transform: rotate(180deg); !* 如有必要，将文本旋转180度以获得所需的方向 *!*/
-        }
-        .icon-container-for-print {
+        /* 仅显示打印容器及其内部的元素 */
+        #printContainer, #printContainer * {
             display: block;
+            visibility: visible;
         }
     }
     /* Layer 弹出框标题样式 */
