@@ -4,11 +4,12 @@
     }
     /* 隐藏页面上所有非打印内容 */
     body * {
-        visibility: hidden;
+        display: none;
     }
 
     /* 仅显示打印容器及其内部的元素 */
     #printContainer, #printContainer * {
+        display: block;
         visibility: visible;
     }
 
@@ -46,7 +47,7 @@
     }
 
     .print-info-row p.box-number {
-        font-size: 150px; /* boxNumber字体大小 */
+        font-size: 130px; /* boxNumber字体大小 */
     }
 
     .print-info-row  p {

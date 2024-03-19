@@ -14,8 +14,18 @@
 </head>
 <style>
     @media print {
+
         .layui-input-block, #updateCountButton {
             display: none;
+        }
+        body * {
+            display: none;
+        }
+
+        /* 仅显示打印容器及其内部的元素 */
+        #printContainer, #printContainer * {
+            display: block;
+            visibility: visible;
         }
     }
     /* Layer 弹出框标题样式 */
