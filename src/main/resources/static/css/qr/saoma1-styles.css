@@ -9,7 +9,6 @@
 
     /* 仅显示打印容器及其内部的元素 */
     #printContainer, #printContainer * {
-        display: block;
         visibility: visible;
     }
 
@@ -47,7 +46,7 @@
     }
 
     .print-info-row p.box-number {
-        font-size: 130px; /* boxNumber字体大小 */
+        font-size: 150px; /* boxNumber字体大小 */
     }
 
     .print-info-row  p {
