@@ -47,6 +47,15 @@
                     ],
                     "child": [
                         {
+                            "title": "二维码生成",
+                            "href": "/GenerateAndPrintQR",
+                            "icon": "fa fa-th-list",
+                            "target": "_self",
+                            "roles": [
+                                "SAB_cg", "SAB_sh", "ZAB_cg", "ZAB_sh", "ALL"
+                            ]
+                        },
+                        {
                             "title": "入库操作",
                             "href": "/BearingStorage-in",
                             "icon": "fa fa-arrow-down",
@@ -129,12 +138,12 @@
                             ]
                         },
                         {
-                            "title": "二维码生成",
-                            "href": "/GenerateAndPrintQR",
-                            "icon": "fa fa-th-list",
+                            "title": "产品转移确认",
+                            "href": "/compre_transfer",
+                            "icon": "layui-icon layui-icon-list",
                             "target": "_self",
                             "roles": [
-                                "SAB_cg", "SAB_sh", "ZAB_cg", "ZAB_sh", "ALL"
+                                "SAB_cg", "SAB_sh", "ZAB_cg", "ZAB_sh", "ALL", "onlyRead"
                             ]
                         }
                     ]
@@ -202,15 +211,6 @@
                         {
                             "title": "制品在库报表",
                             "href": "/every_pair",
-                            "icon": "layui-icon layui-icon-list",
-                            "target": "_self",
-                            "roles": [
-                                "SAB_cg", "SAB_sh", "ZAB_cg", "ZAB_sh", "ALL", "onlyRead"
-                            ]
-                        },
-                        {
-                            "title": "转移确认表",
-                            "href": "/compre_transfer",
                             "icon": "layui-icon layui-icon-list",
                             "target": "_self",
                             "roles": [

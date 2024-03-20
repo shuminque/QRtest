@@ -118,6 +118,32 @@ public class BearingInventoryServiceImpl implements BearingInventoryService {
         return inventory.getDepositoryId();
     }
     @Override
+    public void stockOutForPC(BearingInventory inventory) {
+        // 检查是否存在转入记录，根据转入逻辑调整仓库ID
+        int adjustedDepositoryId = inventory.getDepositoryId();
+        // 检查是否可以出库
+        boolean isStocked = productIdService.isProductStocked(
+                inventory.getBoxText(), inventory.getBoxNumber(), adjustedDepositoryId, inventory.getIter());
+        if (!isStocked) {
+            throw new OperationAlreadyDoneException("产品未入库，不能出库");
+        }
+        // 执行出库操作
+        BearingInventory existingInventory = bearingInventoryMapper.selectBearingInventoryByBoxTextAndDepositoryId(
+                inventory.getBoxText(), adjustedDepositoryId);
+        if (existingInventory != null && existingInventory.getQuantityInStock() >= inventory.getQuantityInStock()) {
+            int newQuantity = existingInventory.getQuantityInStock() - inventory.getQuantityInStock();
+            existingInventory.setQuantityInStock(newQuantity);
+            existingInventory.setTotalBoxes(existingInventory.getTotalBoxes() - 1);
+            bearingInventoryMapper.updateBearingInventory(existingInventory);
+        } else {
+            throw new IllegalStateException("库存不足或记录不存在，无法执行出库。");
+        }
+        // 更新状态为已入库
+        productIdService.updateStockedStatus(
+                inventory.getBoxText(), inventory.getBoxNumber(),
+                adjustedDepositoryId,  0, inventory.getIter());
+    }
+    @Override
     public InventoryInfo getInventoryInfo(String boxText, String boxNumber, int depositoryId) {
         return bearingInventoryMapper.selectInventoryInfo(boxText, boxNumber, depositoryId);
     }

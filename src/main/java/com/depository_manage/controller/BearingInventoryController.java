@@ -57,6 +57,18 @@ public class BearingInventoryController {
                     .body(Collections.singletonMap("message", e.getMessage()));
         }
     }
+    @PostMapping("/stockOutForPC")
+    public ResponseEntity<?> stockOutForPC(@RequestBody BearingInventory inventory) {
+        try {
+            bearingInventoryService.stockOutForPC(inventory);
+            return ResponseEntity.ok(Collections.singletonMap("message", "Stock-out successful"));
+        } catch (OperationAlreadyDoneException e) {
+            // 返回一个错误响应
+            return ResponseEntity
+                    .status(HttpStatus.CONFLICT)
+                    .body(Collections.singletonMap("message", e.getMessage()));
+        }
+    }
     @GetMapping("/panKu/{boxText}/{boxNumber}/{depositoryId}")
     public ResponseEntity<?> panKu(@PathVariable String boxText,
                                    @PathVariable String boxNumber,

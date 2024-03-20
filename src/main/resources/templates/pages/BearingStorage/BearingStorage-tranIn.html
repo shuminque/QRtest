@@ -87,7 +87,7 @@
                 return $.ajax({
                     url: '/bearings/search',
                     type: 'GET',
-                    data: { query: query, depository: TDepository },
+                    data: { query: query, depository: userDepository },
                     dataType: 'json',
                     success: function(data) {
                         return process(data);
@@ -111,6 +111,11 @@
     });
     // 获取最新的箱号编号和数量
     function fetchLatestBoxNumberAndQuantity(boxText) {
+        if(userDepository === 'SAB') {
+            boxText = "Z" + boxText; //
+        } else if (userDepository === 'ZAB'){
+            boxText = boxText.substring(1); //
+        }
         $.ajax({
             url: "/productIds/",
             type: "GET",
@@ -130,6 +135,11 @@
     // 根据箱号和箱号编号获取数量
     function fetchQuantityForBoxNumber(boxText, boxNumber) {
         if (!boxNumber) return; // 如果箱号编号为空，则不执行操作
+        if(userDepository === 'SAB') {
+            boxText = "Z" + boxText; //
+        } else if (userDepository === 'ZAB'){
+            boxText = boxText.substring(1); //
+        }
         $.ajax({
             url: "/productIds/quantity",
             type: "GET",
@@ -154,11 +164,7 @@
             toastr.error('请前往生成对应箱号和编号及其数量！');
             return; // 如果没有数量或数量为零，阻止表单提交
         }
-        if(userDepository === 'SAB') {
-            boxText = boxText.substring(1); // 如果目标是SAB且来源不是SAB，去掉箱号开头的'Z'
-        } else if (userDepository === 'ZAB'){
-            boxText = "Z" + boxText; // 如果目标是ZAB且来源不是ZAB，加上箱号开头的'Z'
-        }
+
         stockIn(boxText, boxNumber, quantity, '转入', TdepositoryId, newiter);
     });
     function stockIn(boxText, boxNumber, quantity, operationType, depositoryId, newiter) {
