@@ -29,7 +29,7 @@
         margin: 0 0 0 0; /* 移除外边距 */
         position: absolute; /* 绝对定位 */
         left: 0px; /* 对齐到左边 */
-        top: 400px; /* 对齐到顶部 */
+        top: 350px; /* 对齐到顶部 */
     }
     .print-info-row p:first-child {
         /* 第一个p元素（boxText）的样式 */
@@ -46,13 +46,13 @@
     }
 
     .print-info-row p.box-number {
-        font-size: 150px; /* boxNumber字体大小 */
+        font-size: 130px; /* boxNumber字体大小 */
     }
 
     .print-info-row  p {
         font-weight: bold;
         line-height: normal;
-        text-align: center; /* 新增：使得文字居中 */
+        text-align: left; /* 新增：使得文字居中 */
     }
     /* 设置信息容器的样式 */
     .info-container {

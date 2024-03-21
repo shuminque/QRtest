@@ -68,7 +68,59 @@ public class BearingRecordController {
                     .body("No bearing found for boxText: " + record.getBoxText());
         }
     }
-
+    @PostMapping("/OutPC")
+    public ResponseEntity<?> addBearingRecordOutPC(@RequestBody BearingRecord record) {
+        String adjustedBoxText = record.getBoxText(); // 初始化调整后的箱号
+        String currentDepository = record.getDepository(); // 使用记录中的原始仓库信息
+        // 检查是否存在转入记录
+        boolean hasTransferIn = bearingRecordService.hasTransferInRecord(record.getBoxText(), record.getBoxNumber(), record.getIter());
+        if ("转入".equals(record.getTransactionType()) || ("出库".equals(record.getTransactionType()) && hasTransferIn)) {
+            boolean isFromZABToSAB = "SAB".equals(currentDepository) && adjustedBoxText.startsWith("Z");
+            boolean isFromSABToZAB = "ZAB".equals(currentDepository) && !adjustedBoxText.startsWith("Z");
+            if (isFromZABToSAB) {
+                adjustedBoxText = adjustedBoxText.substring(1);
+                currentDepository = "ZAB";
+            } else if (isFromSABToZAB) {
+                adjustedBoxText = "Z" + adjustedBoxText;
+                currentDepository = "SAB";
+            }
+        }
+        System.out.println(record);
+        Bearing bearing = bearingService.getBearingByBoxTextAndDepository(adjustedBoxText, record.getDepository());
+        if (bearing != null) {
+            // 使用Bearing数据填充BearingRecord
+            record.setCustomer(bearing.getCustomer());
+            record.setModel(bearing.getModel());
+            record.setProductCategory(bearing.getProductCategory());
+            record.setSteelType(bearing.getSteelType());
+            record.setSteelGrade(bearing.getSteelGrade());
+            if("出库".equals(record.getTransactionType()) && hasTransferIn){
+                if(Objects.equals(bearing.getDepository(), "SAB")){
+                    record.setDepository("ZAB");
+                }else {
+                    record.setDepository("SAB");
+                }
+            }else {
+                record.setDepository(bearing.getDepository());
+            }
+            record.setStorageLocation(bearing.getStorageLocation());
+            record.setOuterInnerRing(bearing.getOuterInnerRing());
+            record.setSize(bearing.getSize());
+            record.setPair(bearing.getPair());
+            record.setState(bearing.getState());
+            record.setCurrentDepository(currentDepository); // 设置当前仓库为bearing的当前仓库
+            // ...其他需要的字段...
+            // 设置记录的时间
+            record.setTime(new Date());
+            // 添加记录
+            bearingRecordService.addBearingRecord(record);
+            return ResponseEntity.ok(Collections.singletonMap("message", record));
+        } else {
+            // 如果找不到对应的Bearing信息，返回错误响应
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("No bearing found for boxText: " + record.getBoxText());
+        }
+    }
     @PutMapping("/{id}")
     public ResponseEntity<?> updateBearingRecord(@PathVariable int id, @RequestBody BearingRecord record) {
         record.setId(id);
