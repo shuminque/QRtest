@@ -2,8 +2,10 @@ package com.depository_manage.controller;
 
 import com.depository_manage.entity.Bearing;
 import com.depository_manage.entity.BearingRecord;
+import com.depository_manage.entity.ProductId;
 import com.depository_manage.service.BearingRecordService;
 import com.depository_manage.service.BearingService;
+import com.depository_manage.service.ProductIdService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -23,6 +25,8 @@ public class BearingRecordController {
     private BearingRecordService bearingRecordService;
     @Autowired
     private BearingService bearingService;
+    @Autowired
+    private ProductIdService productIdService;
     @PostMapping
     public ResponseEntity<?> addBearingRecord(@RequestBody BearingRecord record) {
         String adjustedBoxText = record.getBoxText(); // 初始化调整后的箱号
@@ -119,9 +123,33 @@ public class BearingRecordController {
     public ResponseEntity<?> updateBearingRecord(@PathVariable int id, @RequestBody BearingRecord record) {
         record.setId(id);
         bearingRecordService.updateBearingRecord(record);
-        return ResponseEntity.ok().build();
-    }
+        // 创建 ProductId 实例并填充数据
+        ProductId productId = new ProductId();
+        productId.setBoxText(record.getBoxText());
+        productId.setBoxNumber(record.getBoxNumber());
+        productId.setDepositoryId(getDepositoryIdFromString(record.getDepository()));
+        productId.setIter(record.getIter());
+        productId.setQuantity(record.getQuantity());
 
+        // 调用 Service 层的 updateQuantity 方法
+        boolean updateSuccess = productIdService.updateQuantity(productId);
+        if(updateSuccess) {
+            return ResponseEntity.ok().build(); // 更新成功
+        } else {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to update product quantity");
+            // 可以根据实际情况调整错误处理
+        }
+    }
+    private int getDepositoryIdFromString(String depository) {
+        switch (depository) {
+            case "SAB":
+                return 1;
+            case "ZAB":
+                return 2;
+            default:
+                return 0; // 或者抛出一个异常，如果没有找到匹配的仓库
+        }
+    }
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<?> deleteBearingRecord(@PathVariable int id) {
         bearingRecordService.deleteBearingRecordById(id);

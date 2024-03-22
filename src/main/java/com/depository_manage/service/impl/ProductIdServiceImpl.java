@@ -46,6 +46,9 @@ public class ProductIdServiceImpl implements ProductIdService {
     public ProductId getLatestBoxNumberSharedAcrossDepositoriesForZero(String boxText) {
         return productIdMapper.selectLatestBoxNumberSharedAcrossDepositoriesForZero(boxText);
     }
+
+
+
     @Override
     public String incrementAndSaveBoxNumber(String boxText, int depositoryId, int quantity) {
 //        ProductId current = productIdMapper.selectBoxNumberByBoxTextAndDepositoryId(boxText, depositoryId);

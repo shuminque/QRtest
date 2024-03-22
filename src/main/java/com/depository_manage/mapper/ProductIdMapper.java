@@ -39,6 +39,7 @@ public interface ProductIdMapper {
                                                             @Param("boxNumber") String boxNumber,
                                                             @Param("depositoryId") int depositoryId);
     int updateQuantity(ProductId productId);
+
     void deleteProductIdsRecord(@Param("boxText") String boxText,
                                 @Param("boxNumber") String boxNumber,
                                 @Param("depositoryId") int depositoryId,

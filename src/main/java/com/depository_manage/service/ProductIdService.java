@@ -48,6 +48,6 @@ public interface ProductIdService {
     // 新增方法：获取跨仓库共享的最新箱号
     ProductId getLatestBoxNumberSharedAcrossDepositories(String boxText);
     ProductId getLatestBoxNumberSharedAcrossDepositoriesForZero(String boxText);
-    // 根据需要可以添加更多方法
+
 
 }
