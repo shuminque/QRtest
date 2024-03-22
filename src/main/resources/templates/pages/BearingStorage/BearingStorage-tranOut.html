@@ -163,7 +163,7 @@
             depositoryId: depositoryId,
             iter:newiter
         };
-        fetch('/bearingInventory/stockOut', {
+        fetch('/bearingInventory/stockOutForPC', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(inventoryDto),
@@ -199,7 +199,7 @@
         var recordDto = {
             transactionType: transactionType, boxText: boxText, boxNumber: boxNumber, quantity: quantity, depository: depositoryText,iter:newiter
         };
-        return fetch('/bearingRecords', {
+        return fetch('/bearingRecords/OutPC', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(recordDto)

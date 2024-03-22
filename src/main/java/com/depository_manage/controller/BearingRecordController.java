@@ -94,15 +94,9 @@ public class BearingRecordController {
             record.setProductCategory(bearing.getProductCategory());
             record.setSteelType(bearing.getSteelType());
             record.setSteelGrade(bearing.getSteelGrade());
-            if("出库".equals(record.getTransactionType()) && hasTransferIn){
-                if(Objects.equals(bearing.getDepository(), "SAB")){
-                    record.setDepository("ZAB");
-                }else {
-                    record.setDepository("SAB");
-                }
-            }else {
-                record.setDepository(bearing.getDepository());
-            }
+            // 优化后的代码段
+            boolean shouldSwitchDepository = ("出库".equals(record.getTransactionType()) && hasTransferIn) || ("转出".equals(record.getTransactionType()) && hasTransferIn) ;
+            record.setDepository(shouldSwitchDepository ? (Objects.equals(bearing.getDepository(), "SAB") ? "ZAB" : "SAB") : bearing.getDepository());
             record.setStorageLocation(bearing.getStorageLocation());
             record.setOuterInnerRing(bearing.getOuterInnerRing());
             record.setSize(bearing.getSize());
