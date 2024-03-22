@@ -1,6 +1,7 @@
 package com.depository_manage.service.impl;
 
 import com.depository_manage.entity.BearingInventory;
+import com.depository_manage.entity.BearingRecord;
 import com.depository_manage.entity.InventoryInfo;
 import com.depository_manage.entity.ProductId;
 import com.depository_manage.exception.OperationAlreadyDoneException;
@@ -12,6 +13,7 @@ import com.depository_manage.service.ProductIdService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.Objects;
 
 @Service
@@ -163,5 +165,41 @@ public class BearingInventoryServiceImpl implements BearingInventoryService {
             bearingInventoryMapper.updateBearingInventory(existingInventory);
         }
     }
+    @Override
+    public void adjustInventoryBasedOnUpdate(BearingRecord originalRecord, BearingRecord updatedRecord) {
+        Integer originalDepositoryId = getDepositoryIdFromString(originalRecord.getDepository());
+        Integer updatedDepositoryId = getDepositoryIdFromString(updatedRecord.getDepository());
 
+        if (!Objects.equals(originalDepositoryId, updatedDepositoryId)) {
+            // 根据业务需求处理仓库ID不一致的情况
+        }
+
+        int quantityChange = updatedRecord.getQuantity() - originalRecord.getQuantity();
+        BearingInventory inventory = bearingInventoryMapper.selectBearingInventoryByBoxTextAndDepositoryId(
+                updatedRecord.getBoxText(), updatedDepositoryId);
+        if (inventory != null) {
+            // 根据交易类型和数量变化调整库存
+            if (Arrays.asList("入库", "转入").contains(updatedRecord.getTransactionType())) {
+                inventory.setQuantityInStock(inventory.getQuantityInStock() + quantityChange);
+            } else if (Arrays.asList("出库", "转出", "返库").contains(updatedRecord.getTransactionType())) {
+                inventory.setQuantityInStock(inventory.getQuantityInStock() - quantityChange);
+            }
+            // 更新库存记录
+            bearingInventoryMapper.updateBearingInventory(inventory);
+        } else {
+            // 如果没有找到库存记录，可能需要插入新的库存记录或进行其他处理
+        }
+
+        // 根据业务逻辑进一步处理，例如更新 product_ids 表的状态
+    }
+    private int getDepositoryIdFromString(String depository) {
+        switch (depository) {
+            case "SAB":
+                return 1;
+            case "ZAB":
+                return 2;
+            default:
+                return 0; // 或者抛出一个异常，如果没有找到匹配的仓库
+        }
+    }
 }

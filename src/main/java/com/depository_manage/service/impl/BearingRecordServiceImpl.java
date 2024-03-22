@@ -32,8 +32,13 @@ public class BearingRecordServiceImpl implements BearingRecordService {
     }
 
     @Override
-    public void updateBearingRecord(BearingRecord record) {
-        bearingRecordMapper.updateBearingRecord(record);
+    public void updateBearingRecord(BearingRecord updatedRecord) {
+        BearingRecord originalRecord = bearingRecordMapper.selectBearingRecordById(updatedRecord.getId());
+        bearingRecordMapper.updateBearingRecord(updatedRecord);
+        // 只有当记录实质上发生变化时，才需要调整库存
+        if (!originalRecord.equals(updatedRecord)) {
+            bearingInventoryService.adjustInventoryBasedOnUpdate(originalRecord, updatedRecord);
+        }
     }
 
     private int getDepositoryIdFromString(String depository) {

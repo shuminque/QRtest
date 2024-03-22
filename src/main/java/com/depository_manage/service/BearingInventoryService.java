@@ -1,6 +1,7 @@
 package com.depository_manage.service;
 
 import com.depository_manage.entity.BearingInventory;
+import com.depository_manage.entity.BearingRecord;
 import com.depository_manage.entity.InventoryInfo;
 
 public interface BearingInventoryService {
@@ -14,4 +15,6 @@ public interface BearingInventoryService {
     InventoryInfo getInventoryInfo(String boxText, String boxNumber, int depositoryId);
 
     void adjustStockForDeletion(BearingInventory inventory, boolean increaseStock);
+    void adjustInventoryBasedOnUpdate(BearingRecord originalRecord, BearingRecord updatedRecord);
+
 }

@@ -130,7 +130,6 @@ public class BearingRecordController {
         productId.setDepositoryId(getDepositoryIdFromString(record.getDepository()));
         productId.setIter(record.getIter());
         productId.setQuantity(record.getQuantity());
-
         // 调用 Service 层的 updateQuantity 方法
         boolean updateSuccess = productIdService.updateQuantity(productId);
         if(updateSuccess) {
