@@ -70,10 +70,8 @@
             </div>
             <div>
                 <div class="layui-input-inline">
-                    <select name="depository">
-                        <option value="" selected>搜索厂区</option>
-                        <option value="SAB" >SAB</option>
-                        <option value="ZAB" >ZAB</option>
+                    <select name="depository" id="depositorySelect" lay-search>
+                        <!-- 初始值，稍后会根据用户信息进行更新 -->
                     </select>
                 </div>
             </div>
@@ -129,6 +127,25 @@
                 }else{
                     userDepository="ALL";depositoryId=0;
                 }
+                let selectElem = document.getElementById('depositorySelect');
+                // 定义选项模板
+                var options = {"": "请选择厂区", "SAB": "SAB", "ZAB": "ZAB"};
+                // 生成HTML选项字符串
+                var optionsHTML = Object.keys(options).map(function(key) {
+                    return '<option value="' + key + '">' + options[key] + '</option>';
+                }).join('');
+                // 设置默认选中的选项
+                var selectedOption = "";
+                switch (userDepositoryId) {
+                    case 1:selectedOption = "SAB";break;
+                    case 2:selectedOption = "ZAB";break;
+                    case 0:selectedOption = "";break;
+                }
+                // 更新HTML字符串，设置选中的选项
+                optionsHTML = optionsHTML.replace('value="' + selectedOption + '"', 'value="' + selectedOption + '" selected');
+                // 最后，将生成的HTML设置到select元素中
+                selectElem.innerHTML = optionsHTML;
+                layui.form.render('select');
             },
             error: function() {
                 layer.msg('无法获取用户的厂区信息');
