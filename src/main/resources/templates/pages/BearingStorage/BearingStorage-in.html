@@ -51,6 +51,11 @@
         <button type="submit" class="btn btn-custom w-100">提交入库</button>
     </form>
 </div>
+<script>
+    document.getElementById('boxText').addEventListener('input', function() {
+        this.value = this.value.toUpperCase();
+    });
+</script>
 <script src="/static/js/bootstrap@5.1.0_dist_js_bootstrap.bundle.js"></script>
 <script>
     var userReviewGroupId;var userAuthority;var userDepositoryId;var userDepository;var depositoryId;var newiter;
@@ -144,7 +149,7 @@
     }
     document.getElementById('stockInForm').addEventListener('submit', function(event) {
         event.preventDefault();
-        const boxText = document.getElementById('boxText').value;
+        const boxText = document.getElementById('boxText').value.toUpperCase();
         const boxNumber = document.getElementById('boxNumber').value;
         const quantity = document.getElementById('quantity').value;
         // 检查数量是否已输入

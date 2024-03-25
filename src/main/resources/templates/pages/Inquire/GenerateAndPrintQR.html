@@ -118,6 +118,11 @@
         <button onclick="cancelGenerateQRCodeForZero()">取消</button>
     </div>
 </div>
+<script>
+    document.getElementById('boxTextInput').addEventListener('input', function() {
+        this.value = this.value.toUpperCase();
+    });
+</script>
 <h3 style="text-align: center">二维码</h3>
 <button id="regenerateButton" onclick="regenerateQRCode()" style="display: none;">修改数量</button>
 <div id="printContainer">
