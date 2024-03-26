@@ -151,26 +151,6 @@ public class BearingController {
         // 4. 返回包含Bearing数据和新product_id的响应
         return ResponseEntity.ok(response);
     }
-    @GetMapping("/preGenerate/{boxText}/{depositoryId}")
-    public ResponseEntity<?> preGenerateNewProductId(@PathVariable String boxText, @PathVariable int depositoryId) {
-        // 获取与boxNumber相关的Bearing数据，但不从数据库中保存或更新
-        String depositoryText = convertDepositoryIdToText(depositoryId);
-        Bearing bearing = bearingService.getBearingByBoxTextAndDepository(boxText,depositoryText);
-        if (bearing == null) {
-            return ResponseEntity.notFound().build();
-        }
-        // 逻辑来模拟新的product_id的生成，但实际上并不保存它
-        String mockNewProductId = productIdService.calculateNextBoxNumber(boxText, depositoryId);
-        Integer mockQuantity = bearingService.calculateQuantity(boxText,depositoryText);
-
-        // 构建响应
-        Map<String, Object> response = new HashMap<>();
-        response.put("boxNumber", mockNewProductId);
-        response.put("quantity", mockQuantity);
-        
-        // 返回即将生成的数据
-        return ResponseEntity.ok(response);
-    }
     @PostMapping("/zero/{boxText}/{depositoryId}")
     public ResponseEntity<?> createAndReturnNewZeroProductId(@PathVariable String boxText,
                                                              @PathVariable int depositoryId,
@@ -194,6 +174,29 @@ public class BearingController {
 
         return ResponseEntity.ok(response);
     }
+    @GetMapping("/preGenerate/{boxText}/{depositoryId}")
+    public ResponseEntity<?> preGenerateNewProductId(@PathVariable String boxText, @PathVariable int depositoryId) {
+        // 获取与boxNumber相关的Bearing数据，但不从数据库中保存或更新
+        String depositoryText = convertDepositoryIdToText(depositoryId);
+        Bearing bearing = bearingService.getBearingByBoxTextAndDepository(boxText,depositoryText);
+        if (bearing == null) {
+            return ResponseEntity.notFound().build();
+        }
+        // 逻辑来模拟新的product_id的生成，但实际上并不保存它
+        String mockNewProductId = productIdService.calculateNextBoxNumber(boxText, depositoryId);
+        Integer mockQuantity = bearingService.calculateQuantity(boxText,depositoryText);
+        Integer mockIter = productIdService.getNextIter(boxText,depositoryId);
+
+        // 构建响应
+        Map<String, Object> response = new HashMap<>();
+        response.put("boxNumber", mockNewProductId);
+        response.put("quantity", mockQuantity);
+        response.put("iter",mockIter);
+        
+        // 返回即将生成的数据
+        return ResponseEntity.ok(response);
+    }
+
 
     // 预生成新的产品 ID （处理 1001-1999 范围的 boxNumber）
     @GetMapping("/zero/preGenerate/{boxText}/{depositoryId}")

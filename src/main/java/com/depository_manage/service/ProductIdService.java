@@ -30,6 +30,9 @@ public interface ProductIdService {
      * @return 预计的下一个 product_id。
      */
     String calculateNextBoxNumber(String boxText, int depositoryId);
+
+    int getNextIter(String boxText, int depositoryId);
+
     String incrementAndSaveBoxNumberForZero(String boxText, int depositoryId, int quantity);
 
     String calculateNextBoxNumberForZero(String boxText, int depositoryId);

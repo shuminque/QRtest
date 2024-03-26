@@ -85,6 +85,15 @@ public class ProductIdController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("更新失败");
         }
     }
-
+    @GetMapping("/checkStocked")
+    public ResponseEntity<Map<String, Boolean>> checkIfProductIsStocked(
+            @RequestParam String boxText,
+            @RequestParam String boxNumber,
+            @RequestParam int depositoryId,
+            @RequestParam int iter) {
+        boolean isStocked = productIdService.isProductStocked(boxText, boxNumber, depositoryId, iter);
+        Map<String, Boolean> response = Collections.singletonMap("isStocked", isStocked);
+        return ResponseEntity.ok(response);
+    }
 
 }

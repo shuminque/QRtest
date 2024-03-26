@@ -91,6 +91,23 @@ public class ProductIdServiceImpl implements ProductIdService {
         }
         return newBoxNumber;
     }
+    @Override
+    public int getNextIter(String boxText, int depositoryId) {
+        ProductId current = getLatestBoxNumberSharedAcrossDepositories(boxText);
+        int newIter;
+        if (current != null) {
+            // 如果BoxNumber为"999"或"1999"（对零箱号），则iter增加
+            if ("999".equals(current.getBoxNumber()) || "1999".equals(current.getBoxNumber())) {
+                newIter = current.getIter() + 1;
+            } else {
+                newIter = current.getIter();
+            }
+        } else {
+            // 如果不存在当前BoxNumber，设置初始iter值为1
+            newIter = 1;
+        }
+        return newIter;
+    }
     private String incrementBoxNumber(String boxNumber) {
         try {
             int num = Integer.parseInt(boxNumber);
@@ -136,7 +153,6 @@ public class ProductIdServiceImpl implements ProductIdService {
         newProductIdEntry.setDepositoryId(depositoryId);
         newProductIdEntry.setIter(newIter); // Set iter value
         productIdMapper.insertOrUpdateBoxNumber(newProductIdEntry);
-
         return newBoxNumber;
     }
 
