@@ -101,14 +101,14 @@ public class BearingInventoryServiceImpl implements BearingInventoryService {
         if (hasTransferIn) {
             throw new IllegalStateException("已有对应的转入记录，操作无效");
         }
-        // 检查是否存在对应的转出记录
-        boolean hasTransferOut = bearingRecordService.checkForTransferOut(
-                adjustedBoxText,
-                inventory.getBoxNumber(),
-                inventory.getIter());
-        if (!hasTransferOut) {
-            throw new IllegalStateException("没有找到对应的转出记录，无法进行转入操作");
-        }
+//        // 检查是否存在对应的转出记录
+//        boolean hasTransferOut = bearingRecordService.checkForTransferOut(
+//                adjustedBoxText,
+//                inventory.getBoxNumber(),
+//                inventory.getIter());
+//        if (!hasTransferOut) {
+//            throw new IllegalStateException("没有找到对应的转出记录，无法进行转入操作");
+//        }
         // 确定目标仓库ID
         int targetDepositoryId = inventory.getDepositoryId() == 1 ? 2 : 1;
         // 如果是转入操作，更新仓库ID
