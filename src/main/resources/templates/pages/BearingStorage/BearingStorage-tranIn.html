@@ -177,7 +177,7 @@
             depositoryId: depositoryId,
             iter:newiter
         };
-        fetch('/bearingInventory/stockIn', {
+        fetch('/bearingInventory/stockTransferIn', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(inventoryDto),

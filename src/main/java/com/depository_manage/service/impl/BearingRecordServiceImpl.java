@@ -153,6 +153,12 @@ public class BearingRecordServiceImpl implements BearingRecordService {
         return bearingRecordMapper.findTransferInRecord(boxText, boxNumber, iter);
     }
     @Override
+    public boolean checkForTransferOut(String boxText, String boxNumber, int iter) {
+        // 调用mapper的方法来执行查询
+        return bearingRecordMapper.findTransferOutRecord(boxText, boxNumber, iter);
+    }
+
+    @Override
     public List<Map<String, Object>> getComprehensiveTransferRecords(Map<String, Object> params) {
         return bearingRecordMapper.selectComprehensiveTransferRecords(params);
     }

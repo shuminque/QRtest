@@ -62,4 +62,6 @@ public interface BearingRecordMapper {
     Map<String, Object> selectCountsByDateAndDepository(@Param("date") String date,
                                                         @Param("depository") String depository);
 
+    boolean findTransferOutRecord(@Param("boxText") String boxText, @Param("boxNumber") String boxNumber, @Param("iter") int iter);
+
 }

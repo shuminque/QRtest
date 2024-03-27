@@ -45,6 +45,18 @@ public class BearingInventoryController {
                     .body(Collections.singletonMap("message", e.getMessage()));
         }
     }
+    @PostMapping("/stockTransferIn")
+    public ResponseEntity<?> stockTransferIn(@RequestBody BearingInventory inventory) {
+        try {
+            bearingInventoryService.tranIn(inventory); // 注意这里调用的是tranIn方法
+            return ResponseEntity.ok(Collections.singletonMap("message", "Transfer-in successful"));
+        } catch (OperationAlreadyDoneException | IllegalStateException e) {
+            // 返回一个错误响应
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(Collections.singletonMap("message", e.getMessage()));
+        }
+    }
     @PostMapping("/stockOut")
     public ResponseEntity<?> stockOut(@RequestBody BearingInventory inventory) {
         try {

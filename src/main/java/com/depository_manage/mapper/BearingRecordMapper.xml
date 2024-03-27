@@ -445,6 +445,14 @@
           AND iter = #{iter}
           AND transaction_type = '转入'
     </select>
+    <select id="findTransferOutRecord" resultType="boolean">
+        SELECT CASE WHEN COUNT(*) > 0 THEN true ELSE false END
+        FROM bearing_records
+        WHERE box_text = #{boxText}
+          AND box_number = #{boxNumber}
+          AND iter = #{iter}
+          AND transaction_type = '转出'
+    </select>
 
     <!-- 综合查询转入和转出记录，包括无匹配的记录 &lt;-->
     <select id="selectComprehensiveTransferRecords" resultType="map" parameterType="map">

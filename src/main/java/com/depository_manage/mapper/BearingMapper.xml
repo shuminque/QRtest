@@ -123,7 +123,8 @@
             storage_location,
             size,
             pair,
-            state
+            state,
+            current_depository
         ) VALUES (
                      #{boxText},
                      #{model},
@@ -137,7 +138,8 @@
                      #{storageLocation},
                      #{size},
                      #{pair},
-                     #{state}
+                     #{state},
+                     #{depository}
                  )
     </insert>
     <select id="calculateTotalQuantityByBoxText" resultType="java.lang.Integer">

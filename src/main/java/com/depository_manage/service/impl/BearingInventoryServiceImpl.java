@@ -6,7 +6,6 @@ import com.depository_manage.entity.InventoryInfo;
 import com.depository_manage.entity.ProductId;
 import com.depository_manage.exception.OperationAlreadyDoneException;
 import com.depository_manage.mapper.BearingInventoryMapper;
-import com.depository_manage.mapper.BearingRecordMapper;
 import com.depository_manage.service.BearingInventoryService;
 import com.depository_manage.service.BearingRecordService;
 import com.depository_manage.service.ProductIdService;
@@ -84,7 +83,71 @@ public class BearingInventoryServiceImpl implements BearingInventoryService {
             productIdService.saveOrUpdateBoxNumber(newProductId);
         }
     }
-
+    @Override
+    public void tranIn(BearingInventory inventory) throws OperationAlreadyDoneException, IllegalStateException {
+        String adjustedBoxText = adjustBoxText(inventory.getBoxText());
+        // 检查是否已经入库
+        boolean isStocked = productIdService.isProductStocked(
+                inventory.getBoxText(), inventory.getBoxNumber(), inventory.getDepositoryId(), inventory.getIter()
+        );
+        if (isStocked) {
+            throw new OperationAlreadyDoneException("产品已入库，不能再次入库");
+        }
+        // 检查是否存在对应的转出记录
+        boolean hasTransferIn = bearingRecordService.hasTransferInRecord(
+                inventory.getBoxText(),
+                inventory.getBoxNumber(),
+                inventory.getIter());
+        if (hasTransferIn) {
+            throw new IllegalStateException("已有对应的转入记录，操作无效");
+        }
+        // 检查是否存在对应的转出记录
+        boolean hasTransferOut = bearingRecordService.checkForTransferOut(
+                adjustedBoxText,
+                inventory.getBoxNumber(),
+                inventory.getIter());
+        if (!hasTransferOut) {
+            throw new IllegalStateException("没有找到对应的转出记录，无法进行转入操作");
+        }
+        // 确定目标仓库ID
+        int targetDepositoryId = inventory.getDepositoryId() == 1 ? 2 : 1;
+        // 如果是转入操作，更新仓库ID
+        if ("转入".equals(inventory.getOperationType())) {
+            inventory.setDepositoryId(targetDepositoryId);
+        }
+        // 执行入库操作
+        BearingInventory existingInventory = bearingInventoryMapper.selectBearingInventoryByBoxTextAndDepositoryId(
+                inventory.getBoxText(), inventory.getDepositoryId());
+        // 更新库存信息
+        if (existingInventory != null) {
+            int newQuantity = existingInventory.getQuantityInStock() + inventory.getQuantityInStock();
+            existingInventory.setQuantityInStock(newQuantity);
+            // 假设总箱数字段叫做 totalBoxes
+            existingInventory.setTotalBoxes(existingInventory.getTotalBoxes() + 1); // 增加总箱数
+            bearingInventoryMapper.updateBearingInventory(existingInventory);
+        } else {
+            // 第一次入库时，总箱数设置为 1
+            inventory.setTotalBoxes(1);
+            bearingInventoryMapper.insertBearingInventory(inventory);
+        }
+        // 更新状态为已入库
+        System.out.println(inventory);
+        productIdService.updateStockedStatus(
+                inventory.getBoxText(), inventory.getBoxNumber(),
+                inventory.getDepositoryId(),  1, inventory.getIter()
+        );
+        // 如果是转入操作，还需要更新或新增 product_ids 表中的记录以反映转入状态
+        if ("转入".equals(inventory.getOperationType())) {
+            ProductId newProductId = new ProductId();
+            newProductId.setBoxText(inventory.getBoxText());
+            newProductId.setBoxNumber(inventory.getBoxNumber());
+            newProductId.setQuantity(inventory.getQuantityInStock()); // 注意这里使用的是入库数量
+            newProductId.setDepositoryId(targetDepositoryId);
+            newProductId.setIsStocked(1); // 标记为已入库
+            newProductId.setIter(inventory.getIter());
+            productIdService.saveOrUpdateBoxNumber(newProductId);
+        }
+    }
     @Override
     public void stockOut(BearingInventory inventory) {
         // 检查是否存在转入记录，根据转入逻辑调整仓库ID
@@ -119,6 +182,16 @@ public class BearingInventoryServiceImpl implements BearingInventoryService {
         }
         return inventory.getDepositoryId();
     }
+    private String adjustBoxText(String boxText) {
+        if (boxText.startsWith("Z")) {
+            // 如果boxText以Z开头，去掉Z
+            return boxText.substring(1);
+        } else {
+            // 如果boxText不以Z开头，加上Z
+            return "Z" + boxText;
+        }
+    }
+
     @Override
     public void stockOutForPC(BearingInventory inventory) {
         // 检查是否存在转入记录，根据转入逻辑调整仓库ID

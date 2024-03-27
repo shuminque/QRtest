@@ -90,8 +90,23 @@
             </div>
         </div>
     </form>
-    <button type="button" class="layui-btn" id="addBearingBtn">添加成品</button>
-    <table class="layui-hide" id="recordTable" lay-filter="recordTableFilter"></table>
+    <div class="container">
+        <div class="layui-row" style="margin-top: 20px;">
+            <div class="layui-col-xs12">
+                <form class="layui-form">
+                    <div class="layui-form-item">
+                        <div class="layui-input-inline">
+                            <button type="button" class="layui-btn" id="addBearingBtn">添加新型号</button>
+                        </div>
+                        <div id="dynamicContent">
+                            <!-- JavaScript将在这里动态添加内容 -->
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <table class="layui-hide" id="recordTable" lay-filter="recordTableFilter"></table>
+    </div>
 </div>
 <!-- 工具栏模板 -->
 <script type="text/html" id="actionBar">
@@ -177,7 +192,7 @@
         <div class="layui-form-item">
             <label class="layui-form-label">箱号：</label>
             <div class="layui-input-block">
-                <input type="text" name="boxText" required lay-verify="required" placeholder="请输入箱号" autocomplete="off" class="layui-input">
+                <input type="text" name="boxText" required lay-verify="required" placeholder="请输入以Z开头的箱号" autocomplete="off" class="layui-input">
             </div>
         </div>
         <!-- 数量 -->
@@ -199,9 +214,9 @@
             <label class="layui-form-label">厂区：</label>
             <div class="layui-input-block">
                 <select name="depository">
-                    <option value="" selected></option>
+                    <option value="" ></option>
                     <option value="SAB" >SAB</option>
-                    <option value="ZAB" >ZAB</option>
+                    <option value="ZAB" selected>ZAB</option>
                 </select>
             </div>
         </div>
@@ -217,7 +232,7 @@
             <div class="layui-input-block">
                 <select name="state">
                     <option value="">选择状态</option>
-                    <option value="正常">正常</option>
+                    <option value="正常" selected>正常</option>
                     <option value="死库">死库</option>
                 </select>
             </div>
@@ -373,13 +388,24 @@
             success: function(data) {
                 console.log(data);
                 userDepositoryId = data.depositoryId;userAuthority = data.authority;userReviewGroupId = data.review_group_id;
+                var dynamicContent = "";
                 if (userDepositoryId ===1){
                     userDepository='SAB';depositoryId=1;
+                    // 隐藏添加新型号按钮
+                    $("#addBearingBtn").hide();
+                    // 显示特定文本
+                    dynamicContent += '<h2>新型号统一在ZAB界面进行添加!</h2>';
                 } else if (userDepositoryId===2){
                     userDepository='ZAB';depositoryId=2;
+                    // 显示添加新型号按钮
+                    $("#addBearingBtn").show();
+                    // 显示特定文本
+                    dynamicContent += '<h2>按照ZAB的箱号规则，添加新产品型号（SAB无需再添加）。</h2>' +
+                        '<h2>配对的外圈和内圈，添加时请注意配对号一致！</h2>';
                 }else{
                     userDepository="ALL";depositoryId=0;
                 }
+                $("#dynamicContent").html(dynamicContent);
                 let selectElem = document.getElementById('depositorySelect');
                 // 定义选项模板
                 var options = {"": "请选择厂区", "SAB": "SAB", "ZAB": "ZAB"};
@@ -521,6 +547,10 @@
         // 处理添加表单的提交事件
         form.on('submit(submitAddForm)', function(data) {
             var formData = data.field; // 获取表单数据
+            if (!formData.boxText.startsWith('Z')){
+                layer.msg('请输入Z开头的箱号');
+                return false; // 阻止表单默认提交
+            }
             $.ajax({
                 url: '/bearings/add', // 假设这是添加轴承的API端点
                 type: 'POST',
@@ -530,6 +560,7 @@
                     layer.msg('添加成功');
                     table.reload('recordTable'); // 重新加载表格
                     layer.closeAll(); // 关闭弹出层
+                    addSecondBearing(formData);
                 },
                 error: function() {
                     layer.msg('添加失败');
@@ -537,8 +568,32 @@
             });
             return false; // 阻止表单默认提交
         });
-
-
+        function addSecondBearing(originalFormData) {
+            var secondFormData = {...originalFormData}; // 复制原始表单数据
+            // 根据规则修改depository
+            secondFormData.depository = originalFormData.depository === 'SAB' ? 'ZAB' : 'SAB';
+            // 根据规则修改boxText
+            if (originalFormData.boxText.startsWith('Z')) {
+                secondFormData.boxText = originalFormData.boxText.substring(1); // 如果以Z开头，去掉Z
+            } else {
+                secondFormData.boxText = 'Z' + originalFormData.boxText; // 如果不以Z开头，加上Z
+            }
+            // 发送第二个轴承的添加请求
+            $.ajax({
+                url: '/bearings/add',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(secondFormData),
+                success: function(response) {
+                    layer.msg('第二个轴承添加成功');
+                    table.reload('recordTable'); // 重新加载表格
+                    layer.closeAll(); // 关闭所有弹出层
+                },
+                error: function() {
+                    layer.msg('第二个轴承添加失败');
+                }
+            });
+        }
         // 监听表格的编辑按钮事件
         table.on('tool(recordTableFilter)', function(obj){
             var data = obj.data; // 获取当前行的数据
