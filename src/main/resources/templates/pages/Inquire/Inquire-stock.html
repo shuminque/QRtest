@@ -32,7 +32,7 @@
                 </div>
                 <div>
                     <div class="layui-input-inline">
-                        <select name="depository" id="depositorySelect" lay-search>
+                        <select name="currentDepository" id="depositorySelect" lay-search>
                             <!-- 初始值，稍后会根据用户信息进行更新 -->
                         </select>
                     </div>
@@ -121,7 +121,7 @@
                     }
                     let selectElem = document.getElementById('depositorySelect');
                     // 定义选项模板
-                    var options = {"": "请选择厂区", "SAB": "SAB", "ZAB": "ZAB"};
+                    var options = {"": "请选择仓库", "SAB": "SAB", "ZAB": "ZAB"};
                     // 生成HTML选项字符串
                     var optionsHTML = Object.keys(options).map(function(key) {
                         return '<option value="' + key + '">' + options[key] + '</option>';
@@ -208,7 +208,8 @@
                     {field: 'quantity', title: '数量', totalRowText: '合计'}, // 启用合计行文本
                     {field: 'customer', title: '客户'},
                     {field: 'state', title: '状态'},
-                    {field: 'depository', title: '厂区'},
+                    {field: 'depository', title: '厂区',hide:true},
+                    {field: 'currentDepository', title: '仓库'},
                     {field: 'lastRecordedTime', title: '最后入库时间', templet: function(d) {
                             return formatDate(d.lastRecordedTime);
                     }},
@@ -278,6 +279,9 @@
                 }
                 if (formData.state !== '') {
                     req.state = formData.state;
+                }
+                if (formData.currentDepository !== '') {
+                    req.currentDepository = formData.currentDepository;
                 }
                 req.cutoffDate = formData.time;
                 // 执行搜索重载

@@ -50,7 +50,7 @@
             </div>
             <div>
                 <div class="layui-input-inline">
-                    <select name="depository" id="depositorySelect" lay-search>
+                    <select name="currentDepository" id="depositorySelect" lay-search>
                         <!-- 初始值，稍后会根据用户信息进行更新 -->
                     </select>
                 </div>
@@ -210,7 +210,7 @@
                 }
                 let selectElem = document.getElementById('depositorySelect');
                 // 定义选项模板
-                var options = {"": "请选择厂区", "SAB": "SAB", "ZAB": "ZAB"};
+                var options = {"": "请选择仓库", "SAB": "SAB", "ZAB": "ZAB"};
                 // 生成HTML选项字符串
                 var optionsHTML = Object.keys(options).map(function(key) {
                     return '<option value="' + key + '">' + options[key] + '</option>';
@@ -279,7 +279,8 @@
                 {field: 'boxText', title: '箱号'},
                 {field: 'boxNumber', title: '箱号编号'},
                 {field: 'quantity', title: '数量'},
-                {field: 'depository', title: '厂区'},
+                {field: 'depository', title: '厂区',hide:true},
+                {field: 'currentDepository', title: '仓库'},
                 {field: 'customer', title: '客户'},
                 {field: 'outerInnerRing', title: '外/内轮'},
                 {field: 'model', title: '型号'},
@@ -350,6 +351,9 @@
                 var dates = formData.time.split(' - ');
                 req.startDate = dates[0];
                 req.endDate = dates[1];
+            }
+            if (formData.currentDepository !== '') {
+                req.currentDepository = formData.currentDepository;
             }
             // 执行搜索重载
             recordTable.reload({

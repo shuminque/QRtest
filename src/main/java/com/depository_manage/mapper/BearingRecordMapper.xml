@@ -209,6 +209,7 @@
         br.box_text,
         br.box_number,
         br.depository,
+        br.current_depository,
         br.customer,
         br.product_category,
         br.outer_inner_ring,
@@ -270,6 +271,9 @@
         <if test="depository != null and depository != ''">
             AND br.depository = #{depository}
         </if>
+        <if test="currentDepository != null and currentDepository != ''">
+            AND br.currentDepository = #{currentDepository}
+        </if>
         <if test="state != null and state != ''">
             AND br.state = #{state}
         </if>
@@ -277,6 +281,7 @@
         br.box_text,
         br.box_number,
         br.depository,
+        br.current_depository,
         br.customer,
         br.product_category,
         br.outer_inner_ring,

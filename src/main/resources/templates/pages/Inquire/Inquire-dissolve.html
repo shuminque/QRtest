@@ -70,7 +70,7 @@
             </div>
             <div>
                 <div class="layui-input-inline">
-                    <select name="depository" id="depositorySelect" lay-search>
+                    <select name="currentDepository" id="depositorySelect" lay-search>
                         <!-- 初始值，稍后会根据用户信息进行更新 -->
                     </select>
                 </div>
@@ -129,7 +129,7 @@
                 }
                 let selectElem = document.getElementById('depositorySelect');
                 // 定义选项模板
-                var options = {"": "请选择厂区", "SAB": "SAB", "ZAB": "ZAB"};
+                var options = {"": "请选择仓库", "SAB": "SAB", "ZAB": "ZAB"};
                 // 生成HTML选项字符串
                 var optionsHTML = Object.keys(options).map(function(key) {
                     return '<option value="' + key + '">' + options[key] + '</option>';
@@ -206,7 +206,8 @@
                 {field: 'steelGrade', title: '钢材等级'},
                 {field: 'dissolve', title: '溶解号', edit: 'text'}, // 添加编辑功能
                 {field: 'remarks', title: '备注'},
-                {field: 'depository', title: '厂区'}
+                {field: 'depository', title: '厂区',hide:true},
+                {field: 'currentDepository', title: '仓库'}
             ]],
             limits:[54,100,200,500],
             limit:54,
@@ -252,6 +253,9 @@
             }
             if (formData.state !== '') {
                 req.state = formData.state;
+            }
+            if (formData.currentDepository !== '') {
+                req.currentDepository = formData.currentDepository;
             }
             if (formData.time !== '') {
                 var dates = formData.time.split(' - ');
