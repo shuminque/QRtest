@@ -272,7 +272,7 @@
             AND br.depository = #{depository}
         </if>
         <if test="currentDepository != null and currentDepository != ''">
-            AND br.currentDepository = #{currentDepository}
+            AND br.current_depository = #{currentDepository}
         </if>
         <if test="state != null and state != ''">
             AND br.state = #{state}
