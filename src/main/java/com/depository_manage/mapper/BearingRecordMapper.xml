@@ -335,7 +335,7 @@
         JOIN
         bearings b ON br.box_text = b.box_text
         WHERE
-            br.depository = #{depository} AND  -- 使用depository作为过滤条件
+            br.current_depository = #{depository} AND  -- 使用depository作为过滤条件
             br.time &lt; #{StartDate}
         GROUP BY
         b.pair, br.outer_inner_ring
@@ -352,7 +352,7 @@
         JOIN
         bearings b ON br.box_text = b.box_text
         WHERE
-            br.depository = #{depository} AND
+            br.current_depository = #{depository} AND
             br.time &lt; DATE_ADD(#{EndDate},interval 1 DAY)
         GROUP BY
         b.pair, br.outer_inner_ring
@@ -462,30 +462,48 @@
     <!-- 综合查询转入和转出记录，包括无匹配的记录 &lt;-->
     <select id="selectComprehensiveTransferRecords" resultType="map" parameterType="map">
         -- 查找匹配的转出和转入的记录
-        SELECT
-        out_rec.id AS out_id,
-        in_rec.id AS in_id,
-        out_rec.box_text AS out_box_text,
-        in_rec.box_text AS in_box_text,
-        out_rec.box_number AS out_box_number,
-        in_rec.box_number AS in_box_number,
-        out_rec.quantity AS out_quantity,
-        in_rec.quantity AS in_quantity,
-        out_rec.current_depository AS out_depository,
-        in_rec.current_depository AS in_depository,
-        out_rec.time AS out_time,
-        in_rec.time AS in_time
+        WITH RankedTransfers AS (
+            SELECT
+                id,
+                transaction_type,
+                box_text,
+                box_number,
+                quantity,
+                current_depository,
+                depository,
+            time,
+            ROW_NUMBER() OVER(PARTITION BY REPLACE(box_text, 'Z', ''), box_number, iter, transaction_type ORDER BY time) AS rn
         FROM
-        bearing_records AS out_rec
-        INNER JOIN
-        bearing_records AS in_rec ON REPLACE(out_rec.box_text, 'Z', '') = REPLACE(in_rec.box_text, 'Z', '')
-        AND out_rec.box_number = in_rec.box_number
-        AND out_rec.iter = in_rec.iter
-        AND out_rec.time &lt; in_rec.time
+            bearing_records
         WHERE
-            out_rec.transaction_type = '转出'
-          AND in_rec.transaction_type = '转入'
-          AND out_rec.time BETWEEN #{startDate} AND #{endDate}
+            (transaction_type = '转出' OR transaction_type = '转入')
+          AND time BETWEEN #{startDate} AND #{endDate}
+            ),
+            Transfers AS (
+        SELECT
+            out_rec.id AS out_id,
+            in_rec.id AS in_id,
+            out_rec.box_text AS out_box_text,
+            in_rec.box_text AS in_box_text,
+            out_rec.box_number AS out_box_number,
+            in_rec.box_number AS in_box_number,
+            out_rec.quantity AS out_quantity,
+            in_rec.quantity AS in_quantity,
+            out_rec.current_depository AS out_depository,
+            in_rec.current_depository AS in_depository,
+            out_rec.time AS out_time,
+            in_rec.time AS in_time
+        FROM
+            RankedTransfers out_rec
+            JOIN
+            RankedTransfers in_rec ON REPLACE(out_rec.box_text, 'Z', '') = REPLACE(in_rec.box_text, 'Z', '')
+            AND out_rec.box_number = in_rec.box_number
+            AND out_rec.current_depository != in_rec.current_depository
+            AND out_rec.rn = in_rec.rn
+            AND out_rec.transaction_type = '转出'
+            AND in_rec.transaction_type = '转入'
+            )
+        SELECT * FROM Transfers
 
         UNION ALL
         -- 查找有转出但没有匹配的转入的记录

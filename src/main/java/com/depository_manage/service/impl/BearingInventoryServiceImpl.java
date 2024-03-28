@@ -86,20 +86,14 @@ public class BearingInventoryServiceImpl implements BearingInventoryService {
     @Override
     public void tranIn(BearingInventory inventory) throws OperationAlreadyDoneException, IllegalStateException {
         String adjustedBoxText = adjustBoxText(inventory.getBoxText());
+        // 确定目标仓库ID
+        int targetDepositoryId = inventory.getDepositoryId() == 1 ? 2 : 1;
         // 检查是否已经入库
         boolean isStocked = productIdService.isProductStocked(
-                inventory.getBoxText(), inventory.getBoxNumber(), inventory.getDepositoryId(), inventory.getIter()
+                inventory.getBoxText(), inventory.getBoxNumber(), targetDepositoryId, inventory.getIter()
         );
         if (isStocked) {
             throw new OperationAlreadyDoneException("产品已入库，不能再次入库");
-        }
-        // 检查是否存在对应的转出记录
-        boolean hasTransferIn = bearingRecordService.hasTransferInRecord(
-                inventory.getBoxText(),
-                inventory.getBoxNumber(),
-                inventory.getIter());
-        if (hasTransferIn) {
-            throw new IllegalStateException("已有对应的转入记录，操作无效");
         }
 //        // 检查是否存在对应的转出记录
 //        boolean hasTransferOut = bearingRecordService.checkForTransferOut(
@@ -109,8 +103,7 @@ public class BearingInventoryServiceImpl implements BearingInventoryService {
 //        if (!hasTransferOut) {
 //            throw new IllegalStateException("没有找到对应的转出记录，无法进行转入操作");
 //        }
-        // 确定目标仓库ID
-        int targetDepositoryId = inventory.getDepositoryId() == 1 ? 2 : 1;
+
         // 如果是转入操作，更新仓库ID
         if ("转入".equals(inventory.getOperationType())) {
             inventory.setDepositoryId(targetDepositoryId);
@@ -136,17 +129,31 @@ public class BearingInventoryServiceImpl implements BearingInventoryService {
                 inventory.getBoxText(), inventory.getBoxNumber(),
                 inventory.getDepositoryId(),  1, inventory.getIter()
         );
-        // 如果是转入操作，还需要更新或新增 product_ids 表中的记录以反映转入状态
         if ("转入".equals(inventory.getOperationType())) {
-            ProductId newProductId = new ProductId();
-            newProductId.setBoxText(inventory.getBoxText());
-            newProductId.setBoxNumber(inventory.getBoxNumber());
-            newProductId.setQuantity(inventory.getQuantityInStock()); // 注意这里使用的是入库数量
-            newProductId.setDepositoryId(targetDepositoryId);
-            newProductId.setIsStocked(1); // 标记为已入库
-            newProductId.setIter(inventory.getIter());
-            productIdService.saveOrUpdateBoxNumber(newProductId);
+            ProductId existingProductId = productIdService.findProductId(
+                    inventory.getBoxText(),
+                    inventory.getBoxNumber(),
+                    targetDepositoryId,
+                    inventory.getIter()
+            );
+            if (existingProductId == null) {
+                // 如果没有找到现有记录，创建新的 ProductId 记录
+                ProductId newProductId = new ProductId();
+                newProductId.setBoxText(inventory.getBoxText());
+                newProductId.setBoxNumber(inventory.getBoxNumber());
+                newProductId.setQuantity(inventory.getQuantityInStock());
+                newProductId.setDepositoryId(targetDepositoryId);
+                newProductId.setIsStocked(1);
+                newProductId.setIter(inventory.getIter());
+                productIdService.saveOrUpdateBoxNumber(newProductId);
+            } else {
+                // 如果找到了现有记录，更新状态为已入库
+                existingProductId.setIsStocked(1);
+                existingProductId.setQuantity(inventory.getQuantityInStock()); // 根据业务需求决定是否更新数量
+                productIdService.saveOrUpdateBoxNumber(existingProductId);
+            }
         }
+
     }
     @Override
     public void stockOut(BearingInventory inventory) {

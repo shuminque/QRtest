@@ -163,7 +163,7 @@
             depositoryId: depositoryId,
             iter:newiter
         };
-        fetch('/bearingInventory/stockOut', {
+        fetch('/bearingInventory/stockOutForPC', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(inventoryDto),

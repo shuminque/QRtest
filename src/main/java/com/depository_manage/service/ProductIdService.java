@@ -51,6 +51,8 @@ public interface ProductIdService {
     // 新增方法：获取跨仓库共享的最新箱号
     ProductId getLatestBoxNumberSharedAcrossDepositories(String boxText);
     ProductId getLatestBoxNumberSharedAcrossDepositoriesForZero(String boxText);
+    ProductId findProductId(String boxText, String boxNumber, int depositoryId, int iter);
+
 
 
 }

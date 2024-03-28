@@ -216,6 +216,8 @@ public class ProductIdServiceImpl implements ProductIdService {
     public void deleteProductIdsRecord(String boxText, String boxNumber, int depositoryId, int iter) {
         productIdMapper.deleteProductIdsRecord(boxText, boxNumber, depositoryId, iter);
     }
-    // 新增服务方法：获取跨仓库共享的最新箱号
-
+    @Override
+    public ProductId findProductId(String boxText, String boxNumber, int depositoryId, int iter) {
+        return productIdMapper.findProductIdByCriteria(boxText, boxNumber, depositoryId, iter);
+    }
 }

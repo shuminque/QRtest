@@ -241,6 +241,11 @@
                 }
                 return response.json();
             })
+            .catch(error => {
+                // 如果是因为非该仓库箱号导致的错误
+                    toastr.error('编号生成失败:非该仓库箱号，请确认');
+                throw error; // 重新抛出，以便后续的catch可以处理
+            })
             .then(data => {
                 console.log("产品ID保存成功", data);
                 // 可以在这里根据需要执行更多操作

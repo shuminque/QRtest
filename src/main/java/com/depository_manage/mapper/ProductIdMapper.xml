@@ -51,7 +51,13 @@
         SELECT * FROM product_ids
         WHERE box_text = #{boxText} AND box_number = #{boxNumber} AND depository_id = #{depositoryId}
     </select>
-
+    <select id="findProductIdByCriteria" resultMap="productIdMap">
+        SELECT * FROM product_ids
+        WHERE box_text = #{boxText}
+          AND box_number = #{boxNumber}
+          AND depository_id = #{depositoryId}
+          AND iter = #{iter}
+    </select>
     <select id="selectAllBoxNumbers" resultMap="productIdMap">
         SELECT * FROM product_ids
     </select>
