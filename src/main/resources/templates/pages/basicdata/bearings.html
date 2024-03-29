@@ -35,7 +35,7 @@
                 </div>
             </div>
             <div class="layui-input-inline">
-                <input type="text" name="boxText" id="boxText" placeholder="搜索箱号" class="layui-input">
+                <input type="text" name="boxText" id="boxText" placeholder="搜索箱号" class="layui-input" oninput="this.value = this.value.toUpperCase()">
             </div>
             <div class="layui-input-inline">
                 <select name="customer">
@@ -192,14 +192,15 @@
         <div class="layui-form-item">
             <label class="layui-form-label">箱号：</label>
             <div class="layui-input-block">
-                <input type="text" id="boxText1" name="boxText" required lay-verify="required" placeholder="请输入以Z开头的箱号" autocomplete="off" class="layui-input">
+                <input type="text" id="boxText1" name="boxText" required lay-verify="required" placeholder="请输入以Z开头的箱号"
+                       autocomplete="off" class="layui-input" oninput="this.value = this.value.toUpperCase()">
             </div>
         </div>
         <!-- 数量 -->
         <div class="layui-form-item">
             <label class="layui-form-label">装箱数：</label>
             <div class="layui-input-block">
-                <input type="text" name="quantity" required lay-verify="required" placeholder="请输入装箱数" autocomplete="off" class="layui-input">
+                <input type="text" name="quantity" required lay-verify="required" placeholder="请输入装箱数" autocomplete="off" class="layui-input" >
             </div>
         </div>
         <!-- 材料尺寸 -->
