@@ -192,7 +192,7 @@
         <div class="layui-form-item">
             <label class="layui-form-label">箱号：</label>
             <div class="layui-input-block">
-                <input type="text" name="boxText" required lay-verify="required" placeholder="请输入以Z开头的箱号" autocomplete="off" class="layui-input">
+                <input type="text" id="boxText1" name="boxText" required lay-verify="required" placeholder="请输入以Z开头的箱号" autocomplete="off" class="layui-input">
             </div>
         </div>
         <!-- 数量 -->
@@ -244,7 +244,6 @@
         </div>
     </form>
 </script>
-
 <!-- 编辑bearings的表单（在弹出层中显示） -->
 <script type="text/template" id="editBearingsForm" >
     <form class="layui-form" lay-filter="editForm">
@@ -278,6 +277,13 @@
                     <option value="SAB" >SAB</option>
                     <option value="ZAB" >ZAB</option>
                 </select>
+            </div>
+        </div>
+        <!-- 型号 -->
+        <div class="layui-form-item">
+            <label class="layui-form-label">型号：</label>
+            <div class="layui-input-block">
+                <input type="text" name="model" placeholder="请输入型号" autocomplete="off" class="layui-input">
             </div>
         </div>
         <!-- 客户 -->
