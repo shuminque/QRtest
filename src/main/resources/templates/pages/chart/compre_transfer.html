@@ -133,15 +133,28 @@
                     var now = new Date();
                     // 获取转出时间
                     var out_time = new Date(row.out_time);
+                    var in_time = new Date(row.in_time);
                     // 计算时间差
                     var diff = now - out_time;
+                    var diff2 = now - in_time;
                     // 如果超过两天并且没有转入时间，则将这一行变黄
                     if (diff > 2 * 24 * 60 * 60 * 1000 && !row.in_time) {
                         $(this).find('td[data-field="in_box_text"]').css('background-color', 'yellow');
                         $(this).find('td[data-field="in_box_number"]').css('background-color', 'yellow');
                         $(this).find('td[data-field="in_quantity"]').css('background-color', 'yellow');
                         $(this).find('td[data-field="in_depository"]').css('background-color', 'yellow');
-                        $(this).find('td[data-field="in_time"]').css('background-color', 'yellow');                    }
+                        $(this).find('td[data-field="in_time"]').css('background-color', 'yellow');
+
+
+                    }
+                    if (diff2 > 2 * 24 * 60 * 60 * 1000 && !row.out_time) {
+                        $(this).find('td[data-field="out_box_text"]').css('background-color', 'yellow');
+                        $(this).find('td[data-field="out_box_number"]').css('background-color', 'yellow');
+                        $(this).find('td[data-field="out_quantity"]').css('background-color', 'yellow');
+                        $(this).find('td[data-field="out_depository"]').css('background-color', 'yellow');
+                        $(this).find('td[data-field="out_time"]').css('background-color', 'yellow');
+                    }
+
                 });
             }
         });
