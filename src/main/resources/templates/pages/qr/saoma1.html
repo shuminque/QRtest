@@ -282,8 +282,10 @@
             fontSize = '180px';
         } else if (length <= 8) {
             fontSize = '140px';
-        } else {
+        } else if (length >8 && length <10){
             fontSize = '100px';
+        } else {
+            fontSize = '60px';
         }
 
         // 应用字体大小到打印样式
