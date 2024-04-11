@@ -117,7 +117,7 @@
     </script>
     <script type="text/template" id="editGradeModelTemplate">
         <form class="layui-form" lay-filter="editGradeFormFilter">
-            <div class="layui-form-item">
+            <div class="layui-form-item" hidden="hidden">
                 <label class="layui-form-label">编号：</label>
                 <div class="layui-input-block">
                     <input type="text" name="id" required class="layui-input" readonly>
@@ -155,9 +155,27 @@
                 </div>
             </div>
             <div class="layui-form-item">
+                <label class="layui-form-label">客户：</label>
+                <div class="layui-input-block">
+                    <select name="customer">
+                        <option value="" selected>搜索客户</option>
+                        <option th:each="customer : ${customers}"
+                                th:value="${customer.name}"
+                                th:text="${customer.name}"></option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="layui-form-item">
                 <label class="layui-form-label">时间：</label>
                 <div class="layui-input-block">
                     <input type="text" name="time" id="date2" class="layui-input" >
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">尺寸：</label>
+                <div class="layui-input-block">
+                    <input type="text" name="size" class="layui-input" >
                 </div>
             </div>
             <div class="layui-form-item">
@@ -347,6 +365,9 @@
             if (formData.state !== '') {
                 req.state = formData.state;
             }
+            if (formData.size !== '') {
+                req.size = formData.size;
+            }
             if (formData.time !== '') {
                 var dates = formData.time.split(' - ');
                 req.startDate = dates[0];
@@ -403,7 +424,7 @@
                 type: 1,
                 title: '编辑',
                 content: $('#editGradeModelTemplate').html(), // 使用模板的内容
-                area: ['500px', '80%'],
+                area: ['500px', '90%'],
                 success: function(layero, index) {
                     layui.use('laydate', function() {
                         var laydate = layui.laydate;
