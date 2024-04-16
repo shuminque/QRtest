@@ -108,5 +108,50 @@
           AND depository_id = #{depositoryId}
           AND iter = #{iter}
     </delete>
+    <select id="selectAllIDs" resultMap="productIdMap" parameterType="map">
+        SELECT * FROM product_ids WHERE 1=1
+        <if test="boxText != null and boxText != ''">
+            AND box_text LIKE CONCAT('%',#{boxText},'%')
+        </if>
+        <if test="boxNumber != null and boxNumber != ''">
+            AND box_number  LIKE CONCAT('%',#{boxNumber},'%')
+        </if>
+        <if test="quantity != null and quantity != ''">
+            AND quantity  LIKE CONCAT('%',#{quantity},'%')
+        </if>
+        <if test="depositoryId != null and depositoryId != ''">
+            AND depository_id = #{depositoryId}
+        </if>
+        <if test="isStocked != null and isStocked != ''">
+            AND is_stocked = #{isStocked}
+        </if>
+        <if test="iter != null and iter != ''">
+            AND iter = #{iter}
+        </if>
+        <if test="begin != null and size != null">
+            LIMIT #{begin},#{size}
+        </if>
+    </select>
+    <select id="countIDs" resultType="int" parameterType="map">
+        SELECT COUNT(*) FROM product_ids WHERE 1=1
+        <if test="boxText != null and boxText != ''">
+            AND box_text LIKE CONCAT('%',#{boxText},'%')
+        </if>
+        <if test="boxNumber != null and boxNumber != ''">
+            AND box_number  LIKE CONCAT('%',#{boxNumber},'%')
+        </if>
+        <if test="quantity != null and quantity != ''">
+            AND quantity  LIKE CONCAT('%',#{quantity},'%')
+        </if>
+        <if test="depositoryId != null and depositoryId != ''">
+            AND depository_id = #{depositoryId}
+        </if>
+        <if test="isStocked != null and isStocked != ''">
+            AND is_stocked = #{isStocked}
+        </if>
+        <if test="iter != null and iter != ''">
+            AND iter = #{iter}
+        </if>
+    </select>
 
 </mapper>

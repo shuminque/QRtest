@@ -1,8 +1,10 @@
 package com.depository_manage.service.impl;
 
+import com.depository_manage.entity.BearingRecord;
 import com.depository_manage.entity.ProductId;
 import com.depository_manage.mapper.ProductIdMapper;
 import com.depository_manage.service.ProductIdService;
+import com.depository_manage.utils.ObjectFormatUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -219,5 +221,22 @@ public class ProductIdServiceImpl implements ProductIdService {
     @Override
     public ProductId findProductId(String boxText, String boxNumber, int depositoryId, int iter) {
         return productIdMapper.findProductIdByCriteria(boxText, boxNumber, depositoryId, iter);
+    }
+    @Override
+    public int countIDs(Map<String, Object> params) {
+        return productIdMapper.countIDs(params);
+    }
+    @Override
+    public List<ProductId> selectAllIDs(Map<String, Object> params) {
+        Integer size = 8, page = 1;
+        if (params.containsKey("size")) {
+            size = ObjectFormatUtil.toInteger(params.get("size"));
+            params.put("size", size);
+        }
+        if (params.containsKey("page")) {
+            page = ObjectFormatUtil.toInteger(params.get("page"));
+            params.put("begin", (page - 1) * size);
+        }
+        return productIdMapper.selectAllIDs(params);
     }
 }

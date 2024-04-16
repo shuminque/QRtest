@@ -1,5 +1,6 @@
 package com.depository_manage.mapper;
 
+import com.depository_manage.entity.BearingRecord;
 import com.depository_manage.entity.ProductId;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -53,4 +54,6 @@ public interface ProductIdMapper {
                                       @Param("boxNumber") String boxNumber,
                                       @Param("depositoryId") Integer depositoryId,
                                       @Param("iter") Integer iter);
+    int countIDs(Map<String, Object> params);
+    List<ProductId> selectAllIDs(Map<String,Object> params);
 }

@@ -1,5 +1,6 @@
 package com.depository_manage.controller;
 
+import com.depository_manage.entity.BearingRecord;
 import com.depository_manage.entity.ProductId;
 import com.depository_manage.service.ProductIdService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -95,5 +97,38 @@ public class ProductIdController {
         Map<String, Boolean> response = Collections.singletonMap("isStocked", isStocked);
         return ResponseEntity.ok(response);
     }
+    @GetMapping("/allIds")
+    public ResponseEntity<?> selectALLProductId(
+            @RequestParam Map<String, Object> params,
+            @RequestParam(defaultValue = "1") int page, // 页码通常是从1开始
+            @RequestParam(defaultValue = "20") int size) {
+        // 计算开始的记录索引，MyBatis分页是从0开始计算的
+        int begin = (page - 1) * size;
+        params.put("begin", begin);
+        params.put("size", size);
 
+        List<ProductId> records = productIdService.selectAllIDs(params);
+        int count = productIdService.countIDs(params); // 获取满足条件的记录总数
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("code", 0);
+        response.put("msg", "");
+        response.put("count", count);
+        response.put("data", records);
+        return ResponseEntity.ok(response);
+    }
+    @DeleteMapping("/delete")
+    public ResponseEntity<?> deleteProductIdsRecord(
+            @RequestParam String boxText,
+            @RequestParam String boxNumber,
+            @RequestParam int depositoryId,
+            @RequestParam int iter) {
+
+        try {
+            productIdService.deleteProductIdsRecord(boxText, boxNumber, depositoryId, iter);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("删除失败: " + e.getMessage());
+        }
+    }
 }

@@ -192,6 +192,13 @@
                             "roles": ["SAB_cg","SAB_sh","ZAB_cg","ZAB_sh","ALL"]
                         },
                         {
+                            "title": "IDS信息",
+                            "href": "/bearing-ids",
+                            "icon": "layui-icon layui-icon-file",
+                            "target": "_self",
+                            "roles": ["ALL"]
+                        },
+                        {
                             "title": "厂区信息",
                             "href": "/depository_add",
                             "icon": "layui-icon layui-icon-template",

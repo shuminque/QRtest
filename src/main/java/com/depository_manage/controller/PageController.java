@@ -124,6 +124,12 @@ public class PageController {
 
         return mv;
     }
+    @GetMapping("/bearing-ids")
+    public ModelAndView ProductIds() {
+        ModelAndView mv = new ModelAndView();
+        mv.setViewName("pages/basicdata/bearing-ids");
+        return mv;
+    }
     @GetMapping("/bearing-category")
     public ModelAndView BearingCategory() {
         ModelAndView mv = new ModelAndView();
