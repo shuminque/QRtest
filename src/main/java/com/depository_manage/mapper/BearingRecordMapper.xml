@@ -189,6 +189,9 @@
         <if test="depository != null and depository != ''">
             AND depository = #{depository}
         </if>
+        <if test="currentDepository != null and currentDepository != ''">
+            AND current_depository = #{currentDepository}
+        </if>
         <if test="state != null and state != ''">
             AND state  LIKE CONCAT('%',#{state},'%')
         </if>
