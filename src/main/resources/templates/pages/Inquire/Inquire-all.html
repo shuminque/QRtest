@@ -290,6 +290,7 @@
                 pageName:'page',
                 limitName:'size'
             },
+            totalRow: true, // 开启合计行
             toolbar: ['filter', 'exports', 'print'],
             cols: [ [ // 表头
                 {title: '操作', toolbar: '#actionBar'},
@@ -304,16 +305,36 @@
                 {field: 'model', title: '型号'},
                 {field: 'productCategory', title: '制品分类'},
                 {field: 'steelType', title: '钢种'},
-                {field: 'steelGrade', title: '钢材等级'},
+                {field: 'steelGrade', title: '钢材等级',totalRowText: '箱数'},
                 {field: 'size', title: '尺寸'},
-                {field: 'dissolve', title: '溶解号'}, // 添加编辑功能
-                {field: 'state', title: '状态'},
+                {field: 'dissolve', title: '溶解号',totalRowText: '合计数'}, // 添加编辑功能
+                {field: 'state', title: '状态', totalRowText: '合计'},
                 {field: 'time', title: '时间', templet: function(d) {
                         return formatDate(d.time);
                     }},
                 {field: 'iter', title: '轮数'},
                 {field: 'remarks', title: '备注'}
             ]],
+            done: function(res, curr, count) {
+                // 在这里计算合计值
+                var total = 0;
+                res.data.forEach(function(item) {
+                    total += parseInt(item.quantity);
+                });
+                // 更新合计行的值
+                var totalRow = document.getElementsByClassName('layui-table-total')[0];
+                if (totalRow) {
+                    var totalCell = totalRow.querySelector('td[data-field="state"]');
+                    if (totalCell) {
+                        totalCell.getElementsByClassName('layui-table-cell')[0].innerText = total.toString();
+                    }
+                    // 更新箱数
+                    var boxCountCell = totalRow.querySelector('td[data-field="size"]');
+                    if (boxCountCell) {
+                        boxCountCell.getElementsByClassName('layui-table-cell')[0].innerText = res.data.length.toString();
+                    }
+                }
+            },
             limits:[20,54,100,200,500],
             limit:20,
             page: true //开启分页
