@@ -101,7 +101,11 @@
         <table id="recordTable" lay-filter="recordTableFilter"></table>
 
     </div>
-
+    <script>
+        document.getElementById('boxText').addEventListener('input', function() {
+            this.value = this.value.toUpperCase();
+        });
+    </script>
     <script>
         var userReviewGroupId;var userAuthority;var userDepositoryId;var userDepository;var depositoryId;
         function getUserDepository() {
@@ -196,7 +200,7 @@
                 totalRow: true, // 开启合计行
                 toolbar: ['filter', 'exports', 'print'],
                 cols: [ [ // 表头
-                    {field: 'boxText', title: '箱号'},
+                    {field: 'boxText', title: '箱号' ,sort:true},
                     {field: 'boxNumber', title: '编号'},
                     {field: 'outerInnerRing', title: '内外轮'},
                     {field: 'model', title: '型号'},

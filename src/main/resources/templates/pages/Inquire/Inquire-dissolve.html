@@ -109,7 +109,11 @@
 
     <table id="recordTable" lay-filter="recordTableFilter"></table>
 </div>
-
+<script>
+    document.getElementById('boxText').addEventListener('input', function() {
+        this.value = this.value.toUpperCase();
+    });
+</script>
 <script>
     var userReviewGroupId;var userAuthority;var userDepositoryId;var userDepository;var depositoryId;
     function getUserDepository() {
