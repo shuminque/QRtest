@@ -60,7 +60,8 @@ public interface BearingRecordMapper {
     List<Map<String, Object>> selectComprehensiveTransferRecords(Map<String, Object> params);
     int selectComprehensiveTransferRecordsCount();
     Map<String, Object> selectCountsByDateAndDepository(@Param("date") String date,
-                                                        @Param("depository") String depository);
+                                                        @Param("depository") String depository,
+                                                        @Param("depositoryId")Integer depositoryId);
 
     boolean findTransferOutRecord(@Param("boxText") String boxText, @Param("boxNumber") String boxNumber, @Param("iter") int iter);
 

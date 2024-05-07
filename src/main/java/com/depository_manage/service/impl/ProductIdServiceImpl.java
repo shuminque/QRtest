@@ -8,7 +8,9 @@ import com.depository_manage.utils.ObjectFormatUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -76,6 +78,7 @@ public class ProductIdServiceImpl implements ProductIdService {
         newProductIdEntry.setQuantity(quantity);
         newProductIdEntry.setDepositoryId(depositoryId);
         newProductIdEntry.setIter(newIter); // 设置iter值
+        newProductIdEntry.setCreationTime(new Date()); // 设置创建时间为当前时间
         productIdMapper.insertOrUpdateBoxNumber(newProductIdEntry);
         return newBoxNumber;
     }
@@ -154,6 +157,7 @@ public class ProductIdServiceImpl implements ProductIdService {
         newProductIdEntry.setQuantity(quantity);
         newProductIdEntry.setDepositoryId(depositoryId);
         newProductIdEntry.setIter(newIter); // Set iter value
+        newProductIdEntry.setCreationTime(new Date()); // 设置创建时间为当前时间
         productIdMapper.insertOrUpdateBoxNumber(newProductIdEntry);
         return newBoxNumber;
     }

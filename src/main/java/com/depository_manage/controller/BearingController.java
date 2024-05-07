@@ -101,13 +101,11 @@ public class BearingController {
             return ResponseEntity.notFound().build();
         }
         String depositoryText = convertDepositoryIdToText(depositoryId);
-
         // 查询 bearings 表获取其他信息
         Bearing bearing = bearingService.getBearingByBoxTextAndDepository(boxText,depositoryText);
         if (bearing == null) {
             return ResponseEntity.notFound().build();
         }
-
         // 构建响应数据
         Map<String, Object> response = new HashMap<>();
         response.put("boxText", boxText);
@@ -120,6 +118,8 @@ public class BearingController {
         response.put("outerInnerRing", bearing.getOuterInnerRing());
         response.put("depository", bearing.getDepository());
         response.put("storageLocation", bearing.getStorageLocation());
+        response.put("iter", productId.getIter());
+
         // ...
 
         return ResponseEntity.ok(response);

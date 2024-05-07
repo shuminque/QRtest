@@ -258,8 +258,9 @@ public class BearingRecordController {
     @GetMapping("/countsByDateAndDepository")
     public ResponseEntity<?> getCountsByDateAndDepository(
             @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") Date date,
-            @RequestParam String depository) {
-        Map<String, Object> counts = bearingRecordService.getCountsByDateAndDepository(date, depository);
+            @RequestParam String depository,
+            @RequestParam Integer depositoryId) {
+        Map<String, Object> counts = bearingRecordService.getCountsByDateAndDepository(date, depository,depositoryId);
         return ResponseEntity.ok(counts);
     }
 

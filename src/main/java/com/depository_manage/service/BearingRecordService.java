@@ -26,6 +26,6 @@ public interface BearingRecordService {
     boolean checkForTransferOut(String boxText, String boxNumber, int iter);
     List<Map<String, Object>> getComprehensiveTransferRecords(Map<String, Object> params);
     int getComprehensiveTransferRecordsCount();
-    Map<String, Object> getCountsByDateAndDepository(Date date, String depository);
+    Map<String, Object> getCountsByDateAndDepository(Date date, String depository, Integer depositoryId);
 
 }

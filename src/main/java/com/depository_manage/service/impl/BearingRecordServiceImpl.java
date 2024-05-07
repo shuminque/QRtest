@@ -168,9 +168,9 @@ public class BearingRecordServiceImpl implements BearingRecordService {
     }
 
     @Override
-    public Map<String, Object> getCountsByDateAndDepository(Date date, String depository) {
+    public Map<String, Object> getCountsByDateAndDepository(Date date, String depository, Integer depositoryId) {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         String formattedDate = sdf.format(date);
-        return bearingRecordMapper.selectCountsByDateAndDepository(formattedDate, depository);
+        return bearingRecordMapper.selectCountsByDateAndDepository(formattedDate, depository, depositoryId);
     }
 }

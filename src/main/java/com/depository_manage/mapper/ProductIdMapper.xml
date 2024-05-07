@@ -9,6 +9,7 @@
         <result property="depositoryId" column="depository_id"/>
         <result property="isStocked" column="is_stocked"/> <!-- 新增字段映射 -->
         <result property="iter" column="iter"/> <!-- 新增字段映射 -->
+        <result property="creationTime" column="creation_time"/> <!-- 新增字段映射 -->
     </resultMap>
 
     <select id="selectBoxNumberByBoxTextAndDepositoryId" resultType="com.depository_manage.entity.ProductId">
@@ -63,14 +64,15 @@
     </select>
 
     <insert id="insertOrUpdateBoxNumber">
-        INSERT INTO product_ids (box_text, box_number, quantity, depository_id, is_stocked, iter)
-        VALUES (#{boxText}, #{boxNumber}, #{quantity}, #{depositoryId}, #{isStocked}, #{iter})
+        INSERT INTO product_ids (box_text, box_number, quantity, depository_id, is_stocked, iter, creation_time)
+        VALUES (#{boxText}, #{boxNumber}, #{quantity}, #{depositoryId}, #{isStocked}, #{iter}, #{creationTime})
         ON DUPLICATE KEY UPDATE
         box_number = VALUES(box_number),
         quantity = VALUES(quantity),
         depository_id = VALUES(depository_id),
         is_stocked = VALUES(is_stocked),
-        iter = VALUES(iter); <!-- Update iter field -->
+        iter = VALUES(iter),
+        creation_time = VALUES(creation_time);<!-- Update iter field -->
     </insert>
 
     <!-- 更新 is_stocked 状态 -->

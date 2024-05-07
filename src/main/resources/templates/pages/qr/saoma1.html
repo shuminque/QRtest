@@ -75,7 +75,7 @@
 <body>
 <div>
     <div>
-        <input type="text" id="boxTextInput" placeholder="请输入箱号" class="layui-input">
+        <input type="text" id="boxTextInput" placeholder="请输入箱号" class="layui-input" autocomplete="off">
     </div>
     <div class="button-container">
         <div class="button-row">
@@ -85,12 +85,6 @@
         <div class="button-row">
             <button class="layui-btn" onclick="printQRCode()">打印二维码</button>
         </div>
-
-<!--        <div class="button-row">-->
-<!--            <input type="text" id="existingBoxTextInput" placeholder="请输入现有的boxText" class="layui-input">-->
-<!--            <input type="text" id="existingBoxNumberInput" placeholder="请输入现有的boxNumber" class="layui-input">-->
-<!--            <button class="layui-btn" onclick="generateExistingQRCode()">生成现有二维码</button>-->
-<!--        </div>-->
 
     </div>
     <!-- 预生成信息的模态框 -->
@@ -107,7 +101,6 @@
         <button onclick="cancelGenerateQRCodeForZero()">取消</button>
     </div>
 </div>
-<!--<button onclick="generateQRCode()">生成全部二维码</button>-->
 <div class="button-container">
     <div class="button-row">
         <button class="inout" onclick="showModal('stockIn')">入库</button>
@@ -135,10 +128,6 @@
     <h2>扫描二维码</h2>
     <div id="qr-reader" style="width:500px"></div>
 </div>
-<!--<div class="button-row">-->
-<!--    &lt;!&ndash; 使用window.location.href进行页面跳转 &ndash;&gt;-->
-<!--    <button class="inout" onclick="window.location.href='/Inquire-all'">查看记录</button>-->
-<!--</div>-->
 <div class="button-row">
     <div class="layui-form-item layui-row">
         <div class="layui-col-xs8">
@@ -151,6 +140,31 @@
             <button id="updateCountButton" class="layui-btn " style="min-height: 60px;">更新</button> <!-- 更新按钮 -->
         </div>
     </div>
+</div>
+<div class="button-row">
+    <button class="layui-btn" onclick="function toggleExistingQRCodeContainer() {
+                var container = document.getElementById('existingQRCodeContainer');
+                var boxTextInput = document.getElementById('existingBoxTextInput');
+                var boxNumberInput = document.getElementById('existingBoxNumberInput');
+               // 切换容器的显示状态
+                if (container.style.display === 'none') {
+                    container.style.display = 'block';
+                    // 清空输入框内容
+                    boxTextInput.value = '';
+                    boxNumberInput.value = '';
+                } else {
+                    container.style.display = 'none';
+                }
+            }
+            toggleExistingQRCodeContainer()">自定义生成</button>
+</div>
+<div id="existingQRCodeContainer" class="button-row" style="display: none">
+    <input type="text" id="existingBoxTextInput" placeholder="请输入箱号" class="layui-input" autocomplete="off">
+    <input type="text" id="existingBoxNumberInput" placeholder="请输入之前的编号" class="layui-input" autocomplete="off">
+    <button class="layui-btn" onclick="generateExistingQRCode()" style="color: #6a1a21">生成二维码</button>
+</div>
+<div class="button-row" style="font-size: 28px">
+    新增编号数：<span id="idsCreatedCount">0</span>箱
 </div>
 <div class="button-row" style="font-size: 28px">
     入库箱数：<span id="stockInCount">0</span>箱
@@ -183,24 +197,33 @@
     var userDepositoryId;var userDepository;var depositoryId;var defaultQuantity;var preGenerateData; // 用于存储即将生成的数据
     $(document).ready(function() {
         getUserDepository(); // 假设这是获取用户仓库信息的函数
-        // 初始化移动端二维码输入框的自动完成功能
-        $('#boxTextInput').typeahead({
-            source: function(query, process) {
-                return $.ajax({
-                    url: '/bearings/search', // 确保这个URL是处理搜索请求的后端接口
-                    type: 'GET',
-                    data: { query: query, depository: userDepository }, // userDepository应该是当前用户的仓库信息
-                    dataType: 'json',
-                    success: function(data) {
-                        console.log(data)
-                        return process(data);
-                    }
-                });
-            },
-            minLength: 1, // 最小触发自动完成的字符数
-            autoSelect: true // 自动选择第一个匹配项
-        });
+        // 通用的自动完成设置函数
+        function setupTypeahead(inputSelector, url) {
+            $(inputSelector).typeahead({
+                source: function(query, process) {
+                    return $.ajax({
+                        url: url, // 使用提供的URL
+                        type: 'GET',
+                        data: { query: query, depository: userDepository }, // 使用当前用户的仓库信息
+                        dataType: 'json',
+                        success: function(data) {
+                            console.log(data);
+                            return process(data);
+                        }
+                    });
+                },
+                minLength: 1, // 最小触发自动完成的字符数
+                autoSelect: true // 自动选择第一个匹配项
+            });
+        }
+
+        // 应用自动完成到boxTextInput
+        setupTypeahead('#boxTextInput', '/bearings/search');
+
+        // 应用自动完成到existingBoxTextInput
+        setupTypeahead('#existingBoxTextInput', '/bearings/search');
     });
+
 
     function getUserDepository() {
         $.ajax({
@@ -259,12 +282,14 @@
                     type: 'GET',
                     data: {
                         date: selectedDate,
-                        depository: userDepository // 这个变量必须事先正确设置
+                        depository: userDepository, // 这个变量必须事先正确设置
+                        depositoryId: userDepositoryId
                     },
                     success: function(response) {
                         // 用响应的数据更新页面
                         $('#stockInCount').text(response.stockInCount || 0).hide().show();
                         $('#stockOutCount').text(response.stockOutCount || 0).hide().show();
+                        $('#idsCreatedCount').text(response.idsCreatedCount || 0).hide().show();
                     },
                     error: function(xhr, status, error) {
                         console.error("请求库存数据失败: ", error);
@@ -312,7 +337,7 @@
         var existingBoxNumber = document.getElementById("existingBoxNumberInput").value;
         var existingDepositoryId = depositoryId;
         if (!existingBoxText || !existingBoxNumber) {
-            alert("请输入现有的boxText和boxNumber");
+            layer.alert("请输入现有的箱号和编号");
             return;
         }
         // 向后端请求获取与现有boxText和boxNumber相关的数据
@@ -359,9 +384,23 @@
                     correctLevel: 3,
                 }).appendTo(qrCodeElement);
                 // 显示信息和元素
-                updateInfoAndDisplayElements(data);
-            })
+                var infoHtml = `
+                    <div class="info-row print-info-row">
+                        <p class="box-text"><span>${data.boxText}</span></p>
+                    </div>
+                    <div class="info-row print-info-row">
+                        <p class="box-number"><span>${data.boxNumber}</span></p>
+                    </div>
+                `;
+                var infoContainer = document.querySelector("#printSection .info-container");
+                infoContainer.innerHTML = infoHtml;
+                adjustPrintFontSize(data.boxText);
+                // 显示元素
+                document.getElementById('qrcodeContainer').style.display = 'block';
+                document.getElementById('printSection').style.display = 'block';
+                document.getElementById('preGenerateModal').style.display = 'none';            })
             .catch(error => {
+                layer.alert("请输入现有的箱号和编号");
                 console.error('生成现有二维码时发生错误：', error);
             });
     }
@@ -1002,7 +1041,6 @@
                 .catch(error => console.error('入库操作失败:', error));
         }
     }
-
 
     function updateQRCodeWithData(data, quantity, depositoryName, isQuantityChanged) {
         // var qrData = JSON.stringify({boxText: boxText, boxNumber: boxNumber,
