@@ -395,9 +395,6 @@
         LEFT JOIN
         pre_start_date_inventory pre_inv ON b.pair = pre_inv.pair AND b.outer_inner_ring = pre_inv.outer_inner_ring
         WHERE b.depository = #{depository}
-        <if test="state != null and state != 'ALL'">
-           AND b.state = #{state}
-        </if>
         GROUP BY
         b.pair
         ORDER BY
