@@ -85,17 +85,17 @@
         <div class="button-row">
             <button class="layui-btn" onclick="printQRCode()">打印二维码</button>
         </div>
-
     </div>
     <!-- 预生成信息的模态框 -->
     <div id="preGenerateModal" style="display:none;">
-        <p>即将生成的 Number号: <span id="previewBoxNumber"></span></p>
-        <p>数量: <input type="number" id="editQuantity" readonly /></p> <!-- 替换为输入框 -->
+        <p>即将生成的 Number号: <input type="text" id="previewBoxNumber" class="layui-input" /></p>
+        <p>数量: <input type="number" id="editQuantity" readonly /></p>
         <button onclick="confirmGenerateQRCode()">确认</button>
         <button onclick="cancelGenerateQRCode()">取消</button>
     </div>
     <div id="preGenerateModalForZero" style="display:none;">
         <p>即将生成的 Number号: <span id="previewBoxNumberForZero"></span></p>
+        <!--        <p>即将生成的 Number号: <input type="text" id="previewBoxNumberForZero" class="layui-input" /></p>-->
         <p>数量: <input type="number" id="editQuantityForZero" /></p>
         <button onclick="confirmGenerateQRCodeForZero()">确认</button>
         <button onclick="cancelGenerateQRCodeForZero()">取消</button>
@@ -440,7 +440,7 @@
                     depositoryId: depositoryId // 添加 depositoryId
                 };
                 defaultQuantity = data.quantity; // 将获取到的默认数量赋值给全局变量
-                document.getElementById('previewBoxNumber').textContent = data.boxNumber;
+                document.getElementById('previewBoxNumber').value = data.boxNumber;
                 document.getElementById('editQuantity').value = data.quantity; // 设置输入框的初始值
                 document.getElementById('editQuantity').setAttribute('data-initial-value', data.quantity);
                 document.getElementById('preGenerateModal').style.display = 'block';
@@ -472,7 +472,7 @@
                     depositoryId: depositoryId // 添加 depositoryId
                 };
                 defaultQuantity = data.quantity; // 将获取到的默认数量赋值给全局变量
-                document.getElementById('previewBoxNumberForZero').textContent = data.boxNumber;
+                document.getElementById('previewBoxNumberForZero').textContent  = data.boxNumber;
                 document.getElementById('editQuantityForZero').value = data.quantity; // 设置输入框的初始值
                 document.getElementById('editQuantityForZero').setAttribute('data-initial-value', data.quantity);
                 document.getElementById('preGenerateModalForZero').style.display = 'block';
@@ -485,9 +485,10 @@
     // 当用户点击“确认”按钮时执行
     function confirmGenerateQRCode() {
         console.log(preGenerateData);
+        preGenerateData.boxNumber = document.getElementById('previewBoxNumber').value;
         preGenerateData.quantity = document.getElementById('editQuantity').value;
         // 确保发送到后端的数据包括厂区ID
-        fetch('/bearings/' + preGenerateData.boxText+'/' + depositoryId, {
+        fetch('/bearings/free/' + preGenerateData.boxText+'/' + depositoryId, {
             method: 'POST',
             body: JSON.stringify(preGenerateData),
             headers: {

@@ -12,6 +12,8 @@ public interface ProductIdService {
     List<ProductId> getAllBoxNumbers();
     ProductId saveOrUpdateBoxNumber(ProductId boxNumber);
 
+    void saveOrUpdateBoxNumber(String boxText, int depositoryId, int quantity, String boxNumber);
+
     /**
      * 递增并保存特定 box_text 和 depository_id 的 product_id。
      *

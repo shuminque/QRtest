@@ -145,6 +145,11 @@ public class PageController {
         ModelAndView mv = new ModelAndView();
         mv.setViewName("pages/basicdata/bearing-steel-type");return mv;
     }
+    @GetMapping("/bearing-steel-size")
+    public ModelAndView steelSize() {
+        ModelAndView mv = new ModelAndView();
+        mv.setViewName("pages/basicdata/bearing-steel-size");return mv;
+    }
     @GetMapping("/customer-management")
     public ModelAndView customerManagement() {
         ModelAndView mv = new ModelAndView();

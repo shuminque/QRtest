@@ -339,6 +339,9 @@
         bearings b ON br.box_text = b.box_text
         WHERE
             br.current_depository = #{depository} AND  -- 使用depository作为过滤条件
+        <if test="state != null and state != 'ALL'">
+            br.state = #{state} AND
+        </if>
             br.time &lt; #{StartDate}
         GROUP BY
         b.pair, br.outer_inner_ring
@@ -356,6 +359,9 @@
         bearings b ON br.box_text = b.box_text
         WHERE
             br.current_depository = #{depository} AND
+        <if test="state != null and state != 'ALL'">
+            br.state = #{state} AND
+        </if>
             br.time &lt; DATE_ADD(#{EndDate},interval 1 DAY)
         GROUP BY
         b.pair, br.outer_inner_ring
@@ -389,6 +395,9 @@
         LEFT JOIN
         pre_start_date_inventory pre_inv ON b.pair = pre_inv.pair AND b.outer_inner_ring = pre_inv.outer_inner_ring
         WHERE b.depository = #{depository}
+        <if test="state != null and state != 'ALL'">
+           AND b.state = #{state}
+        </if>
         GROUP BY
         b.pair
         ORDER BY

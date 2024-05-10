@@ -125,6 +125,31 @@ public class BearingController {
         return ResponseEntity.ok(response);
     }
 
+    @PostMapping("/free/{boxText}/{depositoryId}")
+    public ResponseEntity<?> freeProductId(@PathVariable String boxText,
+                                                         @PathVariable int depositoryId,
+                                                         @RequestBody Map<String, Object> requestData) {
+        // 提取 quantity 和其他需要的信息
+        int quantity = Integer.parseInt((String) requestData.get("quantity"));
+        String boxNumber = (String) requestData.get("boxNumber");
+        String depositoryText = convertDepositoryIdToText(depositoryId);
+        if (boxNumber == null || boxNumber.isEmpty()) {
+            return ResponseEntity.badRequest().body(Collections.singletonMap("error", "Box number must not be empty"));
+        }
+        Bearing bearing = bearingService.getBearingByBoxTextAndDepository(boxText,depositoryText);
+        if (bearing == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        productIdService.saveOrUpdateBoxNumber(boxText, depositoryId, quantity, boxNumber);
+
+        ProductId productId = productIdService.getLatestBoxNumberSharedAcrossDepositories(boxText);
+        // 3. 创建包含Bearing数据和新product_id的响应
+        Map<String, Object> response = getStringObjectMap(boxText, boxNumber, bearing, quantity, productId.getIter());
+        // 4. 返回包含Bearing数据和新product_id的响应
+        return ResponseEntity.ok(response);
+    }
+
     @PostMapping("/{boxText}/{depositoryId}")
     public ResponseEntity<?> createAndReturnNewProductId(@PathVariable String boxText,
                                                          @PathVariable int depositoryId,
@@ -145,7 +170,6 @@ public class BearingController {
                     .body(Collections.singletonMap("error", "Unable to generate new Product ID for box number: " + boxText));
         }
         ProductId productId = productIdService.getBoxNumberByBoxTextAndDepositoryId(boxText, depositoryId);
-
         // 3. 创建包含Bearing数据和新product_id的响应
         Map<String, Object> response = getStringObjectMap(boxText, newBoxNumber, bearing, quantity, productId.getIter());
         // 4. 返回包含Bearing数据和新product_id的响应

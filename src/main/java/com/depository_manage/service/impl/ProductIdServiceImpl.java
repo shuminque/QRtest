@@ -1,6 +1,5 @@
 package com.depository_manage.service.impl;
 
-import com.depository_manage.entity.BearingRecord;
 import com.depository_manage.entity.ProductId;
 import com.depository_manage.mapper.ProductIdMapper;
 import com.depository_manage.service.ProductIdService;
@@ -8,7 +7,6 @@ import com.depository_manage.utils.ObjectFormatUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -52,6 +50,24 @@ public class ProductIdServiceImpl implements ProductIdService {
     }
 
 
+    @Override
+    public void saveOrUpdateBoxNumber(String boxText, int depositoryId, int quantity, String boxNumber) {
+        ProductId current = getLatestBoxNumberSharedAcrossDepositories(boxText);
+        int newIter;
+        if (current != null && "999".equals(current.getBoxNumber())) {
+            newIter = current.getIter() + 1; // 如果BoxNumber为"999"，则iter增加
+        } else {
+            newIter = current != null ? current.getIter() : 1; // 如果不存在或者不为999，保持当前iter或设为1
+        }
+        ProductId newProductIdEntry = new ProductId();
+        newProductIdEntry.setBoxText(boxText);
+        newProductIdEntry.setBoxNumber(boxNumber); // 使用传入的boxNumber
+        newProductIdEntry.setQuantity(quantity);
+        newProductIdEntry.setDepositoryId(depositoryId);
+        newProductIdEntry.setIter(newIter);
+        newProductIdEntry.setCreationTime(new Date());
+        productIdMapper.insertOrUpdateBoxNumber(newProductIdEntry);
+    }
 
     @Override
     public String incrementAndSaveBoxNumber(String boxText, int depositoryId, int quantity) {
@@ -63,7 +79,6 @@ public class ProductIdServiceImpl implements ProductIdService {
             // 使用已有的incrementBoxNumber方法
             newBoxNumber = incrementBoxNumber(current.getBoxNumber());
             newIter = current.getIter();
-
             // 如果BoxNumber为"999"，则iter增加
             if ("999".equals(current.getBoxNumber())) {
                 newIter++;
