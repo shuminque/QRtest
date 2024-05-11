@@ -206,6 +206,13 @@
                             "roles": ["ALL"]
                         },
                         {
+                            "title": "贸易方式信息",
+                            "href": "/trade-mode",
+                            "icon": "layui-icon layui-icon-file",
+                            "target": "_self",
+                            "roles": ["SAB_cg","SAB_sh","ZAB_cg","ZAB_sh","ALL"]
+                        },
+                        {
                             "title": "厂区信息",
                             "href": "/depository_add",
                             "icon": "layui-icon layui-icon-template",

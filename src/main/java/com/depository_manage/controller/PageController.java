@@ -38,6 +38,8 @@ public class PageController {
     private SteelTypeService steelTypeService;
     @Autowired
     private CustomerService customerService;
+    @Autowired
+    private TradeModeService  tradeModeService;
     @GetMapping("/login")
     public String login() {
         return "pages/user/login";
@@ -121,6 +123,7 @@ public class PageController {
         mv.addObject("steelGrades", steelGradeService.findAll());
         mv.addObject("steelTypes", steelTypeService.findAll());
         mv.addObject("customers", customerService.findAll());
+        mv.addObject("tradeModes", tradeModeService.findAll());
 
         return mv;
     }
@@ -149,6 +152,11 @@ public class PageController {
     public ModelAndView steelSize() {
         ModelAndView mv = new ModelAndView();
         mv.setViewName("pages/basicdata/bearing-steel-size");return mv;
+    }
+    @GetMapping("/trade-mode")
+    public ModelAndView tradeMode() {
+        ModelAndView mv = new ModelAndView();
+        mv.setViewName("pages/basicdata/trade-mode");return mv;
     }
     @GetMapping("/customer-management")
     public ModelAndView customerManagement() {

@@ -237,7 +237,25 @@
                     <option value="死库">死库</option>
                 </select>
             </div>
-        </div>        <!-- 提交按钮 -->
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">单重：</label>
+            <div class="layui-input-block">
+                <input type="text" name="singleEight" placeholder="请输入单重" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">贸易方式：</label>
+            <div class="layui-input-block">
+                <select name="mode">
+                    <option value="" selected>选择方式</option>
+                    <option th:each="trade_mode : ${tradeModes}"
+                            th:value="${trade_mode.mode}"
+                            th:text="${trade_mode.mode}"></option>
+                </select>
+            </div>
+        </div>
+        <!-- 提交按钮 -->
         <div class="layui-form-item">
             <div class="layui-input-block">
                 <button type="submit" class="layui-btn" lay-submit lay-filter="submitAddForm">添加</button>
@@ -377,6 +395,23 @@
                 </select>
             </div>
         </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">单重：</label>
+            <div class="layui-input-block">
+                <input type="text" name="singleEight" placeholder="请输入单重" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">贸易方式：</label>
+            <div class="layui-input-block">
+                <select name="mode">
+                    <option value="" selected>选择方式</option>
+                    <option th:each="trade_mode : ${tradeModes}"
+                            th:value="${trade_mode.mode}"
+                            th:text="${trade_mode.mode}"></option>
+                </select>
+            </div>
+        </div>
         <!-- 提交按钮 -->
         <div class="layui-form-item">
             <div class="layui-input-block">
@@ -474,6 +509,8 @@
                 {field: 'size', title: '材料尺寸'},
                 // {field: 'storageLocation', title: '库位',  hide:true},
                 {field: 'state', title: '状态'},
+                {field: 'singleEight', title: '单重'},
+                {field: 'mode', title: '贸易方式'},
                 {title: '操作', toolbar: '#actionBar'} // 添加操作列
             ]],
             limits:[500,1000],
@@ -510,6 +547,12 @@
             }
             if (formData.state !== '') {
                 req.state = formData.state;
+            }
+            if (formData.singleEight !== '') {
+                req.singleEight = formData.singleEight;
+            }
+            if (formData.mode !== '') {
+                req.mode = formData.mode;
             }
             // 重新加载表格数据
             recordTable.reload({
@@ -664,7 +707,9 @@
                         'size': data.size, // 材料尺寸
                         'pair': data.pair,
                         'storageLocation': data.storageLocation, // 备注
-                        'state': data.state
+                        'state': data.state,
+                        'singleEight': data.singleEight,
+                        'mode': data.mode
                     });
                     layui.form.render();
                 }
