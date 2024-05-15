@@ -115,6 +115,34 @@
             page: true,
             skin: 'line',
             done: function(res, curr, count) {
+                var totalFields = [
+                    '前月末在库_LA', '前月末在库_LB', '入库_LA', '入库_LB',
+                    '出库_LA', '出库_LB', '返库_LA', '返库_LB',
+                    '转入_LA', '转入_LB', '转出_LA', '转出_LB',
+                    '当月在库_LA', '当月在库_LB'
+                ];
+
+                var totals = {};
+                totalFields.forEach(function(field) {
+                    totals[field] = 0;
+                });
+
+                res.data.forEach(function(item) {
+                    totalFields.forEach(function(field) {
+                        totals[field] += item[field];
+                    });
+                });
+
+                var totalRow = { '型号': '合计' };
+                totalFields.forEach(function(field) {
+                    totalRow[field] = totals[field];
+                });
+
+                res.data.push(totalRow);
+
+                tableInstance.reload({
+                    data: res.data
+                });
             }
         });
     }
