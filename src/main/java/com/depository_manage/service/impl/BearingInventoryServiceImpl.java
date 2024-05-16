@@ -248,8 +248,8 @@ public class BearingInventoryServiceImpl implements BearingInventoryService {
     }
     @Override
     public void adjustInventoryBasedOnUpdate(BearingRecord originalRecord, BearingRecord updatedRecord) {
-        Integer originalDepositoryId = getDepositoryIdFromString(originalRecord.getDepository());
-        Integer updatedDepositoryId = getDepositoryIdFromString(updatedRecord.getDepository());
+        Integer originalDepositoryId = getDepositoryIdFromString(originalRecord.getCurrentDepository());
+        Integer updatedDepositoryId = getDepositoryIdFromString(updatedRecord.getCurrentDepository());
 
         if (!Objects.equals(originalDepositoryId, updatedDepositoryId)) {
             // 根据业务需求处理仓库ID不一致的情况

@@ -179,9 +179,9 @@
                 </div>
             </div>
             <div class="layui-form-item">
-                <label class="layui-form-label">厂区：</label>
+                <label class="layui-form-label">所在仓库：</label>
                 <div class="layui-input-block">
-                    <input type="text" name="depository" class="layui-input" >
+                    <input type="text" name="currentDepository" class="layui-input" >
                 </div>
             </div>
             <div class="layui-form-item">
@@ -487,7 +487,8 @@
                         'dissolve': data.dissolve,
                         'remarks': data.remarks,
                         'state': data.state,
-                        'iter': data.iter
+                        'iter': data.iter,
+                        "currentDepository": data.currentDepository
                     });
                     layui.form.render();
                 }

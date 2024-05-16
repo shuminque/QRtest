@@ -338,11 +338,11 @@
         JOIN
         bearings b ON br.box_text = b.box_text
         WHERE
-            br.current_depository = #{depository} AND  -- 使用depository作为过滤条件
+        br.current_depository = #{depository} AND  -- 使用depository作为过滤条件
         <if test="state != null and state != 'ALL'">
             br.state = #{state} AND
         </if>
-            br.time &lt; #{StartDate}
+        br.time &lt; #{StartDate}
         GROUP BY
         b.pair, br.outer_inner_ring
         ),
@@ -358,11 +358,11 @@
         JOIN
         bearings b ON br.box_text = b.box_text
         WHERE
-            br.current_depository = #{depository} AND
+        br.current_depository = #{depository} AND
         <if test="state != null and state != 'ALL'">
             br.state = #{state} AND
         </if>
-            br.time &lt; DATE_ADD(#{EndDate},interval 1 DAY)
+        br.time &lt; DATE_ADD(#{EndDate},interval 1 DAY)
         GROUP BY
         b.pair, br.outer_inner_ring
         )
@@ -398,7 +398,7 @@
         GROUP BY
         b.pair
         ORDER BY
-            MAX(b.size);
+        MAX(b.size);
     </select>
     <select id="selectInventoryStatus" resultType="map">
         SELECT

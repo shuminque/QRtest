@@ -127,7 +127,7 @@ public class BearingRecordController {
         ProductId productId = new ProductId();
         productId.setBoxText(record.getBoxText());
         productId.setBoxNumber(record.getBoxNumber());
-        productId.setDepositoryId(getDepositoryIdFromString(record.getDepository()));
+        productId.setDepositoryId(getDepositoryIdFromString(record.getCurrentDepository()));
         productId.setIter(record.getIter());
         productId.setQuantity(record.getQuantity());
         // 调用 Service 层的 updateQuantity 方法
