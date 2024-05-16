@@ -78,6 +78,9 @@
                     <input type="text" name="model" placeholder="搜索型号" class="layui-input">
                 </div>
                 <div class="layui-input-inline">
+                    <input type="text" name="pair" placeholder="搜索配对号" class="layui-input">
+                </div>
+                <div class="layui-input-inline">
                     <select name="steelType">
                         <option value="" selected>搜索钢种</option>
                         <option th:each="steel_type : ${steelTypes}"
@@ -303,6 +306,7 @@
                 {field: 'boxNumber', title: '箱号编号'},
                 {field: 'quantity', title: '数量'},
                 {field: 'depository', title: '厂区',hide:true},
+                {field: 'pair', title: '配对号',hide:true},
                 {field: 'currentDepository', title: '仓库'},
                 {field: 'customer', title: '客户'},
                 {field: 'outerInnerRing', title: '外/内轮'},
@@ -392,6 +396,9 @@
             }
             if (formData.size !== '') {
                 req.size = formData.size;
+            }
+            if (formData.pair !== '') {
+                req.pair = formData.pair;
             }
             if (formData.time !== '') {
                 var dates = formData.time.split(' - ');

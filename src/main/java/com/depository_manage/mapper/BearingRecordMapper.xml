@@ -149,6 +149,9 @@
         <if test="currentDepository != null and currentDepository != ''">
             AND current_depository = #{currentDepository}
         </if>
+        <if test="pair != null and pair != ''">
+            AND pair = #{pair}
+        </if>
         <if test="startDate != null and endDate != null">
             AND DATE(time) BETWEEN #{startDate} AND #{endDate}
         </if>
