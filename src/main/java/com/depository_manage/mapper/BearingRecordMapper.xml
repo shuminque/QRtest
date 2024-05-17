@@ -427,7 +427,7 @@
         ) lr ON br.box_text = lr.box_text AND br.box_number = lr.box_number
         WHERE
         <if test="depository != null and depository != 'ALL'">
-            br.depository = #{depository} AND
+            br.current_depository = #{depository} AND
         </if>
         <if test="state != null and state != 'ALL'">
              br.state = #{state}  AND
