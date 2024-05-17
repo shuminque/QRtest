@@ -45,6 +45,7 @@ public class BearingRecordController {
             }
         }
         System.out.println(record);
+        String currentState = bearingRecordService.getCurrentState(record.getBoxText(), record.getBoxNumber());
         Bearing bearing = bearingService.getBearingByBoxTextAndDepository(adjustedBoxText, record.getDepository());
         if (bearing != null) {
             // 使用Bearing数据填充BearingRecord
@@ -58,9 +59,8 @@ public class BearingRecordController {
             record.setOuterInnerRing(bearing.getOuterInnerRing());
             record.setSize(bearing.getSize());
             record.setPair(bearing.getPair());
-            record.setState(bearing.getState());
+            record.setState(currentState); // 使用当前状态而不是bearing的状态
             record.setCurrentDepository(currentDepository); // 设置当前仓库为bearing的当前仓库
-            // ...其他需要的字段...
             // 设置记录的时间
             record.setTime(new Date());
             // 添加记录
@@ -90,6 +90,7 @@ public class BearingRecordController {
             }
         }
         System.out.println(record);
+        String currentState = bearingRecordService.getCurrentState(record.getBoxText(), record.getBoxNumber());
         Bearing bearing = bearingService.getBearingByBoxTextAndDepository(adjustedBoxText, record.getDepository());
         if (bearing != null) {
             // 使用Bearing数据填充BearingRecord
@@ -105,7 +106,7 @@ public class BearingRecordController {
             record.setOuterInnerRing(bearing.getOuterInnerRing());
             record.setSize(bearing.getSize());
             record.setPair(bearing.getPair());
-            record.setState(bearing.getState());
+            record.setState(currentState); // 使用当前状态而不是bearing的状态
             record.setCurrentDepository(currentDepository); // 设置当前仓库为bearing的当前仓库
             // ...其他需要的字段...
             // 设置记录的时间

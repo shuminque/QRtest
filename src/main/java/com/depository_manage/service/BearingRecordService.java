@@ -27,5 +27,6 @@ public interface BearingRecordService {
     List<Map<String, Object>> getComprehensiveTransferRecords(Map<String, Object> params);
     int getComprehensiveTransferRecordsCount();
     Map<String, Object> getCountsByDateAndDepository(Date date, String depository, Integer depositoryId);
+    String getCurrentState(String boxText, String boxNumber);
 
 }

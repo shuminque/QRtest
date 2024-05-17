@@ -592,5 +592,11 @@
         FROM bearing_records
         WHERE date(time) = #{date}
     </select>
-
+    <select id="getCurrentState" parameterType="map" resultType="String">
+        SELECT state
+        FROM bearing_records
+        WHERE box_text = #{boxText} AND box_number = #{boxNumber}
+        ORDER BY time DESC
+            LIMIT 1
+    </select>
 </mapper>

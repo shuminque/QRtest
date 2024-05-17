@@ -64,5 +64,6 @@ public interface BearingRecordMapper {
                                                         @Param("depositoryId")Integer depositoryId);
 
     boolean findTransferOutRecord(@Param("boxText") String boxText, @Param("boxNumber") String boxNumber, @Param("iter") int iter);
+    String getCurrentState(@Param("boxText") String boxText, @Param("boxNumber") String boxNumber);
 
 }

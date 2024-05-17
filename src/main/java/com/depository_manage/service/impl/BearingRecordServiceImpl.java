@@ -173,4 +173,8 @@ public class BearingRecordServiceImpl implements BearingRecordService {
         String formattedDate = sdf.format(date);
         return bearingRecordMapper.selectCountsByDateAndDepository(formattedDate, depository, depositoryId);
     }
+    @Override
+    public String getCurrentState(String boxText, String boxNumber) {
+        return bearingRecordMapper.getCurrentState(boxText, boxNumber);
+    }
 }
