@@ -46,6 +46,10 @@ public class BearingRecordController {
         }
         System.out.println(record);
         String currentState = bearingRecordService.getCurrentState(record.getBoxText(), record.getBoxNumber());
+        if (currentState == null) {
+            currentState = "正常"; // 设置默认状态
+        }
+        System.out.println(currentState);
         Bearing bearing = bearingService.getBearingByBoxTextAndDepository(adjustedBoxText, record.getDepository());
         if (bearing != null) {
             // 使用Bearing数据填充BearingRecord
@@ -91,6 +95,9 @@ public class BearingRecordController {
         }
         System.out.println(record);
         String currentState = bearingRecordService.getCurrentState(record.getBoxText(), record.getBoxNumber());
+        if (currentState == null) {
+            currentState = "正常"; // 设置默认状态
+        }
         Bearing bearing = bearingService.getBearingByBoxTextAndDepository(adjustedBoxText, record.getDepository());
         if (bearing != null) {
             // 使用Bearing数据填充BearingRecord
