@@ -203,6 +203,12 @@
                     <input type="text" name="iter" required class="layui-input" readonly>
                 </div>
             </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">配对号：</label>
+                <div class="layui-input-block">
+                    <input type="text" name="pair" required class="layui-input">
+                </div>
+            </div>
             <div class="layui-form-item" style="text-align: center;">
                 <button class="layui-btn layui-btn-normal" lay-submit lay-filter="editGradeSubmitBtnFilter">
                     更新
@@ -495,6 +501,7 @@
                         'remarks': data.remarks,
                         'state': data.state,
                         'iter': data.iter,
+                        "pair": data.pair,
                         "currentDepository": data.currentDepository
                     });
                     layui.form.render();
