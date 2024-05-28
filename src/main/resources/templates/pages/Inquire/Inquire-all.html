@@ -317,7 +317,7 @@
                 {field: 'customer', title: '客户'},
                 {field: 'outerInnerRing', title: '外/内轮'},
                 {field: 'model', title: '型号'},
-                {field: 'productCategory', title: '制品分类'},
+                {field: 'productCategory', title: '制品分类',hide:true},
                 {field: 'steelType', title: '钢种'},
                 {field: 'steelGrade', title: '钢材等级',totalRowText: '箱数'},
                 {field: 'size', title: '尺寸'},
@@ -326,8 +326,10 @@
                 {field: 'time', title: '时间', templet: function(d) {
                         return formatDate(d.time);
                     }},
-                {field: 'iter', title: '轮数'},
-                {field: 'remarks', title: '备注'}
+                {field: 'iter', title: '轮数',hide:true},
+                {field: 'singleEight', title: '单重',hide:true},
+                {field: 'mode', title: '贸易方式',hide:true},
+                {field: 'remarks', title: '备注',hide:true}
             ]],
             done: function(res, curr, count) {
                 // 在这里计算合计值
