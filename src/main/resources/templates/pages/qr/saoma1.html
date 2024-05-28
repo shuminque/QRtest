@@ -70,6 +70,11 @@
     a.dropdown-item {
         font-size: 30px;
     }
+    /* 禁用按钮的样式 */
+    .button-container button[disabled] {
+        opacity: 0.2; /* 降低透明度 */
+        cursor: not-allowed; /* 更改鼠标指针 */
+    }
 
 </style>
 <body>
@@ -79,13 +84,14 @@
     </div>
     <div class="button-container">
         <div class="button-row">
-            <button class="layui-btn" onclick="preGenerateQRCodeByBoxText()">生成整箱二维码</button>
-            <button class="layui-btn" onclick="preGenerateQRCodeByBoxTextForZero()">生成零箱二维码</button>
+            <button id="generate-box-qrcode" class="layui-btn" onclick="preGenerateQRCodeByBoxText()">生成整箱二维码</button>
+            <button id="generate-zero-qrcode" class="layui-btn" onclick="preGenerateQRCodeByBoxTextForZero()">生成零箱二维码</button>
         </div>
         <div class="button-row">
             <button class="layui-btn" onclick="printQRCode()">打印二维码</button>
         </div>
     </div>
+
     <!-- 预生成信息的模态框 -->
     <div id="preGenerateModal" style="display:none;">
         <p>即将生成的 Number号: <input type="text" id="previewBoxNumber" class="layui-input" /></p>
@@ -565,6 +571,10 @@
                 document.getElementById('printSection').style.display = 'block';
                 document.getElementById('preGenerateModal').style.display = 'none';
                 // document.getElementById('regenerateButton').style.display = 'block';
+                // 禁用生成按钮
+                disableGenerateBoxQRCodeButton();
+                // 设置定时器，在3秒后启用生成按钮
+                setTimeout(enableGenerateButtons, 3000);
             })
                 .catch(error => {
                 console.error('生成二维码时发生错误：', error);
@@ -650,12 +660,42 @@
                 document.getElementById('printSection').style.display = 'block';
                 document.getElementById('preGenerateModalForZero').style.display = 'none';
                 document.getElementById('regenerateButton').style.display = 'block';
-
+                // 禁用生成按钮
+                disableGenerateZeroQRCodeButton();
+                // 设置定时器，在3秒后启用生成按钮
+                setTimeout(enableGenerateButtons, 3000);
             })
             .catch(error => {
                 console.error('生成二维码时发生错误：', error);
             });
     }
+    // 禁用生成整箱二维码按钮
+    function disableGenerateBoxQRCodeButton() {
+        var button = document.getElementById('generate-box-qrcode');
+        if (button) {
+            button.disabled = true;
+            button.classList.add('disabled'); // 可选：添加一个类来改变按钮样式
+        }
+    }
+
+    // 禁用生成零箱二维码按钮
+    function disableGenerateZeroQRCodeButton() {
+        var button = document.getElementById('generate-zero-qrcode');
+        if (button) {
+            button.disabled = true;
+            button.classList.add('disabled'); // 可选：添加一个类来改变按钮样式
+        }
+    }
+
+    // 启用生成按钮
+    function enableGenerateButtons() {
+        var buttons = document.querySelectorAll('.button-container button');
+        buttons.forEach(function(button) {
+            button.disabled = false;
+            button.classList.remove('disabled'); // 可选：移除禁用样式类
+        });
+    }
+
     // 当用户点击“取消”按钮时执行
     function cancelGenerateQRCode() {
         preGenerateData = null;

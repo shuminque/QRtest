@@ -65,6 +65,8 @@ public class BearingRecordController {
             record.setPair(bearing.getPair());
             record.setState(currentState); // 使用当前状态而不是bearing的状态
             record.setCurrentDepository(currentDepository); // 设置当前仓库为bearing的当前仓库
+            record.setSingleEight(bearing.getSingleEight());
+            record.setMode(bearing.getMode());
             // 设置记录的时间
             record.setTime(new Date());
             // 添加记录
@@ -115,8 +117,8 @@ public class BearingRecordController {
             record.setPair(bearing.getPair());
             record.setState(currentState); // 使用当前状态而不是bearing的状态
             record.setCurrentDepository(currentDepository); // 设置当前仓库为bearing的当前仓库
-            // ...其他需要的字段...
-            // 设置记录的时间
+            record.setSingleEight(bearing.getSingleEight());
+            record.setMode(bearing.getMode());            // 设置记录的时间
             record.setTime(new Date());
             // 添加记录
             bearingRecordService.addBearingRecord(record);
