@@ -164,7 +164,6 @@
             toastr.error('请前往生成对应箱号和编号及其数量！');
             return; // 如果没有数量或数量为零，阻止表单提交
         }
-
         stockIn(boxText, boxNumber, quantity, '转入', TdepositoryId, newiter);
     });
     function stockIn(boxText, boxNumber, quantity, operationType, depositoryId, newiter) {

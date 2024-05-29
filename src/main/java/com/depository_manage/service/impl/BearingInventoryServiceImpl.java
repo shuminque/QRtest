@@ -95,14 +95,14 @@ public class BearingInventoryServiceImpl implements BearingInventoryService {
         if (isStocked) {
             throw new OperationAlreadyDoneException("产品已入库，不能再次入库");
         }
-//        // 检查是否存在对应的转出记录
-//        boolean hasTransferOut = bearingRecordService.checkForTransferOut(
-//                adjustedBoxText,
-//                inventory.getBoxNumber(),
-//                inventory.getIter());
-//        if (!hasTransferOut) {
-//            throw new IllegalStateException("没有找到对应的转出记录，无法进行转入操作");
-//        }
+        // 检查是否存在对应的转出记录
+        boolean hasTransferOut = bearingRecordService.checkForTransferOut(
+                adjustedBoxText,
+                inventory.getBoxNumber(),
+                inventory.getIter());
+        if (!hasTransferOut) {
+            throw new IllegalStateException("没有找到对应的转出记录，无法进行转入操作");
+        }
 
         // 如果是转入操作，更新仓库ID
         if ("转入".equals(inventory.getOperationType())) {
