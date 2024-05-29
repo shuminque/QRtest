@@ -309,20 +309,20 @@
                 {title: '操作', toolbar: '#actionBar'},
                 {field: 'transactionType', title: '交易类型'},
                 {field: 'boxText', title: '箱号'},
-                {field: 'boxNumber', title: '箱号编号'},
+                {field: 'boxNumber', title: '箱号编号',totalRowText: '合计数'},
                 {field: 'quantity', title: '数量'},
                 {field: 'depository', title: '厂区',hide:true},
                 {field: 'pair', title: '配对号',hide:true},
-                {field: 'currentDepository', title: '仓库'},
+                {field: 'currentDepository', title: '仓库',totalRowText: '箱数'},
                 {field: 'customer', title: '客户'},
                 {field: 'outerInnerRing', title: '外/内轮'},
                 {field: 'model', title: '型号'},
                 {field: 'productCategory', title: '制品分类',hide:true},
                 {field: 'steelType', title: '钢种'},
-                {field: 'steelGrade', title: '钢材等级',totalRowText: '箱数'},
+                {field: 'steelGrade', title: '钢材等级'},
                 {field: 'size', title: '尺寸'},
-                {field: 'dissolve', title: '溶解号',totalRowText: '合计数'}, // 添加编辑功能
-                {field: 'state', title: '状态', totalRowText: '合计'},
+                {field: 'dissolve', title: '溶解号'}, // 添加编辑功能
+                {field: 'state', title: '状态'},
                 {field: 'time', title: '时间', templet: function(d) {
                         return formatDate(d.time);
                     }},
@@ -340,12 +340,11 @@
                 // 更新合计行的值
                 var totalRow = document.getElementsByClassName('layui-table-total')[0];
                 if (totalRow) {
-                    var totalCell = totalRow.querySelector('td[data-field="state"]');
+                    var totalCell = totalRow.querySelector('td[data-field="quantity"]');
                     if (totalCell) {
                         totalCell.getElementsByClassName('layui-table-cell')[0].innerText = total.toString();
                     }
-                    // 更新箱数
-                    var boxCountCell = totalRow.querySelector('td[data-field="size"]');
+                    var boxCountCell = totalRow.querySelector('td[data-field="customer"]');
                     if (boxCountCell) {
                         boxCountCell.getElementsByClassName('layui-table-cell')[0].innerText = res.data.length.toString();
                     }
