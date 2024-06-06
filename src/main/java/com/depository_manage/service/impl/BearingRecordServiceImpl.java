@@ -105,14 +105,14 @@ public class BearingRecordServiceImpl implements BearingRecordService {
     }
     @Override
     public List<BearingRecord> filterBearingRecords(Map<String, Object> params) {
-        Integer size = 8, page = 1;
-        if (params.containsKey("size")) {
-            size = ObjectFormatUtil.toInteger(params.get("size"));
-            params.put("size", size);
+        Integer sizee = 8, page = 1;
+        if (params.containsKey("sizee")) {
+            sizee = ObjectFormatUtil.toInteger(params.get("sizee"));
+            params.put("sizee", sizee);
         }
         if (params.containsKey("page")) {
             page = ObjectFormatUtil.toInteger(params.get("page"));
-            params.put("begin", (page - 1) * size);
+            params.put("begin", (page - 1) * sizee);
         }
         return bearingRecordMapper.selectAllBearingRecords(params);
     }
