@@ -52,6 +52,13 @@
                     <option value="LB" >LB</option>
                 </select>
             </div>
+            <div class="layui-input-inline">
+                <select name="state">
+                    <option value="">搜索状态</option>
+                    <option value="正常">正常</option>
+                    <option value="死库">死库</option>
+                </select>
+            </div>
             <div class="layui-inline">
                 <button type="button" class="layui-btn" id="advancedSearchToggle">高级搜索</button>
             </div>
@@ -76,10 +83,19 @@
                     </select>
                 </div>
                 <div class="layui-input-inline">
-                    <select name="state">
-                        <option value="">搜索状态</option>
-                        <option value="正常">正常</option>
-                        <option value="死库">死库</option>
+                    <select name="mode" id="mode" >
+                        <option value="" selected>搜索方式</option>
+                        <option th:each="trade_mode : ${tradeModes}"
+                                th:value="${trade_mode.mode}"
+                                th:text="${trade_mode.mode}"></option>
+                    </select>
+                </div>
+                <div class="layui-input-inline">
+                    <select name="size" id="size">
+                        <option value="" selected>搜索尺寸</option>
+                        <option th:each="steel_size : ${steelSizes}"
+                                th:value="${steel_size.size}"
+                                th:text="${steel_size.size}"></option>
                     </select>
                 </div>
             </div>
@@ -553,6 +569,9 @@
             }
             if (formData.mode !== '') {
                 req.mode = formData.mode;
+            }
+            if (formData.size !== '') {
+                req.size = formData.size;
             }
             // 重新加载表格数据
             recordTable.reload({
