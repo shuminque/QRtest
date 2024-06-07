@@ -48,15 +48,20 @@
             <div class="layui-input-inline">
                 <input type="text" name="boxNumber" placeholder="搜索箱号编号" class="layui-input">
             </div>
+            <div class="layui-input-inline">
+                    <select name="size" id="size" lay-search>
+                        <option value="" selected>选择尺寸</option>
+                        <option th:each="steel_size : ${steelSizes}"
+                                th:value="${steel_size.size}"
+                                th:text="${steel_size.size}"></option>
+                    </select>
+            </div>
             <div>
                 <div class="layui-input-inline">
-                    <select name="currentDepository" id="depositorySelect" lay-search>
+                    <select name="currentDepository" id="depositorySelect">
                         <!-- 初始值，稍后会根据用户信息进行更新 -->
                     </select>
                 </div>
-            </div>
-            <div class="layui-inline">
-                <button type="button" class="layui-btn" id="advancedSearchToggle">高级搜索</button>
             </div>
             <div class="layui-inline" id="advancedSearchForm" style="display: none;">
                 <div class="layui-input-inline">
@@ -96,18 +101,21 @@
                                 th:text="${steel_grade.grade}"></option>
                     </select>
                 </div>
+                <div class="layui-input-inline">
+                    <select name="state">
+                        <option value="">搜索状态</option>
+                        <option value="正常">正常</option>
+                        <option value="死库">死库</option>
+                    </select>
+                </div>
+            </div>
+            <div class="layui-inline">
+                <button type="button" class="layui-btn" id="advancedSearchToggle">高级搜索</button>
             </div>
             <div class="layui-inline">
                 <button type="submit" class="layui-btn layui-btn-primary" lay-submit lay-filter="data-search-btn">
                     <i class="layui-icon"></i> 搜 索
                 </button>
-            </div>
-            <div class="layui-input-inline">
-                <select name="state">
-                    <option value="">搜索状态</option>
-                    <option value="正常">正常</option>
-                    <option value="死库">死库</option>
-                </select>
             </div>
         </div>
     </form>
@@ -301,7 +309,7 @@
             height: 600, // 设置表格高度
             request: {
                 pageName:'page',
-                limitName:'size'
+                limitName:'sizee'
             },
             totalRow: true, // 开启合计行
             toolbar: ['filter', 'exports', 'print'],

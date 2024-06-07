@@ -179,7 +179,7 @@ public class BearingRecordController {
     public ResponseEntity<?> filterBearingRecords(
             @RequestParam Map<String, Object> params,
             @RequestParam(defaultValue = "1") int page, // 页码通常是从1开始
-            @RequestParam(defaultValue = "20") int size) {
+            @RequestParam(defaultValue = "20") int sizee) {
         String dateRange = (String) params.get("time");
         if (dateRange != null && dateRange.contains(" - ")) {
             String[] dates = dateRange.split(" - ");
@@ -188,9 +188,9 @@ public class BearingRecordController {
         }
 
         // 计算开始的记录索引，MyBatis分页是从0开始计算的
-        int begin = (page - 1) * size;
+        int begin = (page - 1) * sizee;
         params.put("begin", begin);
-        params.put("size", size);
+        params.put("sizee", sizee);
 
         List<BearingRecord> records = bearingRecordService.filterBearingRecords(params);
         int count = bearingRecordService.countBearingRecords(params); // 获取满足条件的记录总数

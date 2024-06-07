@@ -165,12 +165,15 @@
         <if test="pair != null and pair != ''">
             AND pair = #{pair}
         </if>
+        <if test="size != null and size != ''">
+            AND size = #{size}
+        </if>
         <if test="startDate != null and endDate != null">
             AND DATE(time) BETWEEN #{startDate} AND #{endDate}
         </if>
         ORDER BY id DESC
-        <if test="begin != null and size != null">
-            LIMIT #{begin},#{size}
+        <if test="begin != null and sizee != null">
+            LIMIT #{begin},#{sizee}
         </if>
     </select>
     <select id="countBearingRecords" resultType="int" parameterType="map">
@@ -216,6 +219,9 @@
         </if>
         <if test="state != null and state != ''">
             AND state  LIKE CONCAT('%',#{state},'%')
+        </if>
+        <if test="size != null and size != ''">
+            AND size = #{size}
         </if>
         <if test="startDate != null and endDate != null">
             AND DATE(time) BETWEEN #{startDate} AND #{endDate}
@@ -610,6 +616,7 @@
         FROM bearing_records
         WHERE date(time) = #{date}
     </select>
+
     <select id="getCurrentState" parameterType="map" resultType="String">
         SELECT state
         FROM bearing_records

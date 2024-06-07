@@ -40,6 +40,8 @@ public class PageController {
     private CustomerService customerService;
     @Autowired
     private TradeModeService  tradeModeService;
+    @Autowired
+    private SteelSizeService  steelSizeService;
     @GetMapping("/login")
     public String login() {
         return "pages/user/login";
@@ -87,6 +89,8 @@ public class PageController {
         mv.addObject("steelGrades", steelGradeService.findAll());
         mv.addObject("steelTypes", steelTypeService.findAll());
         mv.addObject("customers", customerService.findAll());
+        mv.addObject("steelSizes", steelSizeService.findAll());
+
         return mv;
     }
     @GetMapping("/Inquire-dissolve")
