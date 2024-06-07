@@ -80,7 +80,7 @@
     <select id="selectAllBearings" resultMap="bearingMap" parameterType="map">
         SELECT * FROM bearings WHERE 1=1
         <if test="boxText != null and boxText != ''">
-            AND box_text LIKE CONCAT('%',#{boxText},'%')
+            AND box_text LIKE CONCAT(#{boxText},'%')
         </if>
         <if test="model != null and model != ''">
             AND model  LIKE CONCAT('%',#{model},'%')
