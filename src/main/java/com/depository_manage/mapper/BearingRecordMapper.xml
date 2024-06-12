@@ -239,7 +239,6 @@
         SELECT
         br.box_text,
         br.box_number,
-        br.depository,
         br.current_depository,
         br.customer,
         br.product_category,
