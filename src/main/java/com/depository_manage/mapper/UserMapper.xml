@@ -86,7 +86,7 @@
     <select id="findUserByEmail" resultMap="userMap" parameterType="string">
         SELECT
         <include refid="allColumns" />
-        FROM user u WHERE  u.email LIKE CONCAT('%', #{email}, '%')
+        FROM user u WHERE  u.email LIKE CONCAT(#{email}, '%')
     </select>
 
     <!-- 根据条件参数查询数据列表 -->
