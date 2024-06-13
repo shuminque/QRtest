@@ -8,6 +8,10 @@
     <script src="/static/lib/layui-v2.8.17/layui.js" charset="utf-8"></script>
     <!-- jQuery 库 -->
     <script src="/static/js/http_ajax.googleapis.com_ajax_libs_jquery_3.5.1_jquery.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/js/select2.min.js"></script>
+
     <style>
         body {
             /*padding-top: 50px;*/
@@ -223,7 +227,12 @@
         <div class="layui-form-item">
             <label class="layui-form-label">材料尺寸：</label>
             <div class="layui-input-block">
-                <input type="text" name="size" placeholder="请输入材料尺寸" autocomplete="off" class="layui-input">
+                <select name="size" >
+                    <option value="" selected>搜索尺寸</option>
+                    <option th:each="steel_size : ${steelSizes}"
+                            th:value="${steel_size.size}"
+                            th:text="${steel_size.size}"></option>
+                </select>
             </div>
         </div>
         <!-- 厂区 -->
@@ -384,7 +393,11 @@
         <div class="layui-form-item">
             <label class="layui-form-label">材料尺寸：</label>
             <div class="layui-input-block">
-                <input type="text" name="size" placeholder="请输入材料尺寸" autocomplete="off" class="layui-input">
+                <select id="multiSelectSize" name="joinedSize" multiple lay-ignore="true">
+                    <option value="" disabled>选择尺寸</option>
+                    <option th:each="steel_size : ${steelSizes}" th:value="${steel_size.size}" th:text="${steel_size.size}"></option>
+                </select>
+                <input type="hidden" name="size" id="joinedSize">
             </div>
         </div>
         <!-- 关联 -->
@@ -495,6 +508,7 @@
         var table = layui.table;
         var form = layui.form;
         var layer = layui.layer;
+        form.render();
 
         // 渲染表格
         var recordTable =  table.render({
@@ -703,6 +717,7 @@
                 });
             }
         });
+
         // 编辑bearings的函数
         function editBearings(data) {
             layer.open({
@@ -724,13 +739,38 @@
                         'steelType': data.steelType, // 钢种
                         'steelGrade': data.steelGrade, // 钢材等级
                         'size': data.size, // 材料尺寸
+                        'joinedSize': data.size.split('|'), // 设置多选尺寸
                         'pair': data.pair,
                         'storageLocation': data.storageLocation, // 备注
                         'state': data.state,
                         'singleEight': data.singleEight,
                         'mode': data.mode
                     });
+
+                    // 初始化多选下拉框
+                    $('#multiSelectSize').select2({
+                        placeholder: '选择尺寸',
+                        allowClear: true
+                    }).val(data.size.split('|')).trigger('change'); // 设置初始值
+
+                    // 点击其他地方关闭下拉框
+                    $(document).on('click', function(e) {
+                        if (!$(e.target).closest('#multiSelectSize').length) {
+                            $('#multiSelectSize').select2('close');
+                        }
+                    });
+
+                    // 关闭下拉框时触发的事件
+                    $('#multiSelectSize').on('select2:close', function(e) {
+                        // 获取选择的值
+                        var selectedValues = $(this).val();
+                        // 将选择的值用 | 连接
+                        var joinedValues = selectedValues ? selectedValues.join('|') : '';
+                        // 设置到隐藏的输入字段中
+                        $('#joinedSize').val(joinedValues);
+                    });
                     layui.form.render();
+
                 }
             });
         }
