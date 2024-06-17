@@ -53,7 +53,10 @@ public class ProductIdServiceImpl implements ProductIdService {
     @Override
     public void saveOrUpdateBoxNumber(String boxText, int depositoryId, int quantity, String boxNumber) {
         ProductId current = getLatestBoxNumberSharedAcrossDepositories(boxText);
-        int newIter;
+        int newIter; int isStock = 0;
+        if (current.getIsStocked()==1){
+            isStock=1;
+        }
         if (current != null && "999".equals(current.getBoxNumber())) {
             newIter = current.getIter() + 1; // 如果BoxNumber为"999"，则iter增加
         } else {
@@ -65,6 +68,9 @@ public class ProductIdServiceImpl implements ProductIdService {
         newProductIdEntry.setQuantity(quantity);
         newProductIdEntry.setDepositoryId(depositoryId);
         newProductIdEntry.setIter(newIter);
+        if (isStock == 1){
+            newProductIdEntry.setIsStocked(1);
+        }
         newProductIdEntry.setCreationTime(new Date());
         productIdMapper.insertOrUpdateBoxNumber(newProductIdEntry);
     }
@@ -73,6 +79,7 @@ public class ProductIdServiceImpl implements ProductIdService {
     public String incrementAndSaveBoxNumber(String boxText, int depositoryId, int quantity) {
 //        ProductId current = productIdMapper.selectBoxNumberByBoxTextAndDepositoryId(boxText, depositoryId);
         ProductId current = getLatestBoxNumberSharedAcrossDepositories(boxText);
+        System.out.println(current);
         String newBoxNumber;
         int newIter;
         if (current != null) {
