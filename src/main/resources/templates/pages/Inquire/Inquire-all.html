@@ -11,7 +11,7 @@
     <script src="/static/js/http_code.jquery.com_jquery-3.6.0.min.js"></script>
     <script src="/static/js/http_cdnjs.cloudflare.com_ajax_libs_bootstrap-3-typeahead_4.0.2_bootstrap3-typeahead.js"></script>
     <script src="/static/lib/layui-v2.8.17/layui.js" charset="utf-8"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.3/xlsx.full.min.js"></script>
+    <script src="/static/js/http_cdnjs.cloudflare.com_ajax_libs_xlsx_0.17.3_xlsx.full.min.js"></script>
     <style>
         body {
             background-color: #f8f9fa;
@@ -356,7 +356,6 @@
                     if (totalCell) {
                         totalCell.innerText = totalQuantity.toString();
                     }
-
                     var totalBoxCountCell = totalRow.querySelector('td[data-field="customer"] .layui-table-cell');
                     if (totalBoxCountCell) {
                         totalBoxCountCell.innerText = res.data.length.toString();
@@ -397,8 +396,8 @@
                         boxText: '',
                         boxNumber: '',
                         quantity: currentGroupTotal,
-                        depository: '',
-                        pair: '',
+                        // depository: '',
+                        // pair: '',
                         currentDepository: '',
                         customer: '',
                         outerInnerRing: '',
@@ -430,8 +429,8 @@
                 boxText: '',
                 boxNumber: '',
                 quantity: currentGroupTotal,
-                depository: '',
-                pair: '',
+                // depository: '',
+                // pair: '',
                 currentDepository: '',
                 customer: '',
                 outerInnerRing: '',
@@ -454,8 +453,10 @@
         function exportTable(data) {
             var ws = XLSX.utils.json_to_sheet(data, {
                 header: [
-                    "transactionType", "boxText", "boxNumber", "quantity", "depository",
-                    "pair", "currentDepository", "customer", "outerInnerRing", "model",
+                    "transactionType", "boxText", "boxNumber", "quantity",
+                    // "depository",
+                    // "pair",
+                    "currentDepository", "customer", "outerInnerRing", "model",
                     "productCategory", "steelType", "steelGrade", "size", "dissolve",
                     "state", "time", "iter", "singleEight", "mode", "remarks"
                 ]
@@ -463,7 +464,8 @@
             // 添加标题行
             var headers = [
                 "交易类型", "箱号", "箱号编号", "数量",
-                "厂区", "配对号", "仓库", "客户", "外/内轮", "型号",
+                // "厂区", "配对号",
+                "仓库", "客户", "外/内轮", "型号",
                 "制品分类", "钢种", "钢材等级", "尺寸", "溶解号",
                 "状态", "时间", "轮数", "单重", "贸易方式", "备注"
             ];
@@ -471,7 +473,6 @@
             // 创建工作簿并添加工作表
             var wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, "库存记录");
-
             // 导出 Excel 文件
             XLSX.writeFile(wb, "分类汇总.xlsx");
         }
