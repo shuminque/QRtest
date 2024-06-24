@@ -8,6 +8,7 @@
         <!-- jQuery 库 -->
         <script src="/static/js/http_ajax.googleapis.com_ajax_libs_jquery_3.5.1_jquery.js"></script>
         <script src="/static/js/http_cdnjs.cloudflare.com_ajax_libs_bootstrap-3-typeahead_4.0.2_bootstrap3-typeahead.js"></script>
+        <script src="/static/js/http_cdnjs.cloudflare.com_ajax_libs_xlsx_0.17.3_xlsx.full.min.js"></script>
         <style>
             .container {
                 margin: 20px;
@@ -237,10 +238,153 @@
                             boxCountCell.getElementsByClassName('layui-table-cell')[0].innerText = res.data.length.toString();
                         }
                     }
+                    addCustomExportButton(); // 确保在每次表格加载完成后添加按钮
                 },
                 limits:[20,200,2000,20000],
                 limit:20000,
             });
+            function customExport() {
+                var data = table.cache['recordTable']; // 从表格缓存中获取当前表格的数据
+                // 按指定字段排序
+                data.sort((a, b) => {
+                    return (a.customer || "").localeCompare(b.customer || "") ||
+                        (a.outerInnerRing || "").localeCompare(b.outerInnerRing || "") ||
+                        (a.steelType || "").localeCompare(b.steelType || "") ||
+                        (a.steelGrade || "").localeCompare(b.steelGrade || "") ||
+                        (a.size || "").localeCompare(b.size || "");
+                });
+                // 分组并添加合计行
+                var groupedData = [];
+                var currentGroup = [];
+                var currentGroupTotal = 0;
+                for (var i = 0; i < data.length; i++) {
+                    if (i > 0 &&
+                        (data[i].customer !== data[i - 1].customer ||
+                            data[i].outerInnerRing !== data[i - 1].outerInnerRing ||
+                            data[i].steelType !== data[i - 1].steelType ||
+                            data[i].steelGrade !== data[i - 1].steelGrade ||
+                            data[i].size !== data[i - 1].size)) {
+                        // 当前组结束，添加合计行
+                        groupedData = groupedData.concat(currentGroup);
+                        groupedData.push({
+                            boxText: '合计',
+                            boxNumber: '',
+                            quantity: currentGroupTotal,
+                            // depository: '',
+                            // pair: '',
+                            // currentDepository: '',
+                            customer: '',
+                            outerInnerRing: '',
+                            model: '',
+                            // productCategory: '',
+                            steelType: '',
+                            steelGrade: '',
+                            size: '',
+                            // dissolve: '',
+                            state: '',
+                            lastRecordedTime: '',
+                            // iter: '',
+                            // singleEight: '',
+                            // mode: '',
+                            // remarks: ''
+                        });
+                        // 重置当前组
+                        currentGroup = [];
+                        currentGroupTotal = 0;
+                    }
+                    // 添加当前记录到当前组
+                    currentGroup.push(data[i]);
+                    currentGroupTotal += parseInt(data[i].quantity);
+                }
+                // 添加最后一组及其合计行
+                groupedData = groupedData.concat(currentGroup);
+                groupedData.push({
+                    boxText: '合计',
+                    boxNumber: '',
+                    quantity: currentGroupTotal,
+                    // depository: '',
+                    // pair: '',
+                    // currentDepository: '',
+                    customer: '',
+                    outerInnerRing: '',
+                    model: '',
+                    // productCategory: '',
+                    steelType: '',
+                    steelGrade: '',
+                    size: '',
+                    // dissolve: '',
+                    state: '',
+                    lastRecordedTime: '',
+                    // iter: '',
+                    // singleEight: '',
+                    // mode: ''
+                    // remarks: ''
+                });
+                // 生成导出文件
+                exportTable(groupedData);
+            }
+            function exportTable(data) {
+                // 移除不需要导出的字段
+                data = data.map(row => {
+                    return {
+                        boxText: row.boxText,
+                        boxNumber: row.boxNumber,
+                        quantity: row.quantity,
+                        customer: row.customer,
+                        outerInnerRing: row.outerInnerRing,
+                        model: row.model,
+                        // productCategory: row.productCategory,
+                        steelType: row.steelType,
+                        steelGrade: row.steelGrade,
+                        size: row.size,
+                        // dissolve: row.dissolve,
+                        state: row.state,
+                        lastRecordedTime: row.lastRecordedTime,
+                        // iter: row.iter,
+                        // singleEight: row.singleEight,
+                        // mode: row.mode,
+                        // remarks: row.remarks
+                    };
+                });
+                var ws = XLSX.utils.json_to_sheet(data, {
+                    header: [
+                        // "transactionType",
+                        "boxText", "boxNumber", "quantity",
+                        // "depository",
+                        // "pair",
+                        // "currentDepository",
+                        "customer", "outerInnerRing", "model",
+                        // "productCategory",
+                        "steelType", "steelGrade", "size",
+                        // "dissolve",
+                        "state", "lastRecordedTime",
+                        // "iter",
+                        // "singleEight", "mode"
+                        // "remarks"
+                    ]
+                });
+                // 添加标题行
+                var headers = [
+                    // "交易类型",
+                    "箱号", "箱号编号", "数量",
+                    // "厂区", "配对号",
+                    // "仓库",
+                    "客户", "外/内轮", "型号",
+                    // "制品分类",
+                    "钢种", "钢材等级", "尺寸",
+                    // "溶解号",
+                    "状态", "时间",
+                    // "轮数",
+                    // "单重", "贸易方式"
+                    // "备注"
+                ];
+                XLSX.utils.sheet_add_aoa(ws, [headers], { origin: "A1" });
+                // 创建工作簿并添加工作表
+                var wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, "在库记录");
+                // 导出 Excel 文件
+                XLSX.writeFile(wb, "在库分类汇总.xlsx");
+            }
             function formatDate(dateStr) {
                 if (!dateStr) return '';
                 let date = new Date(dateStr);
@@ -292,10 +436,43 @@
                 recordTable.reload({
                     url: '/bearingRecords/inventory', // 更新为正确的后端接口 URL
                     page: { curr: 1 },
-                    where: req
+                    where: req,
+                    done: function(res, curr, count) {
+                        // 在这里计算合计值
+                        var total = 0;
+                        res.data.forEach(function(item) {
+                            total += parseInt(item.quantity);
+                        });
+                        // 更新合计行的值
+                        var totalRow = document.getElementsByClassName('layui-table-total')[0];
+                        if (totalRow) {
+                            var totalCell = totalRow.querySelector('td[data-field="quantity"]');
+                            if (totalCell) {
+                                totalCell.getElementsByClassName('layui-table-cell')[0].innerText = total.toString();
+                            }
+                            // 更新箱数
+                            var boxCountCell = totalRow.querySelector('td[data-field="size"]');
+                            if (boxCountCell) {
+                                boxCountCell.getElementsByClassName('layui-table-cell')[0].innerText = res.data.length.toString();
+                            }
+                        }
+                        addCustomExportButton(); // 确保在每次表格加载完成后添加按钮
+                    }
                 });
                 return false;
             });
+
+            function addCustomExportButton() {
+                if ($('#customExportButton').length === 0) {
+                    var customExportButton = $('<button class="layui-btn layui-btn-primary layui-btn-sm" id="customExportButton"><i class="layui-icon layui-icon-export"></i> 分类导出</button>');
+                    $('.layui-table-tool-temp').append(customExportButton);
+
+                    // 绑定自定义导出按钮点击事件
+                    $('#customExportButton').on('click', function() {
+                        customExport();
+                    });
+                }
+            }
             // 高级搜索开关逻辑
             $('#advancedSearchToggle').click(function() {
                 $('#advancedSearchForm').slideToggle();

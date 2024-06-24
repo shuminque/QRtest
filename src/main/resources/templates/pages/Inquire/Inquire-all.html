@@ -372,12 +372,13 @@
             var data = table.cache['recordTable']; // 从表格缓存中获取当前表格的数据
             // 按指定字段排序
             data.sort((a, b) => {
-                return a.customer.localeCompare(b.customer) ||
-                    a.outerInnerRing.localeCompare(b.outerInnerRing) ||
-                    a.steelType.localeCompare(b.steelType) ||
-                    a.steelGrade.localeCompare(b.steelGrade) ||
-                    a.size.localeCompare(b.size);
+                return (a.customer || "").localeCompare(b.customer || "") ||
+                    (a.outerInnerRing || "").localeCompare(b.outerInnerRing || "") ||
+                    (a.steelType || "").localeCompare(b.steelType || "") ||
+                    (a.steelGrade || "").localeCompare(b.steelGrade || "") ||
+                    (a.size || "").localeCompare(b.size || "");
             });
+
             // 分组并添加合计行
             var groupedData = [];
             var currentGroup = [];
@@ -594,7 +595,6 @@
                             totalBoxCountCell.innerText = res.data.length.toString();
                         }
                     }
-
                     addCustomExportButton(); // 确保在每次表格加载完成后添加按钮
                 }
             });
