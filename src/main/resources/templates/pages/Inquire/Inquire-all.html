@@ -508,9 +508,9 @@
             XLSX.utils.sheet_add_aoa(ws, [headers], { origin: "A1" });
             // 创建工作簿并添加工作表
             var wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, "库存记录");
+            XLSX.utils.book_append_sheet(wb, ws, "进出记录");
             // 导出 Excel 文件
-            XLSX.writeFile(wb, "分类汇总.xlsx");
+            XLSX.writeFile(wb, "进出分类汇总.xlsx");
         }
         function formatDate(dateStr) {
             if (!dateStr) return '';
