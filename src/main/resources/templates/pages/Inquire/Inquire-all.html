@@ -398,21 +398,21 @@
                         quantity: currentGroupTotal,
                         // depository: '',
                         // pair: '',
-                        currentDepository: '',
+                        // currentDepository: '',
                         customer: '',
                         outerInnerRing: '',
                         model: '',
-                        productCategory: '',
+                        // productCategory: '',
                         steelType: '',
                         steelGrade: '',
                         size: '',
-                        dissolve: '',
+                        // dissolve: '',
                         state: '',
                         time: '',
-                        iter: '',
+                        // iter: '',
                         singleEight: '',
                         mode: '',
-                        remarks: ''
+                        // remarks: ''
                     });
                     // 重置当前组
                     currentGroup = [];
@@ -431,43 +431,78 @@
                 quantity: currentGroupTotal,
                 // depository: '',
                 // pair: '',
-                currentDepository: '',
+                // currentDepository: '',
                 customer: '',
                 outerInnerRing: '',
                 model: '',
-                productCategory: '',
+                // productCategory: '',
                 steelType: '',
                 steelGrade: '',
                 size: '',
-                dissolve: '',
+                // dissolve: '',
                 state: '',
                 time: '',
-                iter: '',
+                // iter: '',
                 singleEight: '',
-                mode: '',
-                remarks: ''
+                mode: ''
+                // remarks: ''
             });
             // 生成导出文件
             exportTable(groupedData);
         }
         function exportTable(data) {
+            // 移除不需要导出的字段
+            data = data.map(row => {
+                return {
+                    transactionType: row.transactionType,
+                    boxText: row.boxText,
+                    boxNumber: row.boxNumber,
+                    quantity: row.quantity,
+                    customer: row.customer,
+                    outerInnerRing: row.outerInnerRing,
+                    model: row.model,
+                    // productCategory: row.productCategory,
+                    steelType: row.steelType,
+                    steelGrade: row.steelGrade,
+                    size: row.size,
+                    // dissolve: row.dissolve,
+                    state: row.state,
+                    time: row.time,
+                    // iter: row.iter,
+                    singleEight: row.singleEight,
+                    mode: row.mode,
+                    // remarks: row.remarks
+                };
+            });
             var ws = XLSX.utils.json_to_sheet(data, {
                 header: [
                     "transactionType", "boxText", "boxNumber", "quantity",
                     // "depository",
                     // "pair",
-                    "currentDepository", "customer", "outerInnerRing", "model",
-                    "productCategory", "steelType", "steelGrade", "size", "dissolve",
-                    "state", "time", "iter", "singleEight", "mode", "remarks"
+                    // "currentDepository",
+                    "customer", "outerInnerRing", "model",
+                    // "productCategory",
+                    "steelType", "steelGrade", "size",
+                    // "dissolve",
+                    "state", "time",
+                    // "iter",
+                    "singleEight", "mode"
+                    // "remarks"
                 ]
             });
             // 添加标题行
             var headers = [
                 "交易类型", "箱号", "箱号编号", "数量",
                 // "厂区", "配对号",
-                "仓库", "客户", "外/内轮", "型号",
-                "制品分类", "钢种", "钢材等级", "尺寸", "溶解号",
-                "状态", "时间", "轮数", "单重", "贸易方式", "备注"
+                // "仓库",
+                "客户", "外/内轮", "型号",
+                // "制品分类",
+                "钢种", "钢材等级", "尺寸",
+                // "溶解号",
+                "状态", "时间",
+                // "轮数",
+                "单重", "贸易方式"
+                // "备注"
             ];
             XLSX.utils.sheet_add_aoa(ws, [headers], { origin: "A1" });
             // 创建工作簿并添加工作表
