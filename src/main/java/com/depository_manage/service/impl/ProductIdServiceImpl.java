@@ -153,14 +153,11 @@ public class ProductIdServiceImpl implements ProductIdService {
     public String incrementAndSaveBoxNumberForZero(String boxText, int depositoryId, int quantity) {
 //        ProductId current = productIdMapper.selectBoxNumberByBoxTextAndDepositoryIdForZero(boxText, depositoryId);
         ProductId current = getLatestBoxNumberSharedAcrossDepositoriesForZero(boxText);
-
         String newBoxNumber;
         int newIter;
-
         if (current != null) {
             newBoxNumber = current.getBoxNumber();
             newIter = current.getIter();
-
             if ("1999".equals(newBoxNumber)) {
                 newBoxNumber = "1001"; // Reset to 1001
                 newIter++; // Increment iter
@@ -172,7 +169,6 @@ public class ProductIdServiceImpl implements ProductIdService {
             newBoxNumber = "1001"; // Start from 1001 if no current BoxNumber
             newIter = 1; // Initial iter value
         }
-
         ProductId newProductIdEntry = new ProductId();
         newProductIdEntry.setBoxText(boxText);
         newProductIdEntry.setBoxNumber(newBoxNumber);

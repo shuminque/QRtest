@@ -376,7 +376,9 @@
                     (a.outerInnerRing || "").localeCompare(b.outerInnerRing || "") ||
                     (a.steelType || "").localeCompare(b.steelType || "") ||
                     (a.steelGrade || "").localeCompare(b.steelGrade || "") ||
-                    (a.size || "").localeCompare(b.size || "");
+                    (a.size || "").localeCompare(b.size || "") ||
+                    (a.boxText || "").localeCompare(b.boxText || "") ||
+                    (a.boxNumber || "").localeCompare(b.boxNumber || "");
             });
 
             // 分组并添加合计行
