@@ -140,9 +140,7 @@ public class BearingController {
         if (bearing == null) {
             return ResponseEntity.notFound().build();
         }
-
         productIdService.saveOrUpdateBoxNumber(boxText, depositoryId, quantity, boxNumber);
-
         ProductId productId = productIdService.getLatestBoxNumberSharedAcrossDepositories(boxText);
         // 3. 创建包含Bearing数据和新product_id的响应
         Map<String, Object> response = getStringObjectMap(boxText, boxNumber, bearing, quantity, productId.getIter());
@@ -182,20 +180,16 @@ public class BearingController {
         int quantity = Integer.parseInt((String) requestData.get("quantity"));
         String depositoryText = convertDepositoryIdToText(depositoryId);
         Bearing bearing = bearingService.getBearingByBoxTextAndDepository(boxText, depositoryText);
-
         if (bearing == null) {
             return ResponseEntity.notFound().build();
         }
-
         String newBoxNumber = productIdService.incrementAndSaveBoxNumberForZero(boxText, depositoryId, quantity);
         if (newBoxNumber == null) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Collections.singletonMap("error", "Unable to generate new Product ID for box number: " + boxText));
         }
-
         ProductId productId = productIdService.getLatestZeroBoxNumberByBoxTextAndDepositoryId(boxText, depositoryId);
         Map<String, Object> response = getStringObjectMap(boxText, newBoxNumber, bearing, quantity, productId.getIter());
-
         return ResponseEntity.ok(response);
     }
     @GetMapping("/preGenerate/{boxText}/{depositoryId}")
