@@ -113,7 +113,7 @@
             AND mode  LIKE CONCAT('%',#{mode},'%')
         </if>
         <if test="size != null and size != ''">
-            AND size = #{size}
+            AND size  LIKE CONCAT('%',#{size},'%')
         </if>
         ORDER BY pair
     </select>
