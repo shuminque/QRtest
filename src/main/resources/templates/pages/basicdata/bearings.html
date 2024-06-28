@@ -139,7 +139,7 @@
         <div class="layui-form-item">
             <label class="layui-form-label">外/内轮：</label>
             <div class="layui-input-block">
-                <select name="outerInnerRing">
+                <select name="outerInnerRing" required lay-verify="required">
                     <option value="" selected></option>
                     <option value="LA" >LA</option>
                     <option value="LB" >LB</option>
@@ -150,7 +150,7 @@
         <div class="layui-form-item">
             <label class="layui-form-label">客户：</label>
             <div class="layui-input-block">
-                <select name="customer">
+                <select name="customer" required lay-verify="required">
                     <option value="" selected>搜索客户</option>
                     <option th:each="customer : ${customers}"
                             th:value="${customer.name}"
@@ -161,8 +161,8 @@
         <!-- 型号 -->
         <div class="layui-form-item">
             <label class="layui-form-label">型号：</label>
-            <div class="layui-input-block">
-                <input type="text" name="model" placeholder="请输入型号" autocomplete="off" class="layui-input">
+            <div class="layui-input-block" >
+                <input type="text" name="model" placeholder="请输入型号" autocomplete="off" class="layui-input" required lay-verify="required">
             </div>
         </div>
         <!-- 关联 -->
@@ -176,7 +176,7 @@
         <div class="layui-form-item">
             <label class="layui-form-label">制品分类：</label>
             <div class="layui-input-block">
-                <select name="productCategory">
+                <select name="productCategory" required lay-verify="required">
                     <option value="" selected>搜索制品分类</option>
                     <option th:each="product_category : ${productCategorys}"
                             th:value="${product_category.name}"
@@ -188,7 +188,7 @@
         <div class="layui-form-item">
             <label class="layui-form-label">钢种：</label>
             <div class="layui-input-block">
-                <select name="steelType">
+                <select name="steelType" required lay-verify="required">
                     <option value="" selected></option>
                     <option th:each="steel_type : ${steelTypes}"
                             th:value="${steel_type.name}"
@@ -200,7 +200,7 @@
         <div class="layui-form-item">
             <label class="layui-form-label">钢材等级：</label>
             <div class="layui-input-block">
-                <select name="steelGrade">
+                <select name="steelGrade" required lay-verify="required">
                     <option value="" selected></option>
                     <option th:each="steel_grade : ${steelGrades}"
                             th:value="${steel_grade.grade}"
@@ -227,7 +227,7 @@
         <div class="layui-form-item">
             <label class="layui-form-label">材料尺寸：</label>
             <div class="layui-input-block">
-                <select name="size" >
+                <select name="size"  required lay-verify="required">
                     <option value="" selected>搜索尺寸</option>
                     <option th:each="steel_size : ${steelSizes}"
                             th:value="${steel_size.size}"
@@ -256,7 +256,7 @@
         <div class="layui-form-item">
             <label class="layui-form-label">状态：</label>
             <div class="layui-input-block">
-                <select name="state">
+                <select name="state" required lay-verify="required">
                     <option value="">选择状态</option>
                     <option value="正常" selected>正常</option>
                     <option value="死库">死库</option>
@@ -266,13 +266,13 @@
         <div class="layui-form-item">
             <label class="layui-form-label">单重：</label>
             <div class="layui-input-block">
-                <input type="text" name="singleEight" placeholder="请输入单重" autocomplete="off" class="layui-input">
+                <input type="text" name="singleEight" placeholder="请输入单重" autocomplete="off" class="layui-input" required lay-verify="required">
             </div>
         </div>
         <div class="layui-form-item">
             <label class="layui-form-label">贸易方式：</label>
             <div class="layui-input-block">
-                <select name="mode">
+                <select name="mode" required lay-verify="required">
                     <option value="" selected>选择方式</option>
                     <option th:each="trade_mode : ${tradeModes}"
                             th:value="${trade_mode.mode}"
@@ -393,11 +393,17 @@
         <div class="layui-form-item">
             <label class="layui-form-label">材料尺寸：</label>
             <div class="layui-input-block">
-                <select id="multiSelectSize" name="joinedSize" multiple lay-ignore="true">
-                    <option value="" disabled>选择尺寸</option>
-                    <option th:each="steel_size : ${steelSizes}" th:value="${steel_size.size}" th:text="${steel_size.size}"></option>
+<!--                <select id="multiSelectSize" name="joinedSize" multiple lay-ignore="true">-->
+<!--                    <option value="" disabled>选择尺寸</option>-->
+<!--                    <option th:each="steel_size : ${steelSizes}" th:value="${steel_size.size}" th:text="${steel_size.size}"></option>-->
+<!--                </select>-->
+<!--                <input type="hidden" name="size" id="joinedSize">-->
+                <select name="size"  required lay-verify="required">
+                    <option value="" selected>选择尺寸</option>
+                    <option th:each="steel_size : ${steelSizes}"
+                            th:value="${steel_size.size}"
+                            th:text="${steel_size.size}"></option>
                 </select>
-                <input type="hidden" name="size" id="joinedSize">
             </div>
         </div>
         <!-- 关联 -->
@@ -739,7 +745,7 @@
                         'steelType': data.steelType, // 钢种
                         'steelGrade': data.steelGrade, // 钢材等级
                         'size': data.size, // 材料尺寸
-                        'joinedSize': data.size.split('|'), // 设置多选尺寸
+                        // 'joinedSize': data.size.split('|'), // 设置多选尺寸
                         'pair': data.pair,
                         'storageLocation': data.storageLocation, // 备注
                         'state': data.state,
@@ -747,28 +753,28 @@
                         'mode': data.mode
                     });
 
-                    // 初始化多选下拉框
-                    $('#multiSelectSize').select2({
-                        placeholder: '选择尺寸',
-                        allowClear: true
-                    }).val(data.size.split('|')).trigger('change'); // 设置初始值
-
-                    // 点击其他地方关闭下拉框
-                    $(document).on('click', function(e) {
-                        if (!$(e.target).closest('#multiSelectSize').length) {
-                            $('#multiSelectSize').select2('close');
-                        }
-                    });
-
-                    // 关闭下拉框时触发的事件
-                    $('#multiSelectSize').on('select2:close', function(e) {
-                        // 获取选择的值
-                        var selectedValues = $(this).val();
-                        // 将选择的值用 | 连接
-                        var joinedValues = selectedValues ? selectedValues.join('|') : '';
-                        // 设置到隐藏的输入字段中
-                        $('#joinedSize').val(joinedValues);
-                    });
+                    // // 初始化多选下拉框
+                    // $('#multiSelectSize').select2({
+                    //     placeholder: '选择尺寸',
+                    //     allowClear: true
+                    // }).val(data.size.split('|')).trigger('change'); // 设置初始值
+                    //
+                    // // 点击其他地方关闭下拉框
+                    // $(document).on('click', function(e) {
+                    //     if (!$(e.target).closest('#multiSelectSize').length) {
+                    //         $('#multiSelectSize').select2('close');
+                    //     }
+                    // });
+                    //
+                    // // 关闭下拉框时触发的事件
+                    // $('#multiSelectSize').on('select2:close', function(e) {
+                    //     // 获取选择的值
+                    //     var selectedValues = $(this).val();
+                    //     // 将选择的值用 | 连接
+                    //     var joinedValues = selectedValues ? selectedValues.join('|') : '';
+                    //     // 设置到隐藏的输入字段中
+                    //     $('#joinedSize').val(joinedValues);
+                    // });
                     layui.form.render();
 
                 }
