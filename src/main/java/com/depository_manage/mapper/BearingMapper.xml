@@ -115,7 +115,7 @@
         <if test="size != null and size != ''">
             AND size = #{size}
         </if>
-        ORDER BY id
+        ORDER BY pair
     </select>
     <select id="selectLatestBearingByBoxText" resultMap="bearingMap">
         SELECT * FROM bearings
