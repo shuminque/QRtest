@@ -164,14 +164,17 @@
             dataType: 'json',
             success: function(data) {
                 let depositoryId = data.depositoryId;
+                let userAuthority = data.authority;
                 let selectElem = document.getElementById('depositorySelect');
-                if (depositoryId === 1) {
-                    selectElem.innerHTML = '<option value="1">SAB</option>';
-                } else if (depositoryId === 2) {
-                    selectElem.innerHTML = '<option value="2">ZAB</option>';
-                } else if (depositoryId ===0){
-                    selectElem.innerHTML = '<option value="1">SAB</option>' +
+                if (depositoryId ===0 || userAuthority === '仅查看'){
+                    selectElem.innerHTML =
+                        '<option value="" selected>请选择厂区</option>'+
+                        '<option value="1">SAB</option>' +
                         '<option value="2">ZAB</option>'
+                }else if (depositoryId === 2) {
+                    selectElem.innerHTML = '<option value="2">ZAB</option>';
+                } else if (depositoryId === 1) {
+                    selectElem.innerHTML = '<option value="1">SAB</option>';
                 }
                 const startDate = document.getElementById('startDatePicker').value;
                 const endDate = document.getElementById('endDatePicker').value;
