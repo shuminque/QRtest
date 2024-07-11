@@ -267,9 +267,11 @@
                                     const formatter = new Intl.NumberFormat('en-US');
                                     const LA_quantityFormatted = formatter.format(param.data.LA_quantity);
                                     const LB_quantityFormatted = formatter.format(param.data.LB_quantity);
-
+                                    const totalLA = totals.totalLA;
+                                    const totalLB = totals.totalLB;
+                                    const percentage = ((param.data.LA_quantity / totalLA + param.data.LB_quantity / totalLB) / 2 * 100).toFixed(0);
                                     return [
-                                        '{nameStyle|' + param.name + '}',
+                                        '{nameStyle|' + param.name +" "+ percentage +"%"+'}',
                                         '{valueStyle|外轮: ' + LA_quantityFormatted + '}',
                                         '{valueStyle|内轮: ' + LB_quantityFormatted + '}'
                                     ].join('\n');
