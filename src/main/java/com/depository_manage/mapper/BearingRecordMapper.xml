@@ -459,6 +459,8 @@
         AND br.time &lt;= DATE_ADD(#{date} , INTERVAL 1 DAY)
         GROUP BY
         br.customer
+        ORDER BY
+        (LA_quantity + LB_quantity) ASC;
     </select>
     <!-- 定义查询入库或转入记录的数量 -->
     <select id="countInOrTransferInRecords" resultType="int">
