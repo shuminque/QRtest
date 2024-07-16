@@ -18,6 +18,7 @@ public interface BearingRecordService {
 
     List<BearingRecord> selectInventoryByCutoffDate(Map<String, Object> params);
     List<Map<String, Object>> getEveryPairData(String depository, String startDate, String endDate, String state);
+    List<Map<String, Object>> condWarn( String startDate, String endDate, String state);
 
     List<Map<String, Object>> getInventoryStatus(Date cutoffDate, String depository, String state);
     boolean isUniqueInOrTransferInRecord(String boxText, String boxNumber, String depositoryId, int iter);

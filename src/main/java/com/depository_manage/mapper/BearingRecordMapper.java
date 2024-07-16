@@ -40,7 +40,12 @@ public interface BearingRecordMapper {
             @Param("EndDate") String endDate,
             @Param("state") String state
     );
-
+    List<Map<String, Object>> condWarn(
+//            @Param("depository") String depository,
+            @Param("StartDate") String startDate,
+            @Param("EndDate") String endDate,
+            @Param("state") String state
+    );
     List<Map<String, Object>> selectInventoryStatus(
             @Param("date") Date cutoffDate,
             @Param("depository") String depository,

@@ -426,6 +426,92 @@
         ORDER BY
         MAX(b.size);
     </select>
+    <select id="condWarn" resultType="map">
+        WITH transaction_summary AS (
+        SELECT
+        b.pair,
+        br.model,
+        br.outer_inner_ring,
+        SUM(CASE WHEN br.transaction_type = '入库' THEN br.quantity ELSE 0 END) AS 入库,
+        SUM(CASE WHEN br.transaction_type = '出库' THEN br.quantity ELSE 0 END) AS 出库,
+        SUM(CASE WHEN br.transaction_type = '返库' THEN br.quantity ELSE 0 END) AS 返库,
+        SUM(CASE WHEN br.transaction_type = '转入' THEN br.quantity ELSE 0 END) AS 转入,
+        SUM(CASE WHEN br.transaction_type = '转出' THEN br.quantity ELSE 0 END) AS 转出
+        FROM
+        bearing_records br
+        JOIN
+        bearings b ON br.box_text = b.box_text
+        WHERE
+        <if test="state != null and state != 'ALL'">
+            br.state = #{state} AND
+        </if>
+        br.time > #{StartDate} AND
+        br.time &lt; DATE_ADD(#{EndDate},interval 1 DAY)
+        GROUP BY
+        b.pair, br.outer_inner_ring,br.model
+        ),
+        pre_start_date_inventory AS (
+        SELECT
+        b.pair,
+        br.outer_inner_ring,
+        SUM(CASE WHEN br.transaction_type IN ('入库', '转入') THEN br.quantity
+        WHEN br.transaction_type IN ('出库', '返库', '转出') THEN -br.quantity
+        ELSE 0 END) AS 在库
+        FROM
+        bearing_records br
+        JOIN
+        bearings b ON br.box_text = b.box_text
+        WHERE
+        <if test="state != null and state != 'ALL'">
+            br.state = #{state} AND
+        </if>
+        br.time &lt; #{StartDate}
+        GROUP BY
+        b.pair, br.outer_inner_ring
+        ),
+        inventory AS (
+        SELECT
+        b.pair,
+        br.outer_inner_ring,
+        SUM(CASE WHEN br.transaction_type IN ('入库', '转入') THEN br.quantity
+        WHEN br.transaction_type IN ('出库','返库', '转出') THEN -br.quantity
+        ELSE 0 END) AS 当前库存
+        FROM
+        bearing_records br
+        JOIN
+        bearings b ON br.box_text = b.box_text
+        WHERE
+        <if test="state != null and state != 'ALL'">
+            br.state = #{state} AND
+        </if>
+        br.time &lt; DATE_ADD(#{EndDate},interval 1 DAY)
+        GROUP BY
+        b.pair, br.outer_inner_ring
+        )
+        SELECT
+        b.pair,
+        MAX(CASE WHEN b.outer_inner_ring = 'LA' THEN b.model ELSE NULL END) AS 型号_LA,
+        MAX(CASE WHEN b.outer_inner_ring = 'LB' THEN b.model ELSE NULL END) AS 型号_LB,
+        SUM(CASE WHEN ts.outer_inner_ring = 'LA' THEN ts.入库 ELSE 0 END) AS 入库_LA,
+        SUM(CASE WHEN ts.outer_inner_ring = 'LB' THEN ts.入库 ELSE 0 END) AS 入库_LB,
+        MAX(CASE WHEN inv.outer_inner_ring = 'LA' THEN inv.当前库存 ELSE 0 END) AS 在库_LA,
+        MAX(CASE WHEN inv.outer_inner_ring = 'LB' THEN inv.当前库存 ELSE 0 END) AS 在库_LB,
+        SUM(CASE WHEN ts.outer_inner_ring = 'LA' THEN ts.出库 ELSE 0 END) AS 出库_LA,
+        SUM(CASE WHEN ts.outer_inner_ring = 'LB' THEN ts.出库 ELSE 0 END) AS 出库_LB
+        FROM
+        bearings b
+        LEFT JOIN
+        transaction_summary ts ON b.pair = ts.pair AND b.outer_inner_ring = ts.outer_inner_ring and b.model=ts.model
+        LEFT JOIN
+        inventory inv ON b.pair = inv.pair AND b.outer_inner_ring = inv.outer_inner_ring
+        LEFT JOIN
+        pre_start_date_inventory pre_inv ON b.pair = pre_inv.pair AND b.outer_inner_ring = pre_inv.outer_inner_ring
+        GROUP BY
+        b.pair
+        ORDER BY
+        MAX(b.size);
+    </select>
+
     <select id="selectInventoryStatus" resultType="map">
         SELECT
         customer,

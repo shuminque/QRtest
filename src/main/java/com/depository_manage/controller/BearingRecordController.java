@@ -220,6 +220,14 @@ public class BearingRecordController {
         List<BearingRecord> records = bearingRecordService.selectInventoryByCutoffDate(params);
         return ResponseEntity.ok(records);
     }
+    @GetMapping("/condWarn")
+    public ResponseEntity<?> getCondWarnData(
+            @RequestParam("startDate") @DateTimeFormat(pattern = "yyyy-MM-dd") String startDate,
+            @RequestParam("endDate") @DateTimeFormat(pattern = "yyyy-MM-dd") String endDate,
+            @RequestParam(required = false) String state) {
+        List<Map<String, Object>> data = bearingRecordService.condWarn(startDate, endDate, state);
+        return ResponseEntity.ok(data);
+    }
     @GetMapping("/everyPair")
     public ResponseEntity<?> getEveryPairData(
             @RequestParam("startDate") @DateTimeFormat(pattern = "yyyy-MM-dd") String startDate,

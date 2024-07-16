@@ -140,6 +140,12 @@ public class BearingRecordServiceImpl implements BearingRecordService {
     public List<Map<String, Object>> getEveryPairData(String depository, String startDate, String endDate, String state) {
         return bearingRecordMapper.everyPair(depository, startDate, endDate, state);
     }
+
+    @Override
+    public List<Map<String, Object>> condWarn( String startDate, String endDate, String state) {
+        return bearingRecordMapper.condWarn(startDate, endDate, state);
+    }
+
     @Override
     public List<Map<String, Object>> getInventoryStatus(Date cutoffDate, String depository, String state) {
         return bearingRecordMapper.selectInventoryStatus(cutoffDate, depository, state);

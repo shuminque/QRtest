@@ -5,12 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <link rel="stylesheet" href="../../static/css/index.css">
+    <link rel="stylesheet" href="/static/lib/layui-v2.8.17/css/layui.css" media="all">
     <title>数字化分析</title>
 <!--    <script src="../../static/js/jquery-2.2.1.min.js"></script>旧版本-->
     <script src="/static/js/http_ajax.googleapis.com_ajax_libs_jquery_3.5.1_jquery.js"></script>
     <script src="../../static/js/rem.js"></script>
     <script src="../../static/js/echarts.min.js"></script>
     <script src="../../static/js/index.js"></script>
+    <script src="/static/lib/layui-v2.8.17/layui.js" charset="utf-8"></script>
 </head>
 <body>
     <div class="t_container">
@@ -33,6 +35,27 @@
             </header>
             <div class="t_box">
                 <div id="chart_2" style="width: 100%; height: 100%;"></div>
+            </div>
+        </main>
+        <main class="t_main">
+            <div class="t_box_2">
+                <header class="t_title">
+                    <h1>库存产品状况预警</h1>
+                    <div style="display: none">
+                        <label class="layui-form-label">状态选择</label>
+                        <div class="layui-input-inline">
+                            <select name="state" id="stateSelect">
+                                <option value="正常">正常</option>
+                                <option value="死库">死库</option>
+                                <option value="ALL">全部</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="layui-input-inline">
+                        <input type="text" name="time" id="date" placeholder="选择日期区间" autocomplete="off" class="layui-input" >
+                    </div>
+                    <table class="layui-hide" id="currentTableId" lay-filter="currentTableFilter"></table>
+                </header>
             </div>
         </main>
     </div>
@@ -313,8 +336,6 @@
 
         // 页面加载完成后，自动加载数据
         document.addEventListener('DOMContentLoaded', loadInitialChartData);
-
-
         function generateRandomColor() {
             const letters = '0123456789ABCDEF';
             let color = '#';
@@ -323,6 +344,122 @@
             }
             return color;
         }
+        var tableInstance;  // 定义一个全局table变量
+        function loadReport() {
+            // 获取选择框和日期选择器的值
+            var dates = document.getElementById('date').value.split(' - ');
+            var startDate1 = dates[0];
+            var endDate1 = dates[1];
+            console.log(dates,"+",startDate1,'+',endDate1   );
+            // var sartDate = document.getElementById('startDatePicker').value;
+            // var endDate = document.getElementById('endDatePicker').value;
+            var state = document.getElementById('stateSelect').value;  // 获取状态选择器的值
+            // 创建新的URL
+            var url = `/bearingRecords/condWarn?state=${state}&startDate=${startDate1}&endDate=${endDate1}`;
+            // 更新表格的URL
+            tableInstance.render({
+                elem: "#currentTableId",
+                url: url    ,
+                height: "full-50", // 设置表格高度并固定表头
+                height: '300px',
+                parseData: function(res) { // 将原始数据格式适配成 layui 表格组件所期望的格式
+                    var filteredData = res.filter(function(record) {
+                        return record.pair > 0;
+                    });
+                    return {
+                        "code": 0, // 解析接口状态
+                        "msg": "", // 解析提示文本
+                        "count": filteredData.length, // Parse data length
+                        "data": filteredData // Parse data list
+                    };
+                },
+                request: {
+                    pageName: 'page', //页码的参数名称，默认：page
+                    limitName: 'size' //每页数据量的参数名，默认：limit
+                },
+                cols: [
+                    [ // 表头
+                        {field: ' ', title: '配对',colspan:1,rowspan:1,hide:true, align: 'center'},
+                        {field: ' ', title: '型号',colspan:2,rowspan:1},
+                        {field: ' ', title: '入库',colspan:2,rowspan:1},
+                        {field: ' ', title: '库存',colspan:2,rowspan:1},
+                        {field: ' ', title: '出库',colspan:2,rowspan:1},
+                    ], [
+                        {field: 'pair', title: 'Pair',colspan:1,rowspan:1,hide:true, align: 'center'},
+                    {field: '型号_LA', title: '外轮'},
+                    {field: '型号_LB', title: '内轮'},
+                    {field: '入库_LA', title: 'LA',templet: function(d) {
+                            const barWidth = Math.min(100, d.入库_LA * 0.1); // 控制最大长度为100px
+                            return `<div style="display: flex; align-items: center;">
+                                        <div style="width: ${barWidth}px; height: 20px; background-color: #26b510;"></div>
+                                        <div style="margin-left: 5px;">${d.入库_LA}</div>
+                                    </div>`;
+                        }},
+                    {field: '入库_LB', title: 'LB',templet: function(d) {
+                            const barWidth = Math.min(100, d.入库_LB * 0.1); // 控制最大长度为100px
+                            return `<div style="display: flex; align-items: center;">
+                                        <div style="width: ${barWidth}px; height: 20px; background-color: #26b510;"></div>
+                                        <div style="margin-left: 5px;">${d.入库_LB}</div>
+                                    </div>`;
+                        }},
+                    {
+                        field: '在库_LA', title: 'LA', templet: function(d) {
+                            const barWidth = Math.min(100, d.在库_LA * 0.1); // 控制最大长度为100px
+                            return `<div style="display: flex; align-items: center;">
+                                        <div style="width: ${barWidth}px; height: 20px; background-color: #d5270f;"></div>
+                                        <div style="margin-left: 5px;">${d.在库_LA}</div>
+                                    </div>`;
+                        }
+                    },
+                    {
+                        field: '在库_LB', title: 'LB', templet: function(d) {
+                            const barWidth = Math.min(100, d.在库_LB * 0.1); // 控制最大长度为100px
+                            return `<div style="display: flex; align-items: center;">
+                                        <div style="width: ${barWidth}px; height: 20px; background-color: #d5270f;"></div>
+                                        <div style="margin-left: 5px;">${d.在库_LB}</div>
+                                    </div>`;
+                        }
+                    },
+                    {field: '出库_LA', title: 'LA',templet: function(d) {
+                            const barWidth = Math.min(100, d.出库_LA * 0.1); // 控制最大长度为100px
+                            return `<div style="display: flex; align-items: center;">
+                                        <div style="width: ${barWidth}px; height: 20px; background-color: #0862d6;"></div>
+                                        <div style="margin-left: 5px;">${d.出库_LA}</div>
+                                    </div>`;
+                        }},
+                    {field: '出库_LB', title: 'LB',templet: function(d) {
+                            const barWidth = Math.min(100, d.出库_LB * 0.1); // 控制最大长度为100px
+                            return `<div style="display: flex; align-items: center;">
+                                        <div style="width: ${barWidth}px; height: 20px; background-color: #0862d6;"></div>
+                                        <div style="margin-left: 5px;">${d.出库_LB}</div>
+                                    </div>`;
+                        }},
+                ]],
+            });
+        }
+        layui.use(['form', 'laydate', 'table'], function() {
+            var form = layui.form;  // 添加这行
+            var laydate = layui.laydate;
+            var table = layui.table;
+            tableInstance = table;  // 将table对象赋值给全局变量
+            // 初始化日期选择器
+            laydate.render({
+                elem: '#startDatePicker'
+            });
+            laydate.render({
+                elem: '#endDatePicker'
+            });
+            laydate.render({
+                elem: '#date'
+                , range: true,
+                rangeLinked: true,
+                done: function(value, date, endDate) {
+                    // value 是选择的日期字符串，例如 "2024-07-01 - 2024-07-16"
+                    // 在这里调用 loadReport 函数，处理选择的日期范围
+                    loadReport();
+                }
+            });
+        });
     </script>
 </body>
 </html>
