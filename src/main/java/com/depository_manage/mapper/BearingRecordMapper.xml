@@ -510,7 +510,7 @@
         GROUP BY
         b.pair
         ORDER BY
-        MAX(b.size);
+        MAX(b.pair);
     </select>
 
     <select id="selectInventoryStatus" resultType="map">
