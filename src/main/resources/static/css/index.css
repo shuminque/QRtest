@@ -22,7 +22,7 @@ a{
 /*正文内容*/
 .t_container{
     width: 100%;
-    height: 100%;
+    height: 105%;
     background: url('../img/bg.png') no-repeat;
     background-size: 100% 100%;
 }
