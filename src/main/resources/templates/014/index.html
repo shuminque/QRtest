@@ -361,7 +361,7 @@
                 elem: "#currentTableId",
                 url: url    ,
                 height: "full-50", // 设置表格高度并固定表头
-                height: '300px',
+                height: '500px',
                 parseData: function(res) { // 将原始数据格式适配成 layui 表格组件所期望的格式
                     var filteredData = res.filter(function(record) {
                         return record.pair > 0;
@@ -379,62 +379,68 @@
                 },
                 cols: [
                     [ // 表头
+                        {field: ' ', title: ' ',colspan:1,rowspan:1, align: 'center'},
                         {field: ' ', title: '配对',colspan:1,rowspan:1,hide:true, align: 'center'},
-                        {field: ' ', title: '型号',colspan:2,rowspan:1},
-                        {field: ' ', title: '入库',colspan:2,rowspan:1},
-                        {field: ' ', title: '库存',colspan:2,rowspan:1},
-                        {field: ' ', title: '出库',colspan:2,rowspan:1},
+                        {field: ' ', title: '型号',colspan:2,rowspan:1, align: 'center'},
+                        {field: ' ', title: '入库',colspan:2,rowspan:1, align: 'center'},
+                        {field: ' ', title: '库存',colspan:2,rowspan:1, align: 'center'},
+                        {field: ' ', title: '出库',colspan:2,rowspan:1, align: 'center'},
                     ], [
+                        {field: '客户', title: '客户',colspan:1,rowspan:1, align: 'center'},
                         {field: 'pair', title: 'Pair',colspan:1,rowspan:1,hide:true, align: 'center'},
-                    {field: '型号_LA', title: '外轮'},
-                    {field: '型号_LB', title: '内轮'},
-                    {field: '入库_LA', title: 'LA',templet: function(d) {
-                            const barWidth = Math.min(100, d.入库_LA * 0.1); // 控制最大长度为100px
-                            return `<div style="display: flex; align-items: center;">
-                                        <div style="width: ${barWidth}px; height: 20px; background-color: #26b510;"></div>
-                                        <div style="margin-left: 5px;">${d.入库_LA}</div>
-                                    </div>`;
-                        }},
-                    {field: '入库_LB', title: 'LB',templet: function(d) {
-                            const barWidth = Math.min(100, d.入库_LB * 0.1); // 控制最大长度为100px
-                            return `<div style="display: flex; align-items: center;">
-                                        <div style="width: ${barWidth}px; height: 20px; background-color: #26b510;"></div>
-                                        <div style="margin-left: 5px;">${d.入库_LB}</div>
-                                    </div>`;
-                        }},
-                    {
-                        field: '在库_LA', title: 'LA', templet: function(d) {
-                            const barWidth = Math.min(100, d.在库_LA * 0.1); // 控制最大长度为100px
-                            return `<div style="display: flex; align-items: center;">
-                                        <div style="width: ${barWidth}px; height: 20px; background-color: #d5270f;"></div>
-                                        <div style="margin-left: 5px;">${d.在库_LA}</div>
-                                    </div>`;
-                        }
-                    },
-                    {
-                        field: '在库_LB', title: 'LB', templet: function(d) {
-                            const barWidth = Math.min(100, d.在库_LB * 0.1); // 控制最大长度为100px
-                            return `<div style="display: flex; align-items: center;">
-                                        <div style="width: ${barWidth}px; height: 20px; background-color: #d5270f;"></div>
-                                        <div style="margin-left: 5px;">${d.在库_LB}</div>
-                                    </div>`;
-                        }
-                    },
-                    {field: '出库_LA', title: 'LA',templet: function(d) {
-                            const barWidth = Math.min(100, d.出库_LA * 0.1); // 控制最大长度为100px
-                            return `<div style="display: flex; align-items: center;">
-                                        <div style="width: ${barWidth}px; height: 20px; background-color: #0862d6;"></div>
-                                        <div style="margin-left: 5px;">${d.出库_LA}</div>
-                                    </div>`;
-                        }},
-                    {field: '出库_LB', title: 'LB',templet: function(d) {
-                            const barWidth = Math.min(100, d.出库_LB * 0.1); // 控制最大长度为100px
-                            return `<div style="display: flex; align-items: center;">
-                                        <div style="width: ${barWidth}px; height: 20px; background-color: #0862d6;"></div>
-                                        <div style="margin-left: 5px;">${d.出库_LB}</div>
-                                    </div>`;
-                        }},
-                ]],
+                        {field: '型号_LA', title: '外轮', align: 'center'},
+                        {field: '型号_LB', title: '内轮', align: 'center'},
+                        {field: '入库_LA', title: 'LA', templet: function(d) {
+                                const barWidth = Math.min(100, Math.log10(d.入库_LA + 1) * 10); // 使用对数比例计算宽度
+                                return `<div style="display: flex; align-items: center;">
+                            <div style="width: ${barWidth}px; height: 20px; background-color: #26b510;"></div>
+                            <div style="margin-left: 5px;">${d.入库_LA}</div>
+                        </div>`;
+                            }, align: 'center'},
+                        {field: '入库_LB', title: 'LB', templet: function(d) {
+                                const barWidth = Math.min(100, Math.log10(d.入库_LB + 1) * 10); // 使用对数比例计算宽度
+                                return `<div style="display: flex; align-items: center;">
+                            <div style="width: ${barWidth}px; height: 20px; background-color: #26b510;"></div>
+                            <div style="margin-left: 5px;">${d.入库_LB}</div>
+                        </div>`;
+                            }, align: 'center'},
+                        {
+                            field: '在库_LA', title: 'LA', templet: function(d) {
+                                const barWidth = Math.min(100, Math.log10(d.在库_LA + 1) * 10); // 使用对数比例计算宽度
+                                const barColor = (d.入库_LA === 0 && d.出库_LA === 0) ? '#d5270f' : '#26b510'; // 根据条件设置颜色
+                                return `<div style="display: flex; align-items: center;">
+                            <div style="width: ${barWidth}px; height: 20px; background-color: ${barColor};"></div>
+                            <div style="margin-left: 5px;">${d.在库_LA}</div>
+                        </div>`;
+                            }, align: 'center'
+                        },
+                        {
+                            field: '在库_LB', title: 'LB', templet: function(d) {
+                                const barWidth = Math.min(100, Math.log10(d.在库_LB + 1) * 10); // 使用对数比例计算宽度
+                                const barColor = (d.入库_LB === 0 && d.出库_LB === 0) ? '#d5270f' : '#26b510'; // 根据条件设置颜色
+                                return `<div style="display: flex; align-items: center;">
+                            <div style="width: ${barWidth}px; height: 20px; background-color: ${barColor};"></div>
+                            <div style="margin-left: 5px;">${d.在库_LB}</div>
+                        </div>`;
+                            }, align: 'center'
+                        },
+                        {field: '出库_LA', title: 'LA', templet: function(d) {
+                                const barWidth = Math.min(100, Math.log10(d.出库_LA + 1) * 10); // 使用对数比例计算宽度
+                                return `<div style="display: flex; align-items: center;">
+                            <div style="width: ${barWidth}px; height: 20px; background-color: #26b510;"></div>
+                            <div style="margin-left: 5px;">${d.出库_LA}</div>
+                        </div>`;
+                            }, align: 'center'},
+                        {field: '出库_LB', title: 'LB', templet: function(d) {
+                                const barWidth = Math.min(100, Math.log10(d.出库_LB + 1) * 10); // 使用对数比例计算宽度
+                                return `<div style="display: flex; align-items: center;">
+                            <div style="width: ${barWidth}px; height: 20px; background-color: #26b510;"></div>
+                            <div style="margin-left: 5px;">${d.出库_LB}</div>
+                        </div>`;
+                            }, align: 'center'},
+                    ]
+                ]
+
             });
         }
         layui.use(['form', 'laydate', 'table'], function() {
@@ -454,8 +460,6 @@
                 , range: true,
                 rangeLinked: true,
                 done: function(value, date, endDate) {
-                    // value 是选择的日期字符串，例如 "2024-07-01 - 2024-07-16"
-                    // 在这里调用 loadReport 函数，处理选择的日期范围
                     loadReport();
                 }
             });

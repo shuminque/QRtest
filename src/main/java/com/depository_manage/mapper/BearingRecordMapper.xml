@@ -490,6 +490,7 @@
         )
         SELECT
         b.pair,
+        MAX(b.customer) AS 客户,
         MAX(CASE WHEN b.outer_inner_ring = 'LA' THEN b.model ELSE NULL END) AS 型号_LA,
         MAX(CASE WHEN b.outer_inner_ring = 'LB' THEN b.model ELSE NULL END) AS 型号_LB,
         SUM(CASE WHEN ts.outer_inner_ring = 'LA' THEN ts.入库 ELSE 0 END) AS 入库_LA,
