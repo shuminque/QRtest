@@ -15,9 +15,12 @@
     <script src="/static/lib/layui-v2.8.17/layui.js" charset="utf-8"></script>
     <script src="/static/js/http_cdnjs.cloudflare.com_ajax_libs_xlsx_0.17.3_xlsx.full.min.js"></script>
     <script src="/static/js/http_cdnjs.cloudflare.com_ajax_libs_exceljs_4.3.0_exceljs.js"></script>
-
     <style>
+        .layui-inline[title="导出"],.layui-inline[title="打印"]{
+            display: none;
+        }
     </style>
+
 </head>
 <body>
     <div class="t_container">
@@ -350,9 +353,6 @@
             return color;
         }
 
-
-
-
         layui.use(['form', 'laydate', 'table'], function() {
             var form = layui.form;  // 添加这行
             var laydate = layui.laydate;
@@ -390,7 +390,7 @@
                     elem: "#currentTableId",
                     url: url,
                     height: "full-50", // 设置表格高度并固定表头
-                    height: '500px',
+                    height: '600px',
                     toolbar: ['filter', 'exports', 'print'],
                     parseData: function(res) { // 将原始数据格式适配成 layui 表格组件所期望的格式
                         var filteredData = res.filter(function(record) {
@@ -564,20 +564,32 @@
                     if (rowNumber > 1) { // 跳过标题行
                         let cellLA = row.getCell(3); // 外轮
                         let cellLB = row.getCell(4); // 内轮
+                        let cellLA2 = row.getCell(7); // 外轮
+                        let cellLB2 = row.getCell(8); // 内轮
                         let dataRow = exportData[rowNumber - 2];
 
                         if (dataRow.在库LA !== 0 && dataRow.入库LA === 0 && dataRow.出库LA === 0) {
                             cellLA.fill = {
                                 type: 'pattern',
                                 pattern: 'solid',
-                                fgColor: { argb: 'FF0000' } // 黄色
+                                fgColor: { argb: 'FF0000' }
+                            };
+                            cellLA2.fill = {
+                                type: 'pattern',
+                                pattern: 'solid',
+                                fgColor: { argb: 'FF0000' }
                             };
                         }
                         if (dataRow.在库LB !== 0 && dataRow.入库LB === 0 && dataRow.出库LB === 0) {
                             cellLB.fill = {
                                 type: 'pattern',
                                 pattern: 'solid',
-                                fgColor: { argb: 'FF0000' } // 黄色
+                                fgColor: { argb: 'FF0000' }
+                            };
+                            cellLB2.fill = {
+                                type: 'pattern',
+                                pattern: 'solid',
+                                fgColor: { argb: 'FF0000' }
                             };
                         }
                     }
