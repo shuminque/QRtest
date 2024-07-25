@@ -183,4 +183,8 @@ public class BearingRecordServiceImpl implements BearingRecordService {
     public String getCurrentState(String boxText, String boxNumber) {
         return bearingRecordMapper.getCurrentState(boxText, boxNumber);
     }
+    @Override
+    public BearingRecord findRecordWithNoOutstockAfterRestock(String boxText) {
+        return bearingRecordMapper.findRecordWithNoOutstockAfterRestock(boxText);
+    }
 }

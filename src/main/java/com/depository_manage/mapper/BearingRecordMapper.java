@@ -70,5 +70,5 @@ public interface BearingRecordMapper {
 
     boolean findTransferOutRecord(@Param("boxText") String boxText, @Param("boxNumber") String boxNumber, @Param("iter") int iter);
     String getCurrentState(@Param("boxText") String boxText, @Param("boxNumber") String boxNumber);
-
+    BearingRecord findRecordWithNoOutstockAfterRestock(@Param("boxText") String boxText);
 }

@@ -712,4 +712,38 @@
         ORDER BY time DESC
             LIMIT 1
     </select>
+
+    <select id="findRecordWithNoOutstockAfterRestock" resultMap="bearingRecordMap">
+        SELECT DISTINCT br1.box_text, br1.box_number,br1.quantity, br1.iter
+        FROM bearing_records br1
+        WHERE br1.transaction_type = '返库'
+          AND br1.box_text = #{boxText}
+          AND NOT EXISTS (
+            SELECT 1
+            FROM bearing_records br2
+            WHERE br2.box_text = br1.box_text
+              AND br2.box_number = br1.box_number
+              AND br2.iter = br1.iter
+              AND br2.transaction_type = '出库'
+        )
+          AND EXISTS (
+            SELECT 1
+            FROM bearing_records br3
+            WHERE br3.box_text = br1.box_text
+              AND br3.box_number = br1.box_number
+              AND br3.iter = br1.iter
+              AND br3.transaction_type IN ('入库')
+        )
+          AND EXISTS (
+            SELECT 1
+            FROM product_ids br4
+            WHERE br4.box_text = br1.box_text
+              AND br4.box_number = br1.box_number
+              AND br4.iter = br1.iter
+              AND br4.is_stocked = 0
+        )
+        ORDER BY br1.box_number ASC
+            LIMIT 1
+    </select>
+
 </mapper>

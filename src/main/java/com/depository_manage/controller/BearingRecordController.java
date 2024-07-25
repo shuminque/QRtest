@@ -281,5 +281,14 @@ public class BearingRecordController {
         Map<String, Object> counts = bearingRecordService.getCountsByDateAndDepository(date, depository,depositoryId);
         return ResponseEntity.ok(counts);
     }
+    @GetMapping("/find-record")
+    public ResponseEntity<BearingRecord> findRecordWithNoOutstockAfterRestock(@RequestParam("boxText") String boxText) {
+        BearingRecord record = bearingRecordService.findRecordWithNoOutstockAfterRestock(boxText);
+        if (record != null) {
+            return ResponseEntity.ok(record);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
 
 }

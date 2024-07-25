@@ -29,5 +29,7 @@ public interface BearingRecordService {
     int getComprehensiveTransferRecordsCount();
     Map<String, Object> getCountsByDateAndDepository(Date date, String depository, Integer depositoryId);
     String getCurrentState(String boxText, String boxNumber);
+    BearingRecord findRecordWithNoOutstockAfterRestock(String boxText);
+
 
 }
