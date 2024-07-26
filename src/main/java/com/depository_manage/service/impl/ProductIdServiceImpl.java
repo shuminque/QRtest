@@ -74,7 +74,30 @@ public class ProductIdServiceImpl implements ProductIdService {
         newProductIdEntry.setIsStocked(isStocked); // 设置 is_stocked 的值
         productIdMapper.insertOrUpdateBoxNumber(newProductIdEntry);
     }
-
+    @Override
+    public void saveOrUpdateBoxNumberForZero(String boxText, int depositoryId, int quantity, String boxNumber) {
+        ProductId current = getLatestBoxNumberSharedAcrossDepositoriesForZero(boxText);
+        int newIter;
+        if (current != null && "1999".equals(current.getBoxNumber())) {
+            newIter = current.getIter() + 1; // 如果BoxNumber为"1999"，则iter增加
+        } else {
+            newIter = current != null ? current.getIter() : 1; // 如果不存在或者不为1999，保持当前iter或设为1
+        }
+        Integer isStocked = productIdMapper.checkIfStocked(boxText, boxNumber, depositoryId, newIter);
+        System.out.println("isStocked"+isStocked);
+        if (isStocked == null) {
+            isStocked = 0; // 如果记录不存在，设置默认值为 0
+        }
+        ProductId newProductIdEntry = new ProductId();
+        newProductIdEntry.setBoxText(boxText);
+        newProductIdEntry.setBoxNumber(boxNumber); // 使用传入的boxNumber
+        newProductIdEntry.setQuantity(quantity);
+        newProductIdEntry.setDepositoryId(depositoryId);
+        newProductIdEntry.setIter(newIter);
+        newProductIdEntry.setCreationTime(new Date());
+        newProductIdEntry.setIsStocked(isStocked); // 设置 is_stocked 的值
+        productIdMapper.insertOrUpdateBoxNumber(newProductIdEntry);
+    }
     @Override
     public String incrementAndSaveBoxNumber(String boxText, int depositoryId, int quantity) {
 //        ProductId current = productIdMapper.selectBoxNumberByBoxTextAndDepositoryId(boxText, depositoryId);

@@ -188,7 +188,7 @@ public class BearingController {
         if (bearing == null) {
             return ResponseEntity.notFound().build();
         }
-        productIdService.saveOrUpdateBoxNumber(boxText, depositoryId, quantity, boxNumber);        //还需要修改 为 零箱专用
+        productIdService.saveOrUpdateBoxNumberForZero(boxText, depositoryId, quantity, boxNumber);        //还需要修改 为 零箱专用
         ProductId productId = productIdService.getLatestBoxNumberSharedAcrossDepositoriesForZero(boxText);
         // 3. 创建包含Bearing数据和新product_id的响应
         Map<String, Object> response = getStringObjectMap(boxText, boxNumber, bearing, quantity, productId.getIter());
