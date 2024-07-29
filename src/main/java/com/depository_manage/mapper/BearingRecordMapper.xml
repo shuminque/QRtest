@@ -426,6 +426,127 @@
         ORDER BY
         MAX(b.size);
     </select>
+    <select id="everyPairForModel" resultType="map">
+        WITH transaction_summary AS (
+        SELECT
+        b.pair,
+        br.model,
+        br.outer_inner_ring,
+        SUM(CASE WHEN br.transaction_type = '入库' THEN br.quantity ELSE 0 END) AS 入库,
+        SUM(CASE WHEN br.transaction_type = '出库' THEN br.quantity ELSE 0 END) AS 出库,
+        SUM(CASE WHEN br.transaction_type = '返库' THEN br.quantity ELSE 0 END) AS 返库,
+        SUM(CASE WHEN br.transaction_type = '转入' THEN br.quantity ELSE 0 END) AS 转入,
+        SUM(CASE WHEN br.transaction_type = '转出' THEN br.quantity ELSE 0 END) AS 转出
+        FROM
+        bearing_records br
+        JOIN
+        bearings b ON br.box_text = b.box_text
+        WHERE
+        <if test="state != null and state != 'ALL'">
+            br.state = #{state} AND
+        </if>
+            br.time > #{StartDate} AND
+            br.time &lt; DATE_ADD(#{EndDate},interval 1 DAY)
+        GROUP BY
+        b.pair, br.outer_inner_ring, br.model
+        ),
+        inventory AS (
+        SELECT
+        b.pair,
+        br.model,
+        br.outer_inner_ring,
+        SUM(CASE WHEN br.transaction_type IN ('入库', '转入') THEN br.quantity
+        WHEN br.transaction_type IN ('出库', '返库', '转出') THEN -br.quantity
+        ELSE 0 END) AS 当前库存
+        FROM
+        bearing_records br
+        JOIN
+        bearings b ON br.box_text = b.box_text
+        WHERE
+        <if test="state != null and state != 'ALL'">
+            br.state = #{state} AND
+        </if>
+            br.time &lt; DATE_ADD(#{EndDate},interval 1 DAY)
+        GROUP BY
+        b.pair, br.outer_inner_ring, br.model
+        ),
+        la_data AS (
+        SELECT
+        b.pair,
+        'LA' AS outer_inner_ring,
+        b.model AS 型号_LA,
+        MAX(b.customer) AS 客户,
+        SUM(ts.入库) AS 入库_LA,
+        SUM(ts.出库) AS 出库_LA,
+        MAX(inv.当前库存) AS 在库_LA,
+        ROW_NUMBER() OVER (PARTITION BY b.pair ORDER BY b.model) AS row_num
+        FROM
+        bearings b
+        LEFT JOIN
+        transaction_summary ts ON b.pair = ts.pair AND b.outer_inner_ring = ts.outer_inner_ring AND b.model = ts.model
+        LEFT JOIN
+        inventory inv ON b.pair = inv.pair AND b.outer_inner_ring = inv.outer_inner_ring AND b.model = inv.model
+        WHERE
+        b.outer_inner_ring = 'LA'
+        GROUP BY
+        b.pair, b.model
+        ),
+        lb_data AS (
+        SELECT
+        b.pair,
+        'LB' AS outer_inner_ring,
+        b.model AS 型号_LB,
+        MAX(b.customer) AS 客户,
+        SUM(ts.入库) AS 入库_LB,
+        SUM(ts.出库) AS 出库_LB,
+        MAX(inv.当前库存) AS 在库_LB,
+        ROW_NUMBER() OVER (PARTITION BY b.pair ORDER BY b.model) AS row_num
+        FROM
+        bearings b
+        LEFT JOIN
+        transaction_summary ts ON b.pair = ts.pair AND b.outer_inner_ring = ts.outer_inner_ring AND b.model = ts.model
+        LEFT JOIN
+        inventory inv ON b.pair = inv.pair AND b.outer_inner_ring = inv.outer_inner_ring AND b.model = inv.model
+        WHERE
+        b.outer_inner_ring = 'LB'
+        GROUP BY
+        b.pair, b.model
+        )
+        SELECT
+        COALESCE(la_data.客户, lb_data.客户) AS 客户,
+        COALESCE(la_data.pair, lb_data.pair) AS pair,
+        la_data.型号_LA,
+        lb_data.型号_LB,
+        COALESCE(la_data.入库_LA, 0) AS 入库_LA,
+        COALESCE(lb_data.入库_LB, 0) AS 入库_LB,
+        COALESCE(la_data.在库_LA, 0) AS 在库_LA,
+        COALESCE(lb_data.在库_LB, 0) AS 在库_LB,
+        COALESCE(la_data.出库_LA, 0) AS 出库_LA,
+        COALESCE(lb_data.出库_LB, 0) AS 出库_LB
+        FROM
+        la_data
+        LEFT JOIN
+        lb_data ON la_data.pair = lb_data.pair AND la_data.row_num = lb_data.row_num
+        UNION ALL
+        SELECT
+        COALESCE(la_data.客户, lb_data.客户) AS 客户,
+        COALESCE(la_data.pair, lb_data.pair) AS pair,
+        la_data.型号_LA,
+        lb_data.型号_LB,
+        COALESCE(la_data.入库_LA, 0) AS 入库_LA,
+        COALESCE(lb_data.入库_LB, 0) AS 入库_LB,
+        COALESCE(la_data.在库_LA, 0) AS 在库_LA,
+        COALESCE(lb_data.在库_LB, 0) AS 在库_LB,
+        COALESCE(la_data.出库_LA, 0) AS 出库_LA,
+        COALESCE(lb_data.出库_LB, 0) AS 出库_LB
+        FROM
+        lb_data
+        LEFT JOIN
+        la_data ON lb_data.pair = la_data.pair AND lb_data.row_num = la_data.row_num
+        WHERE la_data.pair IS NULL
+        ORDER BY
+        pair;
+    </select>
     <select id="condWarn" resultType="map">
         WITH transaction_summary AS (
         SELECT

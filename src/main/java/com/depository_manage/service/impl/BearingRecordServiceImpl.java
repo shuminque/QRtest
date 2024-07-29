@@ -142,6 +142,11 @@ public class BearingRecordServiceImpl implements BearingRecordService {
     }
 
     @Override
+    public List<Map<String, Object>> getEveryPairForModel(String startDate, String endDate, String state) {
+        return bearingRecordMapper.everyPairForModel(startDate, endDate, state);
+    }
+
+    @Override
     public List<Map<String, Object>> condWarn( String startDate, String endDate, String state) {
         return bearingRecordMapper.condWarn(startDate, endDate, state);
     }
