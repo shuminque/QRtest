@@ -321,7 +321,7 @@
         br.size,
         br.state,
         lr.last_recorded_time
-        ORDER BY last_recorded_time DESC
+        ORDER BY box_text,box_number,last_recorded_time DESC
         <if test="begin != null and size != null">
             LIMIT #{begin},#{size}
         </if>
