@@ -117,7 +117,8 @@
             boxText = boxText.substring(1); //
         }
         $.ajax({
-            url: "/productIds/",
+            // url: "/productIds/",
+            url: "/bearingRecords/PCzhuanru",//修改后从记录表中取数据，返回转出后未转入的记录
             type: "GET",
             data: { boxText: boxText, depositoryId: TdepositoryId },
             success: function(response) {

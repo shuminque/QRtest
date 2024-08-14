@@ -298,5 +298,16 @@ public class BearingRecordController {
             return ResponseEntity.notFound().build();
         }
     }
+    @GetMapping("/PCzhuanru")
+    public ResponseEntity<BearingRecord> selectBearingRecordsByBoxTextAndDepositoryId(
+            @RequestParam String boxText,
+            @RequestParam int depositoryId) {
+        BearingRecord BearingRecord = bearingRecordService.selectBearingRecordsByBoxTextAndDepositoryId(boxText, depositoryId);
+        if (BearingRecord != null) {
+            return ResponseEntity.ok(BearingRecord);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
 
 }

@@ -192,4 +192,9 @@ public class BearingRecordServiceImpl implements BearingRecordService {
     public BearingRecord findRecordWithNoOutstockAfterRestock(String boxText) {
         return bearingRecordMapper.findRecordWithNoOutstockAfterRestock(boxText);
     }
+
+    @Override
+    public BearingRecord selectBearingRecordsByBoxTextAndDepositoryId(String boxText, int depositoryId) {
+        return bearingRecordMapper.selectBearingRecordsByBoxTextAndDepositoryId(boxText, depositoryId);
+    }
 }

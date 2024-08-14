@@ -32,5 +32,7 @@ public interface BearingRecordService {
     String getCurrentState(String boxText, String boxNumber);
     BearingRecord findRecordWithNoOutstockAfterRestock(String boxText);
 
+    BearingRecord selectBearingRecordsByBoxTextAndDepositoryId(String boxText, int depositoryId);
+
 
 }

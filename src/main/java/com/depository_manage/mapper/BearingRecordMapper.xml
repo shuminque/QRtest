@@ -867,4 +867,40 @@
             LIMIT 1
     </select>
 
+    <!--    PC转入操作时按照顺序转入-->
+    <select id="selectBearingRecordsByBoxTextAndDepositoryId" resultType="com.depository_manage.entity.BearingRecord">
+        SELECT *
+        FROM bearing_records br_out
+        WHERE
+        <choose>
+            <!-- 情况 1: 不带 Z 的 `box_text` 转出，带 Z 的 `box_text` 转入 -->
+            <when test="depositoryId == 1">
+                br_out.box_text = #{boxText}
+                AND br_out.transaction_type = '转出'
+                AND NOT EXISTS (
+                SELECT 1
+                FROM bearing_records br_in
+                WHERE br_in.box_text = CONCAT('Z', #{boxText})
+                AND br_in.box_number = br_out.box_number
+                AND br_in.transaction_type = '转入'
+                )
+            </when>
+
+            <!-- 情况 2: 带 Z 的 `box_text` 转出，不带 Z 的 `box_text` 转入 -->
+            <when test="depositoryId == 2">
+                br_out.box_text = #{boxText}
+                AND br_out.transaction_type = '转出'
+                AND NOT EXISTS (
+                SELECT 1
+                FROM bearing_records br_in
+                WHERE br_in.box_text = SUBSTRING(#{boxText}, 2)
+                AND br_in.box_number = br_out.box_number
+                AND br_in.transaction_type = '转入'
+                )
+            </when>
+        </choose>
+        ORDER BY br_out.box_number
+        LIMIT 1;
+    </select>
+
 </mapper>
