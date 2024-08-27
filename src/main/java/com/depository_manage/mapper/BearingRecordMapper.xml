@@ -845,7 +845,7 @@
             WHERE br2.box_text = br1.box_text
               AND br2.box_number = br1.box_number
               AND br2.iter = br1.iter
-              AND br2.transaction_type = '出库'
+              AND br2.transaction_type IN ('出库','转出')
         )
           AND EXISTS (
             SELECT 1
