@@ -56,6 +56,7 @@ public interface BearingRecordMapper {
             @Param("depository") String depository,
             @Param("state") String state
     );
+
     int countInOrTransferInRecords(@Param("boxText") String boxText,
                                    @Param("boxNumber") String boxNumber,
                                    @Param("depository") String depository,
@@ -77,5 +78,9 @@ public interface BearingRecordMapper {
     String getCurrentState(@Param("boxText") String boxText, @Param("boxNumber") String boxNumber);
     BearingRecord findRecordWithNoOutstockAfterRestock(@Param("boxText") String boxText);
     BearingRecord selectBearingRecordsByBoxTextAndDepositoryId(@Param("boxText") String boxText, @Param("depositoryId") int depositoryId);
-
+    List<Map<String, Object>> selectMonthlyInventory(
+            @Param("depository") String depository,
+            @Param("state") String state,
+            @Param("year") String year
+    );
 }

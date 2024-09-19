@@ -155,6 +155,7 @@ public class BearingRecordServiceImpl implements BearingRecordService {
     public List<Map<String, Object>> getInventoryStatus(Date cutoffDate, String depository, String state) {
         return bearingRecordMapper.selectInventoryStatus(cutoffDate, depository, state);
     }
+
     @Override
     public int calculateNetInOrTransferInVsOut(String boxText, String boxNumber, String depository, int iter) {
         return bearingRecordMapper.calculateNetInOrTransferInVsOut(boxText, boxNumber, depository, iter);
@@ -196,5 +197,9 @@ public class BearingRecordServiceImpl implements BearingRecordService {
     @Override
     public BearingRecord selectBearingRecordsByBoxTextAndDepositoryId(String boxText, int depositoryId) {
         return bearingRecordMapper.selectBearingRecordsByBoxTextAndDepositoryId(boxText, depositoryId);
+    }
+    @Override
+    public List<Map<String, Object>> getMonthlyInventory(String depository, String state, String year) {
+        return bearingRecordMapper.selectMonthlyInventory(depository, state, year);
     }
 }

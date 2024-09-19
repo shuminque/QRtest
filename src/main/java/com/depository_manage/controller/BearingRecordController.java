@@ -15,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.*;
 
 @RestController
@@ -252,6 +253,19 @@ public class BearingRecordController {
             @RequestParam(required = false, defaultValue = "ALL") String depository,
             @RequestParam(required = false, defaultValue = "ALL") String state) {
         List<Map<String, Object>> inventoryStatus = bearingRecordService.getInventoryStatus(cutoffDate, depository, state);
+        return ResponseEntity.ok(inventoryStatus);
+    }
+    @GetMapping("/monthlyInventory")
+    public ResponseEntity<List<Map<String, Object>>> getMonthlyInventory(
+            @RequestParam(required = false, defaultValue = "ALL") String depository,
+            @RequestParam(required = false, defaultValue = "ALL") String state,
+            @RequestParam(required = false) String year) {
+
+        // 如果年份未指定，默认为当前年份
+        if (year == null || year.isEmpty()) {
+            year = String.valueOf(LocalDate.now().getYear());
+        }
+        List<Map<String, Object>> inventoryStatus = bearingRecordService.getMonthlyInventory(depository, state, year);
         return ResponseEntity.ok(inventoryStatus);
     }
     @GetMapping("/comprehensiveTransfers")
