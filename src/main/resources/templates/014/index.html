@@ -755,7 +755,7 @@
                                         stack: '入库',
                                         data: LA_in,
                                         itemStyle: {
-                                            color: '#1f78b4' // 可自定义颜色
+                                            color: '#d5270f' // 可自定义颜色
                                         }
                                     },
                                     {
@@ -782,8 +782,9 @@
                                         stack: '出库',
                                         data: LA_out,
                                         itemStyle: {
-                                            color: '#e31a1c' // 可自定义颜色
-                                        }
+                                            color: '#d5270f' // 可自定义颜色
+                                        },
+                                        z: 10
                                     },
                                     {
                                         name: 'LB出库',
@@ -791,7 +792,7 @@
                                         stack: '出库',
                                         data: LB_out,
                                         itemStyle: {
-                                            color: '#ff7f00' // 可自定义颜色
+                                            color: '#33a02c' // 可自定义颜色
                                         },
                                         label: {
                                             show: true,
@@ -800,7 +801,9 @@
                                             formatter: function(params) {
                                                 return total_out[params.dataIndex];
                                             }
-                                        }
+                                        },
+                                        z: 10
+
                                     },
                                     {
                                         name: 'LA库存',
@@ -808,7 +811,7 @@
                                         stack: '库存',
                                         data: LA_quantity,
                                         itemStyle: {
-                                            color: '#6a3d9a' // 可自定义颜色
+                                            color: '#d5270f' // 可自定义颜色
                                         }
                                     },
                                     {
@@ -817,7 +820,7 @@
                                         stack: '库存',
                                         data: LB_quantity,
                                         itemStyle: {
-                                            color: '#b15928' // 可自定义颜色
+                                            color: '#33a02c' // 可自定义颜色
                                         },
                                         label: {
                                             show: true,
