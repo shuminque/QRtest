@@ -62,8 +62,8 @@
                         <option value="死库">死库</option>
                     </select>
                 </div>
-                <div class="t_box">
-                    <div id="chart_3" style="width: 100%; height: 75%;"></div>
+                <div class="t_box" style="height: 6rem;">
+                    <div id="chart_3" style="width: 100%; height: 100%;"></div>
                 </div>
             </header>
             </div>
@@ -408,7 +408,7 @@
                 console.log(dates, "+", startDate1, '+', endDate1);
                 // 获取状态选择器的值
                 var state = document.getElementById('stateSelect').value;
-                // 创建新的URL
+                // 创建新的URL condWarn使用的是everyPairForModel查询结果
                 var url = `/bearingRecords/condWarn?state=${state}&startDate=${startDate1}&endDate=${endDate1}`;
                 // 更新表格的URL
                 tableInstance.render({
@@ -662,6 +662,15 @@
                     fetch(`/bearingRecords/monthlyInventory?${params.toString()}`)
                         .then(response => response.json())
                         .then(data => {
+                            // 格式化数字为 "万" 或者普通数值
+                            function formatNumber(num) {
+                                if (num >= 10000) {
+                                    return (num / 10000).toFixed(0) + '万';  // 显示为万
+                                } else {
+                                    return num.toString();  // 小于10000直接显示
+                                }
+                            }
+
                             // 处理返回的数据
                             const months = [];
                             const LA_in = [];
@@ -673,6 +682,7 @@
                             const total_in = [];
                             const total_out = [];
                             const total_quantity = [];
+
                             data.forEach(item => {
                                 months.push(item.month);
                                 LA_in.push(item.LA_in || 0);
@@ -704,7 +714,8 @@
                                     }
                                 },
                                 legend: {
-                                    data: ['LA入库', 'LB入库', 'LA出库', 'LB出库', 'LA库存', 'LB库存'],
+                                    // data: ['LA入库', 'LB入库', 'LA出库', 'LB出库', 'LA库存', 'LB库存'],
+                                    data: ['LA', 'LB'],
                                     textStyle: {
                                         color: '#FFFFFF' // 图例字体颜色
                                     }
@@ -750,16 +761,25 @@
                                 },
                                 series: [
                                     {
-                                        name: 'LA入库',
+                                        name: 'LA',
                                         type: 'bar',
                                         stack: '入库',
                                         data: LA_in,
                                         itemStyle: {
                                             color: '#d5270f' // 可自定义颜色
-                                        }
+                                        },
+                                        label: {
+                                            show: true,
+                                            position: 'top',
+                                            color: '#FFFFFF',
+                                            formatter: function(params) {
+                                                return formatNumber(LA_in[params.dataIndex]);
+                                            }
+                                        },
+                                        z:10
                                     },
                                     {
-                                        name: 'LB入库',
+                                        name: 'LB',
                                         type: 'bar',
                                         stack: '入库',
                                         data: LB_in,
@@ -771,23 +791,30 @@
                                             position: 'top',
                                             color: '#FFFFFF',
                                             formatter: function(params) {
-                                                // 显示总和值
-                                                return total_in[params.dataIndex];
+                                                return formatNumber(LB_in[params.dataIndex]);
                                             }
                                         }
                                     },
                                     {
-                                        name: 'LA出库',
+                                        name: 'LA',
                                         type: 'bar',
                                         stack: '出库',
                                         data: LA_out,
                                         itemStyle: {
                                             color: '#d5270f' // 可自定义颜色
                                         },
-                                        z: 10
+                                        label: {
+                                            show: true,
+                                            position: 'top',
+                                            color: '#FFFFFF',
+                                            formatter: function(params) {
+                                                return formatNumber(LA_out[params.dataIndex]);
+                                            }
+                                        },
+                                        z:10
                                     },
                                     {
-                                        name: 'LB出库',
+                                        name: 'LB',
                                         type: 'bar',
                                         stack: '出库',
                                         data: LB_out,
@@ -799,23 +826,30 @@
                                             position: 'top',
                                             color: '#FFFFFF',
                                             formatter: function(params) {
-                                                return total_out[params.dataIndex];
+                                                return formatNumber(LB_out[params.dataIndex]);
                                             }
-                                        },
-                                        z: 10
-
+                                        }
                                     },
                                     {
-                                        name: 'LA库存',
+                                        name: 'LA',
                                         type: 'bar',
                                         stack: '库存',
                                         data: LA_quantity,
                                         itemStyle: {
                                             color: '#d5270f' // 可自定义颜色
-                                        }
+                                        },
+                                        label: {
+                                            show: true,
+                                            position: 'top',
+                                            color: '#FFFFFF',
+                                            formatter: function(params) {
+                                                return formatNumber(LA_quantity[params.dataIndex]);
+                                            }
+                                        },
+                                        z:10
                                     },
                                     {
-                                        name: 'LB库存',
+                                        name: 'LB',
                                         type: 'bar',
                                         stack: '库存',
                                         data: LB_quantity,
@@ -827,12 +861,13 @@
                                             position: 'top',
                                             color: '#FFFFFF',
                                             formatter: function(params) {
-                                                return total_quantity[params.dataIndex];
+                                                return formatNumber(LB_quantity[params.dataIndex]);
                                             }
                                         }
                                     }
                                 ]
                             };
+
                             // 使用配置项显示图表
                             myChart.setOption(option);
                         })
