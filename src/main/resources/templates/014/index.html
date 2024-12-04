@@ -724,8 +724,20 @@
                                     type: 'category',
                                     data: months,
                                     axisLabel: {
-                                        show: true,
-                                        color: '#FFFFFF' // X轴标签字体颜色
+                                        interval: 0, // 保证所有月份标签都显示
+                                        rotate: 0,  // 旋转标签以防重叠
+                                        color: '#FFFFFF', // X轴文字颜色
+                                        rich: {
+                                            largeFont: {
+                                                fontSize: 11, // 设置自定义标签的字体大小
+                                                color: '#FFFFFF' // 自定义标签的颜色
+                                            }
+                                        },
+                                        formatter: function (value, index) {
+                                            // Customize the labels based on the index
+                                            const labels = ['{largeFont|入库}', '{largeFont|出库}', '{largeFont|在库}'];
+                                            return '\n'+labels.join(' ') + '\n'+'\n' + value;
+                                        }
                                     },
                                     axisLine: {
                                         lineStyle: {
@@ -770,10 +782,10 @@
                                         },
                                         label: {
                                             show: true,
-                                            position: 'top',
+                                            position: 'insideTop',
                                             color: '#FFFFFF',
                                             formatter: function(params) {
-                                                return formatNumber(LA_in[params.dataIndex]);
+                                                return params.value === 0 ? '' : formatNumber(LA_in[params.dataIndex]);
                                             }
                                         },
                                         z:10
@@ -791,7 +803,7 @@
                                             position: 'top',
                                             color: '#FFFFFF',
                                             formatter: function(params) {
-                                                return formatNumber(LB_in[params.dataIndex]);
+                                                return params.value === 0 ? '' : formatNumber(LB_in[params.dataIndex]);
                                             }
                                         }
                                     },
@@ -805,10 +817,10 @@
                                         },
                                         label: {
                                             show: true,
-                                            position: 'top',
+                                            position: 'insideTop',
                                             color: '#FFFFFF',
                                             formatter: function(params) {
-                                                return formatNumber(LA_out[params.dataIndex]);
+                                                return params.value === 0 ? '' : formatNumber(LA_out[params.dataIndex]);
                                             }
                                         },
                                         z:10
@@ -826,7 +838,7 @@
                                             position: 'top',
                                             color: '#FFFFFF',
                                             formatter: function(params) {
-                                                return formatNumber(LB_out[params.dataIndex]);
+                                                return params.value === 0 ? '' : formatNumber(LB_out[params.dataIndex]);
                                             }
                                         }
                                     },
@@ -840,10 +852,10 @@
                                         },
                                         label: {
                                             show: true,
-                                            position: 'top',
+                                            position: 'insideTop',
                                             color: '#FFFFFF',
                                             formatter: function(params) {
-                                                return formatNumber(LA_quantity[params.dataIndex]);
+                                                return params.value === 0 ? '' : formatNumber(LA_quantity[params.dataIndex]);
                                             }
                                         },
                                         z:10
@@ -861,7 +873,7 @@
                                             position: 'top',
                                             color: '#FFFFFF',
                                             formatter: function(params) {
-                                                return formatNumber(LB_quantity[params.dataIndex]);
+                                                return params.value === 0 ? '' : formatNumber(LB_quantity[params.dataIndex]);
                                             }
                                         }
                                     }
