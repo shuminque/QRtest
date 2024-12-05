@@ -58,7 +58,7 @@
                     </select>
                     <select id="state-select-two">
                         <option value="ALL">所有状态</option>
-                        <option value="正常">正常</option>
+                        <option value="正常" selected>正常</option>
                         <option value="死库">死库</option>
                     </select>
                 </div>
@@ -735,7 +735,7 @@
                                         },
                                         formatter: function (value, index) {
                                             // Customize the labels based on the index
-                                            const labels = ['{largeFont|入库}', '{largeFont|出库}', '{largeFont|在库}'];
+                                            const labels = ['{largeFont|入库}  ', '{largeFont|出库}', '  {largeFont|在库}'];
                                             return '\n'+labels.join(' ') + '\n'+'\n' + value;
                                         }
                                     },
@@ -887,10 +887,12 @@
                             console.error('获取数据失败:', error);
                         });
                 }
-                // 监听用户选择的变化
+            // 监听用户选择的变化
                 yearSelector.addEventListener('change', updateChart);
                 depositorySelect.addEventListener('change', updateChart);
                 stateSelect.addEventListener('change', updateChart);
+                updateChart();
+
         });
     </script>
 </body>
