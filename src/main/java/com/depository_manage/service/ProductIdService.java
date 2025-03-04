@@ -58,6 +58,7 @@ public interface ProductIdService {
     ProductId findProductId(String boxText, String boxNumber, int depositoryId, int iter);
     int countIDs(Map<String, Object> params);
     List<ProductId> selectAllIDs(Map<String,Object> params);
+    List<ProductId> getUnrecordedProducts();
 
 
 }

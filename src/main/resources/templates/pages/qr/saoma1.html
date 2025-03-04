@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns="http://www.w3.org/1999/html">
 <head>
     <meta charset="UTF-8">
     <title>扫描二维码</title>
@@ -79,6 +79,23 @@
 </style>
 <body>
 <div>
+    <div id="unrecordedProductsContainer" style="display: none; position: fixed; top: 10%; left: 50%; transform: translateX(-50%); width: 80%; background: white; padding: 20px; border: 1px solid #ddd; z-index: 1000; box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);">
+        <h3 style="text-align: center; color: #ffc107">到昨日为止,有如下未入库<br>请抓紧确认处理</h3>
+        <button onclick="closeUnrecordedProducts()" style="position: absolute; top: 45px; right: 10px; background: red; color: white; border: none; padding: 5px 10px; cursor: pointer;">关闭</button>
+        <div style="max-height: 200px; overflow-y: auto; border: 1px solid #ddd;">
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th>箱号</th>
+                    <th>编号</th>
+                    <th>数量</th>
+                    <th>生成时间</th>
+                </tr>
+                </thead>
+                <tbody id="productTableBody"></tbody>
+            </table>
+        </div>
+    </div>
     <div>
         <input type="text" id="boxTextInput" placeholder="请输入箱号" class="layui-input" autocomplete="off">
     </div>
@@ -196,7 +213,48 @@
 
 <div id="operation-result" style="display:none;"></div>
 <script src="/static/lib/layui-v2.8.17/layui.js" charset="utf-8"></script>
+
 <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        fetchUnrecordedProducts();
+    });
+    function fetchUnrecordedProducts() {
+        fetch("/productIds/unrecorded")
+            .then(response => response.json())
+            .then(data => {
+                if (data.length > 0) {
+                    let tableBody = document.getElementById("productTableBody");
+                    tableBody.innerHTML = "";
+
+                    data.forEach(product => {
+                        let row = `<tr>
+                        <td>${product.boxText}</td>
+                        <td>${product.boxNumber}</td>
+                        <td>${product.quantity}</td>
+                        <td>${formatDate(product.creationTime)}</td>
+                    </tr>`;
+                        tableBody.innerHTML += row;
+                    });
+
+                    document.getElementById("unrecordedProductsContainer").style.display = "block";
+                }
+            })
+            .catch(error => console.error("Error fetching unrecorded products:", error));
+    }
+
+    function closeUnrecordedProducts() {
+        document.getElementById("unrecordedProductsContainer").style.display = "none";
+    }
+
+    function formatDate(isoString) {
+        let date = new Date(isoString);
+        let yyyy = date.getFullYear();
+        let MM = String(date.getMonth() + 1).padStart(2, '0');
+        let dd = String(date.getDate()).padStart(2, '0');
+        // let HH = String(date.getHours()).padStart(2, '0');
+        // let mm = String(date.getMinutes()).padStart(2, '0');
+        return `${yyyy}-${MM}-${dd} `;
+    }
     var currentOperation = null;
     var currentOperationType = ''; // 全局变量，存储当前操作类型
     var html5QrcodeScanner;var userReviewGroupId;var userAuthority;

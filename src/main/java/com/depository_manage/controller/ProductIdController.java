@@ -131,4 +131,8 @@ public class ProductIdController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("删除失败: " + e.getMessage());
         }
     }
+    @GetMapping("/unrecorded")
+    public List<ProductId> getUnrecordedProducts() {
+        return productIdService.getUnrecordedProducts();
+    }
 }

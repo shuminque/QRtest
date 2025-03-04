@@ -284,4 +284,8 @@ public class ProductIdServiceImpl implements ProductIdService {
         }
         return productIdMapper.selectAllIDs(params);
     }
+    @Override
+    public List<ProductId> getUnrecordedProducts() {
+        return productIdMapper.getUnrecordedProducts();
+    }
 }

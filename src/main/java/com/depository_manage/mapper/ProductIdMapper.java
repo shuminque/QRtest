@@ -56,4 +56,6 @@ public interface ProductIdMapper {
                                       @Param("iter") Integer iter);
     int countIDs(Map<String, Object> params);
     List<ProductId> selectAllIDs(Map<String,Object> params);
+    List<ProductId> getUnrecordedProducts();
+
 }

@@ -155,5 +155,18 @@
             AND iter = #{iter}
         </if>
     </select>
+    <select id="getUnrecordedProducts" resultType="com.depository_manage.entity.ProductId">
+        SELECT p.box_text, p.box_number, p.quantity,
+               p.creation_time
+        FROM product_ids p
+        WHERE NOT EXISTS (
+            SELECT 1
+            FROM bearing_records b
+            WHERE p.box_text = b.box_text
+              AND p.box_number = b.box_number
+        )
+          AND DATE(p.creation_time) &lt;&gt; CURDATE();
+    </select>
+
 
 </mapper>
