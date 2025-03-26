@@ -16,6 +16,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.time.YearMonth;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @RestController
@@ -268,6 +270,23 @@ public class BearingRecordController {
         List<Map<String, Object>> inventoryStatus = bearingRecordService.getMonthlyInventory(depository, state, year);
         return ResponseEntity.ok(inventoryStatus);
     }
+    @GetMapping("/dayInventory")
+    public ResponseEntity<List<Map<String, Object>>> getDayInventory(
+            @RequestParam(required = false, defaultValue = "ALL") String depository,
+            @RequestParam(required = false, defaultValue = "ALL") String state,
+            @RequestParam(required = false) String yearMonth) {
+        // 如果年月未指定，默认为当前年月
+        if (yearMonth == null || yearMonth.isEmpty()) {
+            yearMonth = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM"));
+        }
+        YearMonth ym = YearMonth.parse(yearMonth);
+        String startOfMonth = ym.atDay(1).toString();
+        String startOfNextMonth = ym.plusMonths(1).atDay(1).toString();
+
+        List<Map<String, Object>> inventoryStatus = bearingRecordService.getDayInventory(depository, state, startOfMonth, startOfNextMonth);
+        return ResponseEntity.ok(inventoryStatus);
+    }
+
     @GetMapping("/comprehensiveTransfers")
     public ResponseEntity<?> getComprehensiveTransferRecords(
             @RequestParam(required = false) String date) {

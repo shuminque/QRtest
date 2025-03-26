@@ -83,4 +83,12 @@ public interface BearingRecordMapper {
             @Param("state") String state,
             @Param("year") String year
     );
+    List<Map<String, Object>> selectDayInventory(
+            @Param("depository") String depository,
+            @Param("state") String state,
+            @Param("startOfMonth") String startOfMonth,
+            @Param("startOfNextMonth") String startOfNextMonth
+    );
+
+
 }

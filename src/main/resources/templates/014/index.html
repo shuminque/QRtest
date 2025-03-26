@@ -75,6 +75,29 @@
         <main class="t_main">
             <div class="t_box_2">
                 <header class="t_title">
+                    <h2>每日库存推移</h2>
+                    <div>
+                        <input type="text" id="year-selector-four" placeholder="请选择年月" autocomplete="off">
+                        <select id="depository-select-four">
+                            <option value="ALL">所有厂区</option>
+                            <option value="SAB">SAB</option>
+                            <option value="ZAB">ZAB</option>
+                        </select>
+                        <select id="state-select-four">
+                            <option value="ALL">所有状态</option>
+                            <option value="正常" selected>正常</option>
+                            <option value="死库">死库</option>
+                        </select>
+                    </div>
+                    <div class="t_box" style="height: 6rem;">
+                        <div id="chart_4" style="width: 100%; height: 100%;"></div>
+                    </div>
+                </header>
+            </div>
+        </main>
+        <main class="t_main">
+            <div class="t_box_2">
+                <header class="t_title">
                     <h1>库存产品状况预警</h1>
                     <div style="display: none">
                         <label class="layui-form-label">状态选择</label>
@@ -121,6 +144,13 @@
                 }
             });
             laydate.render({ elem: '#year-selector-three', type: 'year' });
+            laydate.render({
+                elem: '#year-selector-four', // 目标元素
+                type: 'month',               // 月份选择器
+                done: function(value) {      // 用户选择日期后的回调
+                    updateChart4(value);     // 立即更新图表，传入选中的值
+                }
+            });
             loadInitialChartData();
             // 添加事件监听器，当日期或厂区改变时，更新图表数据
             document.getElementById('cutoff-date').addEventListener('change', updateChartData);
@@ -1053,12 +1083,224 @@
                             console.error('获取数据失败:', error);
                         });
                 }
-            // 监听用户选择的变化
+                // 监听用户选择的变化
                 yearSelector.addEventListener('change', updateChart);
                 depositorySelect.addEventListener('change', updateChart);
                 stateSelect.addEventListener('change', updateChart);
                 updateChart();
+            // 获取元素
+            const yearSelector4 = document.getElementById('year-selector-four');
+            const depositorySelect4 = document.getElementById('depository-select-four');
+            const stateSelect4 = document.getElementById('state-select-four');
+            const chartContainer4 = document.getElementById('chart_4');
+            // 初始化年份选择器（您可以使用日期选择器库，这里假设使用简单的输入框）
+            const currentYear4 = new Date().toISOString().slice(0, 7); // 获取当前年月 (yyyy-MM)
+            yearSelector4.value = currentYear4;
+            // 初始化 ECharts 实例
+            const myChart4 = echarts.init(chartContainer4);
+            // 定义一个函数，用于获取数据并更新图表
+            function updateChart4() {
+                const selectedYear = yearSelector4.value;
+                const selectedDepository = depositorySelect4.value;
+                const selectedState = stateSelect4.value;
+                // 构造请求参数
+                const params = new URLSearchParams({
+                    yearMonth: selectedYear,
+                    depository: selectedDepository,
+                    state: selectedState
+                });
 
+                // 发送 AJAX 请求到后端 API
+                fetch(`/bearingRecords/dayInventory?${params.toString()}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        // 格式化数字为 "万" 或者普通数值
+                        function formatNumber(num) {
+                            if (num >= 10000) {
+                                return (num / 10000).toFixed(0) + '万';  // 显示为万
+                            } else {
+                                return num.toString();  // 小于10000直接显示
+                            }
+                        }
+                        // 处理返回的数据
+                        const days = [];
+                        const LA_quantity = [];
+                        const LB_quantity = [];
+                        const total_quantity = [];
+                        data.forEach(item => {
+                            days.push(item.day);
+                            LA_quantity.push(item.LA_quantity || 0);
+                            LB_quantity.push(item.LB_quantity || 0);
+                            total_quantity.push((item.LA_quantity || 0) + (item.LB_quantity || 0));
+                        });
+                        const averageLA = (LA_quantity.reduce((sum, val) => sum + val, 0) / LA_quantity.length).toFixed(2);
+                        const averageLB = (LB_quantity.reduce((sum, val) => sum + val, 0) / LB_quantity.length).toFixed(2);
+                        const averageLAInWan = (averageLA / 10000).toFixed(0);
+                        const averageLBInWan = (averageLB / 10000).toFixed(0);
+                        // 设置图表配置项
+                        const option = {
+                            textStyle: {
+                                color: '#FFFFFF' // 白色
+                            },
+                            grid: {
+                                left: '10%',
+                                right: '10%',
+                                top: '10%',
+                                bottom: '20%',
+                            },
+                            tooltip: {
+                                trigger: 'item',
+                                textStyle: {
+                                    color: '#FFFFFF' // 提示文字颜色
+                                },
+                                formatter: function (params) {
+                                    // 定义堆叠组名称数组
+                                    const stackNames = ['在库'];
+
+                                    // 找到当前系列的索引
+                                    const seriesIndex = params.seriesIndex;
+
+                                    // 确定堆叠组名称
+                                    const stackName = stackNames[Math.floor(seriesIndex / 2)]; // 每组两个系列
+
+                                    // 获取分类信息
+                                    const materialType = params.seriesName;
+
+                                    // 获取当前值
+                                    const value = params.value.toLocaleString(); // 格式化值为千分位
+
+                                    // 返回完整提示信息
+                                    return `${materialType}${stackName}: ${value}`;
+                                }
+                            },
+                            legend: {
+                                data: ['LA', 'LB'], // 这里保留与 series.name 对应的值
+                                textStyle: {
+                                    color: '#FFFFFF' // 图例字体颜色
+                                },
+                                formatter: (name) => {
+                                    // 根据图例名称追加平均值
+                                    if (name === 'LA') {
+                                        return `{a|LA}\n{b|平均：${averageLAInWan}万}`;
+                                    } else if (name === 'LB') {
+                                        return `{a|LB}\n{b|平均：${averageLBInWan}万}`;
+                                    }
+                                    return name;
+                                },
+                                itemGap: 20, // 控制图例之间的间距
+                                textStyle: {
+                                    rich: {
+                                        a: {
+                                            fontSize: 14,
+                                            color: '#FFFFFF',
+                                            fontWeight: 'bold'
+                                        },
+                                        b: {
+                                            fontSize: 12,
+                                            color: '#FFD700' // 平均值部分可以使用不同颜色区分
+                                        }
+                                    }
+                                }
+                            },
+                            xAxis: {
+                                type: 'category',
+                                data: days,
+                                axisLabel: {
+                                    interval: 0, // 保证所有月份标签都显示
+                                    rotate: 0,  // 旋转标签以防重叠
+                                    color: '#FFFFFF', // X轴文字颜色
+                                    rich: {
+                                        largeFont: {
+                                            fontSize: 11, // 设置自定义标签的字体大小
+                                            color: '#FFFFFF' // 自定义标签的颜色
+                                        }
+                                    },
+                                    formatter: function (value, index) {
+                                        return value.slice(5);
+                                    }
+                                },
+                                axisLine: {
+                                    lineStyle: {
+                                        color: '#FFFFFF' // X轴轴线颜色
+                                    }
+                                },
+                                axisTick: {
+                                    lineStyle: {
+                                        color: '#FFFFFF' // X轴刻度颜色
+                                    }
+                                }
+                            },
+                            yAxis: {
+                                type: 'value',
+                                max: 50000000 ,
+                                axisLabel: {
+                                    color: '#FFFFFF' // Y轴标签字体颜色
+                                },
+                                axisLine: {
+                                    lineStyle: {
+                                        color: '#FFFFFF' // Y轴轴线颜色
+                                    }
+                                },
+                                axisTick: {
+                                    lineStyle: {
+                                        color: '#FFFFFF' // Y轴刻度颜色
+                                    }
+                                },
+                                splitLine: {
+                                    lineStyle: {
+                                        color: '#FFFFFF' // 网格线颜色，如果需要
+                                    }
+                                }
+                            },
+                            series: [
+                                {
+                                    name: 'LB',
+                                    type: 'bar',
+                                    stack: '库存',
+                                    data: LB_quantity,
+                                    itemStyle: {
+                                        color: '#33a02c' // 可自定义颜色
+                                    },
+                                    label: {
+                                        show: true,
+                                        position: 'insideTop',
+                                        color: '#FFFFFF',
+                                        formatter: function(params) {
+                                            return params.value === 0 ? '' : formatNumber(LB_quantity[params.dataIndex]);
+                                        }
+                                    },
+                                },
+                                {
+                                    name: 'LA',
+                                    type: 'bar',
+                                    stack: '库存',
+                                    data: LA_quantity,
+                                    itemStyle: {
+                                        color: '#d5270f' // 可自定义颜色
+                                    },
+                                    label: {
+                                        show: true,
+                                        position: 'insideTop',
+                                        color: '#FFFFFF',
+                                        formatter: function(params) {
+                                            return params.value === 0 ? '' : formatNumber(LA_quantity[params.dataIndex]);
+                                        }
+                                    },
+                                    z: 10
+                                }
+                            ]
+                        };
+                        // 使用配置项显示图表
+                        myChart4.setOption(option);
+                    })
+                    .catch(error => {
+                        console.error('获取数据失败:', error);
+                    });
+            }
+            // 监听用户选择的变化
+            depositorySelect4.addEventListener('change', updateChart4);
+            stateSelect4.addEventListener('change', updateChart4);
+            updateChart4();
         });
     </script>
 </body>
