@@ -298,9 +298,6 @@
         <if test="steelGrade != null and steelGrade != ''">
             AND br.steel_grade = #{steelGrade}
         </if>
-        <if test="depository != null and depository != ''">
-            AND br.depository = #{depository}
-        </if>
         <if test="currentDepository != null and currentDepository != ''">
             AND br.current_depository = #{currentDepository}
         </if>

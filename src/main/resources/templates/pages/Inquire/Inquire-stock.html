@@ -240,8 +240,8 @@
                     }
                     addCustomExportButton(); // 确保在每次表格加载完成后添加按钮
                 },
-                limits:[20,200,2000,20000],
-                limit:20000,
+                limits:[20,200,2000,60000],
+                limit:60000,
             });
             function customExport() {
                 var data = table.cache['recordTable']; // 从表格缓存中获取当前表格的数据
@@ -423,9 +423,6 @@
                 }
                 if (formData.steelGrade !== '') {
                     req.steelGrade = formData.steelGrade;
-                }
-                if (formData.depository !== '') {
-                    req.depository = formData.depository;
                 }
                 if (formData.state !== '') {
                     req.state = formData.state;
