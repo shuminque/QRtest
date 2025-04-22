@@ -660,31 +660,22 @@
                     var ctx = canvas.getContext('2d');
                     var centerX = 100; // 二维码中心 x
                     var centerY = 100; // 二维码中心 y
-
                     // 画白色圆背景
                     ctx.fillStyle = 'white';
                     ctx.beginPath();
-                    ctx.arc(centerX, centerY, 18, 0, 2 * Math.PI);
+                    ctx.arc(centerX, centerY, 22, 0, 2 * Math.PI);
                     ctx.fill();
-
                     // 保存当前上下文状态
                     ctx.save();
-
                     // 移动坐标原点到中心
                     ctx.translate(centerX, centerY);
-                    // 顺时针旋转90度（Math.PI / 2）
                     ctx.rotate(Math.PI / 2);
-
                     // 设置字体样式
                     ctx.font = 'bold 35px Arial';
                     ctx.fillStyle = 'black';
                     ctx.textAlign = 'center';
                     ctx.textBaseline = 'middle';
-
-                    // 注意：由于坐标原点已经移动，所以填文字用 (0,0)
                     ctx.fillText('保', 0, 0);
-
-                    // 恢复上下文
                     ctx.restore();
                 }
 
