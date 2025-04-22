@@ -446,6 +446,7 @@
                     height: 200,
                     correctLevel: 3,
                 }).appendTo(qrCodeElement);
+
                 // 显示信息和元素
                 var infoHtml = `
                     <div class="info-row print-info-row">
@@ -458,6 +459,7 @@
                 var infoContainer = document.querySelector("#printSection .info-container");
                 infoContainer.innerHTML = infoHtml;
                 adjustPrintFontSize(data.boxText);
+
                 // 显示元素
                 document.getElementById('qrcodeContainer').style.display = 'block';
                 document.getElementById('printSection').style.display = 'block';
@@ -644,6 +646,7 @@
                     time: currentTime // 添加时间戳
                 };
                 // var qrData = JSON.stringify(newData);
+                // 构造二维码内容
                 var qrData = Object.values(newData).join('|');
                 $('<div></div>').qrcode({
                     text: qrData,
@@ -652,6 +655,76 @@
                     height: 200,
                     correctLevel: 3,
                 }).appendTo(qrCodeElement);
+                var canvas = qrCodeElement.querySelector('canvas');
+                if (canvas) {
+                    var ctx = canvas.getContext('2d');
+                    var centerX = 100; // 二维码中心 x
+                    var centerY = 100; // 二维码中心 y
+
+                    // 画白色圆背景
+                    ctx.fillStyle = 'white';
+                    ctx.beginPath();
+                    ctx.arc(centerX, centerY, 18, 0, 2 * Math.PI);
+                    ctx.fill();
+
+                    // 保存当前上下文状态
+                    ctx.save();
+
+                    // 移动坐标原点到中心
+                    ctx.translate(centerX, centerY);
+                    // 顺时针旋转90度（Math.PI / 2）
+                    ctx.rotate(Math.PI / 2);
+
+                    // 设置字体样式
+                    ctx.font = 'bold 35px Arial';
+                    ctx.fillStyle = 'black';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+
+                    // 注意：由于坐标原点已经移动，所以填文字用 (0,0)
+                    ctx.fillText('保', 0, 0);
+
+                    // 恢复上下文
+                    ctx.restore();
+                }
+
+// // 1. 生成隐藏二维码 canvas
+//                 var tempDiv = document.createElement('div');
+//                 $(tempDiv).qrcode({
+//                     text: qrData,
+//                     render: 'canvas',
+//                     width: 200,
+//                     height: 200,
+//                     correctLevel: 3,
+//                 });
+//                 var tempCanvas = tempDiv.querySelector('canvas');
+//
+// // 2. 创建最终 canvas（增加右侧区域用于“保”字）
+//                 var qrCodeElement = document.getElementById('qrcode');
+//                 qrCodeElement.innerHTML = '';
+//                 var finalCanvas = document.createElement('canvas');
+//                 finalCanvas.width = 300; // 200(二维码) + 100(保字区域)
+//                 finalCanvas.height = 200;
+//                 qrCodeElement.appendChild(finalCanvas);
+//
+//                 var ctx = finalCanvas.getContext('2d');
+//
+// // 3. 把二维码画在左边
+//                 ctx.drawImage(tempCanvas, 0, 0);
+//
+// // 4. 右侧绘制旋转后的“保”字
+//                 ctx.save();
+//                 ctx.translate(250, 100); // 右侧区域中心 (200 + 50)
+//                 ctx.rotate(Math.PI / 2); // 顺时针90度
+//
+//                 ctx.font = 'bold 80px Arial';
+//                 ctx.fillStyle = 'black';
+//                 ctx.textAlign = 'center';
+//                 ctx.textBaseline = 'middle';
+//                 ctx.fillText('保', 0, 0);
+//
+//                 ctx.restore();
+
 
                 // 检查数量是否改变
                 var currentQuantity = parseInt(document.getElementById('editQuantity').value);
