@@ -818,6 +818,7 @@
         SELECT
             SUM(CASE WHEN transaction_type = '入库' AND depository = #{depository} THEN 1 ELSE 0 END) AS stockInCount,
             SUM(CASE WHEN transaction_type = '出库' AND depository = #{depository} THEN 1 ELSE 0 END) AS stockOutCount,
+            SUM(CASE WHEN transaction_type = '返库' AND depository = #{depository} THEN 1 ELSE 0 END) AS stockReturnCount,
             (SELECT COUNT(*) FROM product_ids WHERE DATE(creation_time) = #{date} AND depository_id = #{depositoryId}) AS idsCreatedCount
         FROM bearing_records
         WHERE date(time) = #{date}

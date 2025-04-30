@@ -195,6 +195,9 @@
 <div class="button-row" style="font-size: 28px">
     出库箱数：<span id="stockOutCount">0</span>箱
 </div>
+<div class="button-row" style="font-size: 28px">
+    返库箱数：<span id="stockReturnCount">0</span>箱
+</div>
 <!--<h3 style="text-align: center">二维码</h3>-->
 <button id="regenerateButton" onclick="regenerateQRCode()" style="display: none;">修改数量</button>
 <div id="printContainer">
@@ -352,6 +355,7 @@
                         // 用响应的数据更新页面
                         $('#stockInCount').text(response.stockInCount || 0).hide().show();
                         $('#stockOutCount').text(response.stockOutCount || 0).hide().show();
+                        $('#stockReturnCount').text(response.stockReturnCount || 0).hide().show();
                         $('#idsCreatedCount').text(response.idsCreatedCount || 0).hide().show();
                     },
                     error: function(xhr, status, error) {
@@ -655,29 +659,29 @@
                     height: 200,
                     correctLevel: 3,
                 }).appendTo(qrCodeElement);
-                var canvas = qrCodeElement.querySelector('canvas');
-                if (canvas) {
-                    var ctx = canvas.getContext('2d');
-                    var centerX = 100; // 二维码中心 x
-                    var centerY = 100; // 二维码中心 y
-                    // 画白色圆背景
-                    ctx.fillStyle = 'white';
-                    ctx.beginPath();
-                    ctx.arc(centerX, centerY, 22, 0, 2 * Math.PI);
-                    ctx.fill();
-                    // 保存当前上下文状态
-                    ctx.save();
-                    // 移动坐标原点到中心
-                    ctx.translate(centerX, centerY);
-                    ctx.rotate(Math.PI / 2);
-                    // 设置字体样式
-                    ctx.font = 'bold 35px Arial';
-                    ctx.fillStyle = 'black';
-                    ctx.textAlign = 'center';
-                    ctx.textBaseline = 'middle';
-                    ctx.fillText('保', 0, 0);
-                    ctx.restore();
-                }
+                // var canvas = qrCodeElement.querySelector('canvas');
+                // if (canvas) {
+                //     var ctx = canvas.getContext('2d');
+                //     var centerX = 100; // 二维码中心 x
+                //     var centerY = 100; // 二维码中心 y
+                //     // 画白色圆背景
+                //     ctx.fillStyle = 'white';
+                //     ctx.beginPath();
+                //     ctx.arc(centerX, centerY, 22, 0, 2 * Math.PI);
+                //     ctx.fill();
+                //     // 保存当前上下文状态
+                //     ctx.save();
+                //     // 移动坐标原点到中心
+                //     ctx.translate(centerX, centerY);
+                //     ctx.rotate(Math.PI / 2);
+                //     // 设置字体样式
+                //     ctx.font = 'bold 35px Arial';
+                //     ctx.fillStyle = 'black';
+                //     ctx.textAlign = 'center';
+                //     ctx.textBaseline = 'middle';
+                //     ctx.fillText('保', 0, 0);
+                //     ctx.restore();
+                // }
 
 // // 1. 生成隐藏二维码 canvas
 //                 var tempDiv = document.createElement('div');
