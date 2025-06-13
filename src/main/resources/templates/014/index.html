@@ -65,6 +65,8 @@
                         <option value="正常" selected>正常</option>
                         <option value="死库">死库</option>
                     </select>
+<!--                    <p style=":  color: #666; font-size:16px;">在库数据包括转入、转出、返库</p>-->
+
                 </div>
                 <div class="t_box" style="height: 6rem;">
                     <div id="chart_3" style="width: 100%; height: 100%;"></div>
@@ -914,6 +916,18 @@
                                         color: '#FFFFFF' // 图例字体颜色
                                     }
                                 },
+                                graphic: [
+                                    {
+                                        type: 'text',
+                                        left: '60%',
+                                        top: 2,
+                                        style: {
+                                            text: '(在库数据包括转入、转出、返库)',
+                                            fill: '#ffd21e',
+                                            font: '16px sans-serif'
+                                        }
+                                    }
+                                ],
                                 xAxis: {
                                     type: 'category',
                                     data: months,
