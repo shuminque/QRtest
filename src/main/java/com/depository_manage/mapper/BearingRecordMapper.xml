@@ -236,91 +236,104 @@
     </select>
 
     <select id="selectInventoryByCutoffDate" resultMap="bearingRecordMap" parameterType="map">
+        WITH latest_in AS (
         SELECT
-        br.box_text,
-        br.box_number,
-        br.current_depository,
-        br.customer,
-        br.product_category,
-        br.outer_inner_ring,
-        br.steel_type,
-        br.steel_grade,
-        br.model,
-        br.size,
-        br.state,
-        MAX(br.dissolve) as dissolve,
-        SUM(CASE
-        WHEN br.transaction_type IN ('入库', '转入') THEN br.quantity
-        WHEN br.transaction_type IN ('出库', '转出', '返库') THEN -br.quantity
-        END) as quantity,
-        lr.last_recorded_time
-        FROM
-        bearing_records br
-        JOIN (
-        SELECT
-        box_text,
-        box_number,
-        MAX(time) as last_recorded_time
-        FROM
-        bearing_records
-        WHERE
-        transaction_type IN ('入库', '转入') AND bearing_records.time &lt;= DATE_ADD(#{cutoffDate}, INTERVAL 1 DAY)
-        GROUP BY
-        box_text,
-        box_number
-        ) lr ON br.box_text = lr.box_text AND br.box_number = lr.box_number
-        WHERE
-        br.quantity > 0
+        br1.box_text,
+        br1.box_number,
+        br1.current_depository,
+        br1.customer,
+        br1.product_category,
+        br1.outer_inner_ring,
+        br1.steel_type,
+        br1.steel_grade,
+        br1.model,
+        br1.size,
+        br1.state,
+        MAX(br1.dissolve) AS dissolve,
+        MAX(br1.time) AS last_recorded_time
+        FROM bearing_records br1
+        WHERE br1.transaction_type IN ('入库', '转入')
         <if test="cutoffDate != null">
-            AND br.time &lt;= DATE_ADD(#{cutoffDate}, INTERVAL 1 DAY)
+            AND br1.time &lt;= DATE_ADD(#{cutoffDate}, INTERVAL 1 DAY)
         </if>
         <if test="boxText != null and boxText != ''">
-            AND br.box_text = #{boxText}
+            AND br1.box_text = #{boxText}
         </if>
         <if test="boxNumber != null and boxNumber != ''">
-            AND br.box_number = #{boxNumber}
-        </if>
-        <if test="model != null and model != ''">
-            AND br.model  LIKE CONCAT('%',#{model},'%')
-        </if>
-        <if test="customer != null and customer != ''">
-            AND br.customer  LIKE CONCAT('%',#{customer},'%')
-        </if>
-        <if test="productCategory != null and productCategory != ''">
-            AND br.product_category = #{productCategory}
-        </if>
-        <if test="outerInnerRing != null and outerInnerRing != ''">
-            AND br.outer_inner_ring = #{outerInnerRing}
-        </if>
-        <if test="steelType != null and steelType != ''">
-            AND br.steel_type = #{steelType}
-        </if>
-        <if test="steelGrade != null and steelGrade != ''">
-            AND br.steel_grade = #{steelGrade}
-        </if>
-        <if test="currentDepository != null and currentDepository != ''">
-            AND br.current_depository = #{currentDepository}
-        </if>
-        <if test="state != null and state != ''">
-            AND br.state = #{state}
+            AND br1.box_number = #{boxNumber}
         </if>
         GROUP BY
-        br.box_text,
-        br.box_number,
-        br.current_depository,
-        br.customer,
-        br.product_category,
-        br.outer_inner_ring,
-        br.steel_type,
-        br.steel_grade,
-        br.quantity,
-        br.model,
-        br.size,
-        br.state,
-        lr.last_recorded_time
-        ORDER BY box_text,box_number,last_recorded_time DESC
+        br1.box_text,
+        br1.box_number,
+        br1.current_depository,
+        br1.customer,
+        br1.product_category,
+        br1.outer_inner_ring,
+        br1.steel_type,
+        br1.steel_grade,
+        br1.model,
+        br1.size,
+        br1.state
+        ),
+        quantity_sum AS (
+        SELECT
+        br2.box_text,
+        br2.box_number,
+        SUM(
+        CASE
+        WHEN br2.transaction_type IN ('入库', '转入') THEN br2.quantity
+        WHEN br2.transaction_type IN ('出库', '转出', '返库') THEN -br2.quantity
+        ELSE 0
+        END
+        ) AS quantity
+        FROM bearing_records br2
+        <where>
+            <if test="cutoffDate != null">
+                br2.time &lt;= DATE_ADD(#{cutoffDate}, INTERVAL 1 DAY)
+            </if>
+            <if test="boxText != null and boxText != ''">
+                AND br2.box_text = #{boxText}
+            </if>
+            <if test="boxNumber != null and boxNumber != ''">
+                AND br2.box_number = #{boxNumber}
+            </if>
+        </where>
+        GROUP BY br2.box_text, br2.box_number
+        )
+        SELECT
+        li.*,
+        qs.quantity
+        FROM latest_in li
+        JOIN quantity_sum qs
+        ON li.box_text = qs.box_text AND li.box_number = qs.box_number
+        WHERE qs.quantity > 0
+        <if test="model != null and model != ''">
+            AND li.model LIKE CONCAT('%',#{model},'%')
+        </if>
+        <if test="customer != null and customer != ''">
+            AND li.customer LIKE CONCAT('%',#{customer},'%')
+        </if>
+        <if test="productCategory != null and productCategory != ''">
+            AND li.product_category = #{productCategory}
+        </if>
+        <if test="outerInnerRing != null and outerInnerRing != ''">
+            AND li.outer_inner_ring = #{outerInnerRing}
+        </if>
+        <if test="steelType != null and steelType != ''">
+            AND li.steel_type = #{steelType}
+        </if>
+        <if test="steelGrade != null and steelGrade != ''">
+            AND li.steel_grade = #{steelGrade}
+        </if>
+        <if test="currentDepository != null and currentDepository != ''">
+            AND li.current_depository = #{currentDepository}
+        </if>
+        <if test="state != null and state != ''">
+            AND li.state = #{state}
+        </if>
+        ORDER BY li.box_text, li.box_number, li.last_recorded_time DESC
         <if test="begin != null and size != null">
-            LIMIT #{begin},#{size}
+            LIMIT #{begin}, #{size}
         </if>
     </select>
 
@@ -436,14 +449,13 @@
         SUM(CASE WHEN br.transaction_type = '转出' THEN br.quantity ELSE 0 END) AS 转出
         FROM
         bearing_records br
-        JOIN
-        bearings b ON br.box_text = b.box_text
+        JOIN bearings b ON br.box_text = b.box_text
         WHERE
         <if test="state != null and state != 'ALL'">
             br.state = #{state} AND
         </if>
-            br.time > #{StartDate} AND
-            br.time &lt; DATE_ADD(#{EndDate},interval 1 DAY)
+        br.time > #{StartDate}
+        AND br.time &lt; DATE_ADD(#{EndDate}, INTERVAL 1 DAY)
         GROUP BY
         b.pair, br.outer_inner_ring, br.model
         ),
@@ -452,20 +464,49 @@
         b.pair,
         br.model,
         br.outer_inner_ring,
-        SUM(CASE WHEN br.transaction_type IN ('入库', '转入') THEN br.quantity
+        SUM(
+        CASE
+        WHEN br.transaction_type IN ('入库', '转入') THEN br.quantity
         WHEN br.transaction_type IN ('出库', '返库', '转出') THEN -br.quantity
-        ELSE 0 END) AS 当前库存
+        ELSE 0
+        END
+        ) AS 当前库存
         FROM
         bearing_records br
-        JOIN
-        bearings b ON br.box_text = b.box_text
+        JOIN bearings b ON br.box_text = b.box_text
         WHERE
         <if test="state != null and state != 'ALL'">
             br.state = #{state} AND
         </if>
-            br.time &lt; DATE_ADD(#{EndDate},interval 1 DAY)
+        br.time &lt; DATE_ADD(#{EndDate}, INTERVAL 1 DAY)
         GROUP BY
         b.pair, br.outer_inner_ring, br.model
+        ),
+        latest_time AS (
+        SELECT
+        b.pair,
+        br.model,
+        br.outer_inner_ring,
+        MAX(br.time) AS 最后记录时间
+        FROM
+        bearing_records br
+        JOIN bearings b ON br.box_text = b.box_text
+        WHERE
+        <if test="state != null and state != 'ALL'">
+            br.state = #{state} AND
+        </if>
+        br.time &lt; DATE_ADD(#{EndDate}, INTERVAL 1 DAY)
+        GROUP BY
+        b.pair, br.outer_inner_ring, br.model
+        ),
+        box_info AS (
+        SELECT
+        b.pair,
+        b.model,
+        b.outer_inner_ring,
+        GROUP_CONCAT(DISTINCT b.box_text ORDER BY b.box_text) AS 箱号
+        FROM bearings b
+        GROUP BY b.pair, b.model, b.outer_inner_ring
         ),
         la_data AS (
         SELECT
@@ -476,17 +517,18 @@
         SUM(ts.入库) AS 入库_LA,
         SUM(ts.出库) AS 出库_LA,
         MAX(inv.当前库存) AS 在库_LA,
+        lt.最后记录时间 AS LA最后记录时间,
+        bi.箱号 AS 箱号_LA,
         ROW_NUMBER() OVER (PARTITION BY b.pair ORDER BY b.model) AS row_num
         FROM
         bearings b
-        LEFT JOIN
-        transaction_summary ts ON b.pair = ts.pair AND b.outer_inner_ring = ts.outer_inner_ring AND b.model = ts.model
-        LEFT JOIN
-        inventory inv ON b.pair = inv.pair AND b.outer_inner_ring = inv.outer_inner_ring AND b.model = inv.model
+        LEFT JOIN transaction_summary ts ON b.pair = ts.pair AND b.outer_inner_ring = ts.outer_inner_ring AND b.model = ts.model
+        LEFT JOIN inventory inv ON b.pair = inv.pair AND b.outer_inner_ring = inv.outer_inner_ring AND b.model = inv.model
+        LEFT JOIN latest_time lt ON b.pair = lt.pair AND b.outer_inner_ring = lt.outer_inner_ring AND b.model = lt.model
+        LEFT JOIN box_info bi ON b.pair = bi.pair AND b.model = bi.model AND b.outer_inner_ring = bi.outer_inner_ring
         WHERE
         b.outer_inner_ring = 'LA'
-        GROUP BY
-        b.pair, b.model
+        GROUP BY b.pair, b.model, lt.最后记录时间, bi.箱号
         ),
         lb_data AS (
         SELECT
@@ -497,17 +539,18 @@
         SUM(ts.入库) AS 入库_LB,
         SUM(ts.出库) AS 出库_LB,
         MAX(inv.当前库存) AS 在库_LB,
+        lt.最后记录时间 AS LB最后记录时间,
+        bi.箱号 AS 箱号_LB,
         ROW_NUMBER() OVER (PARTITION BY b.pair ORDER BY b.model) AS row_num
         FROM
         bearings b
-        LEFT JOIN
-        transaction_summary ts ON b.pair = ts.pair AND b.outer_inner_ring = ts.outer_inner_ring AND b.model = ts.model
-        LEFT JOIN
-        inventory inv ON b.pair = inv.pair AND b.outer_inner_ring = inv.outer_inner_ring AND b.model = inv.model
+        LEFT JOIN transaction_summary ts ON b.pair = ts.pair AND b.outer_inner_ring = ts.outer_inner_ring AND b.model = ts.model
+        LEFT JOIN inventory inv ON b.pair = inv.pair AND b.outer_inner_ring = inv.outer_inner_ring AND b.model = inv.model
+        LEFT JOIN latest_time lt ON b.pair = lt.pair AND b.outer_inner_ring = lt.outer_inner_ring AND b.model = lt.model
+        LEFT JOIN box_info bi ON b.pair = bi.pair AND b.model = bi.model AND b.outer_inner_ring = bi.outer_inner_ring
         WHERE
         b.outer_inner_ring = 'LB'
-        GROUP BY
-        b.pair, b.model
+        GROUP BY b.pair, b.model, lt.最后记录时间, bi.箱号
         )
         SELECT
         COALESCE(la_data.客户, lb_data.客户) AS 客户,
@@ -519,11 +562,13 @@
         COALESCE(la_data.在库_LA, 0) AS 在库_LA,
         COALESCE(lb_data.在库_LB, 0) AS 在库_LB,
         COALESCE(la_data.出库_LA, 0) AS 出库_LA,
-        COALESCE(lb_data.出库_LB, 0) AS 出库_LB
+        COALESCE(lb_data.出库_LB, 0) AS 出库_LB,
+        la_data.LA最后记录时间,
+        lb_data.LB最后记录时间,
+        COALESCE(la_data.箱号_LA, lb_data.箱号_LB) AS 箱号
         FROM
         la_data
-        LEFT JOIN
-        lb_data ON la_data.pair = lb_data.pair AND la_data.row_num = lb_data.row_num
+        LEFT JOIN lb_data ON la_data.pair = lb_data.pair AND la_data.row_num = lb_data.row_num
         UNION ALL
         SELECT
         COALESCE(la_data.客户, lb_data.客户) AS 客户,
@@ -535,15 +580,19 @@
         COALESCE(la_data.在库_LA, 0) AS 在库_LA,
         COALESCE(lb_data.在库_LB, 0) AS 在库_LB,
         COALESCE(la_data.出库_LA, 0) AS 出库_LA,
-        COALESCE(lb_data.出库_LB, 0) AS 出库_LB
+        COALESCE(lb_data.出库_LB, 0) AS 出库_LB,
+        la_data.LA最后记录时间,
+        lb_data.LB最后记录时间,
+        COALESCE(la_data.箱号_LA, lb_data.箱号_LB) AS 箱号
         FROM
         lb_data
-        LEFT JOIN
-        la_data ON lb_data.pair = la_data.pair AND lb_data.row_num = la_data.row_num
-        WHERE la_data.pair IS NULL
+        LEFT JOIN la_data ON lb_data.pair = la_data.pair AND lb_data.row_num = la_data.row_num
+        WHERE
+        la_data.pair IS NULL
         ORDER BY
         pair;
     </select>
+
     <select id="condWarn" resultType="map">
         WITH transaction_summary AS (
         SELECT

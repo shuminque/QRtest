@@ -607,6 +607,8 @@
                             { field: ' ', title: '入库', colspan: 2, rowspan: 1, align: 'center' },
                             { field: ' ', title: '库存', colspan: 2, rowspan: 1, align: 'center' },
                             { field: ' ', title: '出库', colspan: 2, rowspan: 1, align: 'center' },
+                            { field: ' ', title: '最后记录日期', colspan: 2, rowspan: 1, align: 'center' },
+                            { field: ' ', title: '库存时间', colspan: 2, rowspan: 1, align: 'center' },
                         ], [
                             { field: '客户', title: '客户', colspan: 1, rowspan: 1, align: 'center' },
                             { field: 'pair', title: 'Pair', colspan: 1, rowspan: 1, hide: true, align: 'center',sort:true},
@@ -656,6 +658,43 @@
                         <div style="margin-left: 5px;">${d.出库_LB}</div>
                     </div>`;
                                 }, align: 'center' },
+                            {
+                                field: 'LA最后记录时间',
+                                title: 'LA',
+                                align: 'center',
+                                templet: function(d) {
+                                    return formatDate(d['LA最后记录时间']);
+                                }
+                            },
+                            {
+                                field: 'LB最后记录时间',
+                                title: 'LB',
+                                align: 'center',
+                                templet: function(d) {
+                                    return formatDate(d['LB最后记录时间']);
+                                }
+                            },
+                            {
+                                field: '库存时间',
+                                title: '库存',
+                                align: 'center',
+                                templet: function (d) {
+                                    const la = d['LA最后记录时间'];
+                                    const lb = d['LB最后记录时间'];
+                                    if (!la && !lb) return '-';
+                                    let earlier = null;
+
+                                    if (la && lb) {
+                                        earlier = new Date(la) < new Date(lb) ? la : lb;
+                                    } else {
+                                        earlier = la || lb;
+                                    }
+
+                                    return diffYearMonth(earlier, endDate1);
+                                }
+                            },
+                            { field: '箱号', title: '箱号', align: 'center' ,hide: true, },
+
                         ]
                     ],
                     done: function() {
@@ -676,6 +715,31 @@
                     }
                 });
             }
+
+            function formatDate(dateStr) {
+                if (!dateStr) return '';
+                const date = new Date(dateStr);
+                if (isNaN(date)) return dateStr; // 返回原始数据（防止无效格式）
+                return date.toISOString().slice(0, 10); // 输出 yyyy-mm-dd
+            }
+            function diffYearMonth(start, end) {
+                const startDate = new Date(start);
+                const endDate = new Date(end);
+                let years = endDate.getFullYear() - startDate.getFullYear();
+                let months = endDate.getMonth() - startDate.getMonth();
+
+                if (months < 0) {
+                    years--;
+                    months += 12;
+                }
+
+                if (years < 0) return '-';
+                if (years === 0 && months === 0) return '0月';
+                if (years === 0) return `${months}月`;
+                if (months === 0) return `${years}年`;
+                return `${years}年${months}月`;
+            }
+
             function addCustomExportButton() {
                 if ($('#customExportButton').length === 0) {
                     var customExportButton = $('<button class="layui-btn layui-btn-primary layui-btn-sm" id="customExportButton" style="display: flex; align-items: center;"><i class="layui-icon layui-icon-export" style="margin-right: 5px;"></i> 导出</button>');
@@ -696,29 +760,74 @@
 
             async function exportTable(data) {
                 // 准备数据
-                var exportData = data.map(row => ({
-                    客户: row.客户,
-                    Pair: row.pair,
-                    外轮: row.型号_LA,
-                    内轮: row.型号_LB,
-                    入库LA: row.入库_LA,
-                    入库LB: row.入库_LB,
-                    在库LA: row.在库_LA,
-                    在库LB: row.在库_LB,
-                    出库LA: row.出库_LA,
-                    出库LB: row.出库_LB
-                }));
+                var dates = document.getElementById('date').value.split(' - ');
+                var startDate1 = dates[0];
+                var endDate1 = dates[1];
+                var exportData = data.map(row => {
+                    const la = row['LA最后记录时间'];
+                    const lb = row['LB最后记录时间'];
+
+                    let earlier = null;
+                    if (la && lb) {
+                        earlier = new Date(la) < new Date(lb) ? la : lb;
+                    } else {
+                        earlier = la || lb;
+                    }
+
+                    const 库存时间 = earlier ? diffYearMonth(earlier, endDate1) : '-';
+
+                    return {
+                        客户: row.客户,
+                        Pair: row.pair,
+                        外轮: row.型号_LA,
+                        内轮: row.型号_LB,
+                        入库LA: row.入库_LA,
+                        入库LB: row.入库_LB,
+                        在库LA: row.在库_LA,
+                        在库LB: row.在库_LB,
+                        出库LA: row.出库_LA,
+                        出库LB: row.出库_LB,
+                        库存时间: 库存时间,
+                        箱号:row.箱号
+                    };
+                });
+
+// 排序逻辑
+                function parseInventoryTime(timeStr) {
+                    if (!timeStr || timeStr === '-') return -1;
+                    const yearMatch = timeStr.match(/(\d+)年/);
+                    const monthMatch = timeStr.match(/(\d+)月/);
+                    const years = yearMatch ? parseInt(yearMatch[1]) : 0;
+                    const months = monthMatch ? parseInt(monthMatch[1]) : 0;
+                    return years * 12 + months;
+                }
+
+
+// 判断是否是“需要标红”的行
+                function isHighlighted(row) {
+                    const laHighlight = row.在库LA !== 0 && row.入库LA === 0 && row.出库LA === 0;
+                    const lbHighlight = row.在库LB !== 0 && row.入库LB === 0 && row.出库LB === 0;
+                    return laHighlight || lbHighlight;
+                }
+
+// 拆分与排序
+                const highlightRows = exportData.filter(isHighlighted);
+                const normalRows = exportData.filter(row => !isHighlighted(row));
+                highlightRows.sort((a, b) => parseInventoryTime(a.库存时间) - parseInventoryTime(b.库存时间));
+
+// 合并
+                exportData = [...highlightRows, ...normalRows];
 
                 // 创建一个新的工作簿
                 var workbook = new ExcelJS.Workbook();
                 var worksheet = workbook.addWorksheet('库存产品状况');
 
                 // 添加标题行
-                worksheet.addRow(["客户", "Pair", "外轮", "内轮", "入库LA", "入库LB", "在库LA", "在库LB", "出库LA", "出库LB"]);
+                worksheet.addRow(["客户", "Pair", "外轮", "内轮", "入库LA", "入库LB", "在库LA", "在库LB", "出库LA", "出库LB","库存时间","箱号"]);
 
                 // 添加数据行
                 exportData.forEach(row => {
-                    worksheet.addRow([row.客户, row.Pair, row.外轮, row.内轮, row.入库LA, row.入库LB, row.在库LA, row.在库LB, row.出库LA, row.出库LB]);
+                    worksheet.addRow([row.客户, row.Pair, row.外轮, row.内轮, row.入库LA, row.入库LB, row.在库LA, row.在库LB, row.出库LA, row.出库LB, row.库存时间, row.箱号]);
                 });
 
                 // 应用背景颜色样式
