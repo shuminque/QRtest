@@ -547,7 +547,19 @@
                 {field: 'state', title: '状态'},
                 {field: 'singleEight', title: '单重'},
                 {field: 'mode', title: '贸易方式'},
-                {title: '操作', toolbar: '#actionBar'} // 添加操作列
+                {
+                    title: '操作',
+                    templet: function(d){
+                        let btns = '';
+                        // 只有 depositoryId === 0 或者 userAuthority === '仅查看' 时显示编辑按钮
+                        if (depositoryId === 0 || userAuthority === '系统管理员') {
+                            btns += '<a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>';
+                            btns += '<a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="delete">删除</a>';
+                        }
+                        // 删除按钮始终显示
+                        return btns;
+                    }
+                }
             ]],
             limits:[500,1000],
             limit:500,

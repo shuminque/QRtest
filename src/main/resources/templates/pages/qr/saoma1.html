@@ -509,9 +509,10 @@
                 if (data.boxNumber<1000) {
                     // 记录存在，显示记录信息
                     layer.alert("优先使用产品编号"+data.boxNumber);
+                    finalBoxNumber = data.boxNumber; // 这里你可以替换成其他值
                 }
                 // 记录不存在或者记录显示完成后执行二维码生成逻辑
-                proceedToGenerateQRCode(boxText);
+                proceedToGenerateQRCodeTwo(boxText,finalBoxNumber);
             })
             .catch(error => {
             });
@@ -546,6 +547,33 @@
             .catch(error => {
                 // console.error('发生错误：', error);
                 // layer.alert("发生错误，请稍后再试");
+            });
+    }
+    function proceedToGenerateQRCodeTwo(boxText,boxNumber) {
+        var url = '/bearings/preGenerate/' + boxText + '/' + depositoryId;
+        fetch(url)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                // 在存储预生成的数据之前，添加 boxText
+                preGenerateData = {
+                    ...data,
+                    boxText: boxText, // 添加 boxText
+                    depositoryId: depositoryId // 添加 depositoryId
+                };
+                defaultQuantity = data.quantity; // 将获取到的默认数量赋值给全局变量
+                document.getElementById('previewBoxNumber').value = boxNumber;
+                document.getElementById('editQuantity').value = data.quantity; // 设置输入框的初始值
+                document.getElementById('editQuantity').setAttribute('data-initial-value', data.quantity);
+                document.getElementById('preGenerateModal').style.display = 'block';
+            })
+            .catch(error => {
+                console.error('预生成二维码时发生错误：', error);
+                layer.alert("请输入正确的箱号");
             });
     }
     function proceedToGenerateQRCode(boxText) {
