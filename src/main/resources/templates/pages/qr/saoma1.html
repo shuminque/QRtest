@@ -509,10 +509,10 @@
                 if (data.boxNumber<1000) {
                     // 记录存在，显示记录信息
                     layer.alert("优先使用产品编号"+data.boxNumber);
-                    // finalBoxNumber = data.boxNumber; // 这里你可以替换成其他值
-                }
+                    finalBoxNumber = data.boxNumber; // 这里你可以替换成其他值
+                    proceedToGenerateQRCodeTwo(boxText,finalBoxNumber);
+                } else                 proceedToGenerateQRCode(boxText);
                 // 记录不存在或者记录显示完成后执行二维码生成逻辑
-                proceedToGenerateQRCodeTwo(boxText,finalBoxNumber);
             })
             .catch(error => {
             });
