@@ -920,10 +920,13 @@
                             const months = [];
                             const LA_in = [];
                             const LB_in = [];
+                            const LAB_in = [];
                             const LA_out = [];
                             const LB_out = [];
+                            const LAB_out = [];
                             const LA_quantity = [];
                             const LB_quantity = [];
+                            const LAB_quantity = [];
                             const total_in = [];
                             const total_out = [];
                             const total_quantity = [];
@@ -1020,7 +1023,7 @@
                                 },
                                 legend: {
                                     // data: ['LA入库', 'LB入库', 'LA出库', 'LB出库', 'LA库存', 'LB库存'],
-                                    data: ['LA', 'LB'],
+                                    data: ['LA', 'LB', 'LAB'],
                                     textStyle: {
                                         color: '#FFFFFF' // 图例字体颜色
                                     }
@@ -1124,7 +1127,24 @@
                                         },
                                         z:10
                                     },
-
+                                    {
+                                        name: 'LAB',
+                                        type: 'bar',
+                                        stack: '入库',
+                                        data: LAB_in,
+                                        itemStyle: {
+                                            color: '#0862d6' // 可自定义颜色
+                                        },
+                                        label: {
+                                            show: true,
+                                            position: 'top',
+                                            color: '#FFFFFF',
+                                            formatter: function(params) {
+                                                return params.value === 0 ? '' : formatNumber(LA_in[params.dataIndex]);
+                                            }
+                                        },
+                                        z:10
+                                    },
                                     {
                                         name: 'LB',
                                         type: 'bar',
@@ -1132,6 +1152,23 @@
                                         data: LB_out,
                                         itemStyle: {
                                             color: '#33a02c' // 可自定义颜色
+                                        },
+                                        label: {
+                                            show: true,
+                                            position: 'insideTop',
+                                            color: '#FFFFFF',
+                                            formatter: function(params) {
+                                                return params.value === 0 ? '' : formatNumber(LB_out[params.dataIndex]);
+                                            }
+                                        }
+                                    },
+                                    {
+                                        name: 'LAB',
+                                        type: 'bar',
+                                        stack: '出库',
+                                        data: LAB_out,
+                                        itemStyle: {
+                                            color: '#0a6ab6' // 可自定义颜色
                                         },
                                         label: {
                                             show: true,
@@ -1168,6 +1205,23 @@
                                         data: LB_quantity,
                                         itemStyle: {
                                             color: '#33a02c' // 可自定义颜色
+                                        },
+                                        label: {
+                                            show: true,
+                                            position: 'insideTop',
+                                            color: '#FFFFFF',
+                                            formatter: function(params) {
+                                                return params.value === 0 ? '' : formatNumber(LB_quantity[params.dataIndex]);
+                                            }
+                                        }
+                                    },
+                                    {
+                                        name: 'LAB',
+                                        type: 'bar',
+                                        stack: '库存',
+                                        data: LAB_quantity,
+                                        itemStyle: {
+                                            color: '#0563f3' // 可自定义颜色
                                         },
                                         label: {
                                             show: true,

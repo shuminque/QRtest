@@ -986,6 +986,12 @@
                             ELSE 0
                             END
                 ) AS LB_in,
+                SUM(
+                CASE
+                WHEN br.transaction_type IN ('入库') AND br.outer_inner_ring = 'LAB' AND br.time >= m.month_start_date AND br.time &lt; m.month_end_date THEN br.quantity
+                                                                                                                                     ELSE 0
+                END
+                ) AS LAB_in,
                 -- 当月出库数量
                 SUM(
                         CASE
@@ -999,6 +1005,12 @@
                             ELSE 0
                             END
                 ) AS LB_out,
+                SUM(
+                CASE
+                WHEN br.transaction_type IN ('出库') AND br.outer_inner_ring = 'LAB' AND br.time >= m.month_start_date AND br.time &lt; m.month_end_date THEN br.quantity
+                                                                                                                                     ELSE 0
+                END
+                ) AS LAB_out,
                 -- 累计库存数量（截至当月末）
                 SUM(
                         CASE
@@ -1013,7 +1025,14 @@
                             WHEN br.transaction_type IN ('出库', '转出', '返库') AND br.outer_inner_ring = 'LB' THEN -br.quantity
                             ELSE 0
                             END
-                ) AS LB_quantity
+                ) AS LB_quantity,
+                SUM(
+                CASE
+                WHEN br.transaction_type IN ('入库', '转入') AND br.outer_inner_ring = 'LAB' THEN br.quantity
+                WHEN br.transaction_type IN ('出库', '转出', '返库') AND br.outer_inner_ring = 'LAB' THEN -br.quantity
+                ELSE 0
+                END
+                ) AS LAB_quantity
             FROM
                 months m
                     LEFT JOIN bearing_records br ON br.time &lt; m.month_end_date
