@@ -199,8 +199,8 @@ public class BearingRecordServiceImpl implements BearingRecordService {
         return bearingRecordMapper.selectBearingRecordsByBoxTextAndDepositoryId(boxText, depositoryId);
     }
     @Override
-    public List<Map<String, Object>> getMonthlyInventory(String depository, String state, String year) {
-        return bearingRecordMapper.selectMonthlyInventory(depository, state, year);
+    public List<Map<String, Object>> getMonthlyInventory(String customer,String depository, String state, String year) {
+        return bearingRecordMapper.selectMonthlyInventory(customer,depository, state, year);
     }
     @Override
     public List<Map<String, Object>> getDayInventory(String depository, String state, String startOfMonth, String startOfNextMonth) {

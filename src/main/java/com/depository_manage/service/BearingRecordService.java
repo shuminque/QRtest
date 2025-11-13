@@ -33,7 +33,7 @@ public interface BearingRecordService {
     BearingRecord findRecordWithNoOutstockAfterRestock(String boxText);
 
     BearingRecord selectBearingRecordsByBoxTextAndDepositoryId(String boxText, int depositoryId);
-    List<Map<String, Object>> getMonthlyInventory(String depository, String state, String year);
+    List<Map<String, Object>> getMonthlyInventory(String customer,String depository, String state, String year);
     List<Map<String, Object>> getDayInventory(String depository, String state, String startOfMonth, String startOfNextMonth);
 
 

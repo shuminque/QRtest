@@ -194,7 +194,7 @@
                     this.layerIndex = layer.load(0, {shade: [0.5, '#393D49']});
                 },
                 success: function (data) {
-                    console.log(data.status); // 在这里添加console.log来打印data.status的值
+                    console.log(data.status); // 在这里添加console.log来打印data.stat   us的值
                     layer.close(this.layerIndex);
                     if (data.status >= 300) {
                         layer.msg(data.statusInfo.message); //失败的表情

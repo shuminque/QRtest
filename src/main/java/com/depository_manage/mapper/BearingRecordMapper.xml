@@ -1041,6 +1041,9 @@
                 <if test="depository != null and depository != 'ALL'">
                     AND br.current_depository = #{depository}
                 </if>
+                <if test="customer != null and customer != 'ALL'">
+                    AND br.customer = #{customer}
+                </if>
                 <if test="state != null and state != 'ALL'">
                     AND br.state = #{state}
                 </if>

@@ -55,6 +55,12 @@
                 <h2>库存分析</h2>
                 <div>
                     <input type="text" id="year-selector-three" placeholder="请选择年" autocomplete="off">
+                    <select id="customer-select-two">
+                        <option value="" selected>搜索客户</option>
+                        <option th:each="customer : ${customers}"
+                                th:value="${customer.name}"
+                                th:text="${customer.name}"></option>
+                    </select>
                     <select id="depository-select-two">
                         <option value="ALL">所有厂区</option>
                         <option value="SAB">SAB</option>
@@ -881,6 +887,7 @@
                 const yearSelector = document.getElementById('year-selector-three');
                 const depositorySelect = document.getElementById('depository-select-two');
                 const stateSelect = document.getElementById('state-select-two');
+                const customerSelect = document.getElementById('customer-select-two');
                 const chartContainer = document.getElementById('chart_3');
 
                 // 初始化年份选择器（您可以使用日期选择器库，这里假设使用简单的输入框）
@@ -895,10 +902,12 @@
                     const selectedYear = yearSelector.value;
                     const selectedDepository = depositorySelect.value;
                     const selectedState = stateSelect.value;
+                    const selectCustomer = customerSelect.value;
 
                     // 构造请求参数
                     const params = new URLSearchParams({
                         year: selectedYear,
+                        customer:selectCustomer,
                         depository: selectedDepository,
                         state: selectedState
                     });
@@ -1022,8 +1031,8 @@
                                     }
                                 },
                                 legend: {
-                                    // data: ['LA入库', 'LB入库', 'LA出库', 'LB出库', 'LA库存', 'LB库存'],
-                                    data: ['LA', 'LB', 'LAB'],
+                                    data: ['LA入库', 'LB入库', 'LA出库', 'LB出库', 'LA库存', 'LB库存', 'LAB库存', 'LAB库存'],
+                                    // data: ['LA', 'LB', 'LAB'],
                                     textStyle: {
                                         color: '#FFFFFF' // 图例字体颜色
                                     }
@@ -1031,7 +1040,7 @@
                                 graphic: [
                                     {
                                         type: 'text',
-                                        left: '60%',
+                                        left: '80%',
                                         top: 2,
                                         style: {
                                             text: '(在库数据包括转入、转出、返库)',
@@ -1093,7 +1102,7 @@
                                 },
                                 series: [
                                     {
-                                        name: 'LB',
+                                        name: 'LB入库',
                                         type: 'bar',
                                         stack: '入库',
                                         data: LB_in,
@@ -1110,7 +1119,7 @@
                                         }
                                     },
                                     {
-                                        name: 'LA',
+                                        name: 'LA入库',
                                         type: 'bar',
                                         stack: '入库',
                                         data: LA_in,
@@ -1128,7 +1137,7 @@
                                         z:10
                                     },
                                     {
-                                        name: 'LAB',
+                                        name: 'LAB入库',
                                         type: 'bar',
                                         stack: '入库',
                                         data: LAB_in,
@@ -1146,7 +1155,7 @@
                                         z:10
                                     },
                                     {
-                                        name: 'LB',
+                                        name: 'LB出库',
                                         type: 'bar',
                                         stack: '出库',
                                         data: LB_out,
@@ -1163,7 +1172,7 @@
                                         }
                                     },
                                     {
-                                        name: 'LAB',
+                                        name: 'LAB出库',
                                         type: 'bar',
                                         stack: '出库',
                                         data: LAB_out,
@@ -1180,7 +1189,7 @@
                                         }
                                     },
                                     {
-                                        name: 'LA',
+                                        name: 'LA出库',
                                         type: 'bar',
                                         stack: '出库',
                                         data: LA_out,
@@ -1199,7 +1208,7 @@
                                     },
 
                                     {
-                                        name: 'LB',
+                                        name: 'LB库存',
                                         type: 'bar',
                                         stack: '库存',
                                         data: LB_quantity,
@@ -1216,7 +1225,7 @@
                                         }
                                     },
                                     {
-                                        name: 'LAB',
+                                        name: 'LAB库存',
                                         type: 'bar',
                                         stack: '库存',
                                         data: LAB_quantity,
@@ -1233,7 +1242,7 @@
                                         }
                                     },
                                     {
-                                        name: 'LA',
+                                        name: 'LA库存',
                                         type: 'bar',
                                         stack: '库存',
                                         data: LA_quantity,
@@ -1264,6 +1273,7 @@
                 yearSelector.addEventListener('change', updateChart);
                 depositorySelect.addEventListener('change', updateChart);
                 stateSelect.addEventListener('change', updateChart);
+                customerSelect.addEventListener('change', updateChart);
                 updateChart();
             // 获取元素
             const yearSelector4 = document.getElementById('year-selector-four');

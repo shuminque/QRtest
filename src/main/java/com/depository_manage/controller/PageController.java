@@ -188,9 +188,13 @@ public class PageController {
 
 
     @GetMapping("/welcome")
-    public String acac() {
-        return "014/index";
+    public ModelAndView welcome() {
+        ModelAndView mv = new ModelAndView();
+        mv.setViewName("014/index");
+        mv.addObject("customers", customerService.findAll());
+        return mv;
     }
+
     @GetMapping("/welcome1")
     public ModelAndView welcome(HttpServletRequest request) {
         ModelAndView mv = new ModelAndView();

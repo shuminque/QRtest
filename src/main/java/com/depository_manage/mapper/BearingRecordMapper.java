@@ -79,6 +79,7 @@ public interface BearingRecordMapper {
     BearingRecord findRecordWithNoOutstockAfterRestock(@Param("boxText") String boxText);
     BearingRecord selectBearingRecordsByBoxTextAndDepositoryId(@Param("boxText") String boxText, @Param("depositoryId") int depositoryId);
     List<Map<String, Object>> selectMonthlyInventory(
+            @Param("customer") String customer,
             @Param("depository") String depository,
             @Param("state") String state,
             @Param("year") String year

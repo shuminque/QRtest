@@ -259,6 +259,7 @@ public class BearingRecordController {
     }
     @GetMapping("/monthlyInventory")
     public ResponseEntity<List<Map<String, Object>>> getMonthlyInventory(
+            @RequestParam(required = false, defaultValue = "ALL") String customer,
             @RequestParam(required = false, defaultValue = "ALL") String depository,
             @RequestParam(required = false, defaultValue = "ALL") String state,
             @RequestParam(required = false) String year) {
@@ -267,7 +268,7 @@ public class BearingRecordController {
         if (year == null || year.isEmpty()) {
             year = String.valueOf(LocalDate.now().getYear());
         }
-        List<Map<String, Object>> inventoryStatus = bearingRecordService.getMonthlyInventory(depository, state, year);
+        List<Map<String, Object>> inventoryStatus = bearingRecordService.getMonthlyInventory(customer,depository, state, year);
         return ResponseEntity.ok(inventoryStatus);
     }
     @GetMapping("/dayInventory")
