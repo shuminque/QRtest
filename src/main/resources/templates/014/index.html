@@ -989,9 +989,44 @@
                                 },
                                 legend: {
                                     data: ['LA入库', 'LB入库', 'LA出库', 'LB出库', 'LA库存', 'LB库存', 'LAB库存'],
-                                    // data: ['LA', 'LB', 'LAB'],
                                     textStyle: {
-                                        color: '#FFFFFF' // 图例字体颜色
+                                        color: '#FFFFFF'
+                                    },
+                                    formatter: function (name) {
+                                        const map = {
+                                            'LA入库': summary.LA_in_total,
+                                            'LB入库': summary.LB_in_total,
+                                            'LA出库': summary.LA_out_total,
+                                            'LB出库': summary.LB_out_total,
+                                            'LA库存': '',
+                                            'LB库存': '',
+                                            'LAB库存': ''
+                                        };
+                                        // --- 获取 legend 当前选中状态 ---
+                                        let selected = {};
+                                        try {
+                                            selected = myChart.getOption().legend[0].selected || {};
+                                        } catch (e) {}
+
+                                        const isSelected = selected[name] !== false;
+                                        const value = isSelected ? map[name] : '';
+
+                                        // 保证一定返回字符串，避免 charAt 报错
+                                        return `{title|${name}}` + (value ? `\n{value|${formatNumber(value)}}` : '');
+                                    },
+                                    textStyle: {
+                                        rich: {
+                                            title: {
+                                                color: '#fff',
+                                                fontSize: 14,
+                                                lineHeight: 18
+                                            },
+                                            value: {
+                                                color: '#ffd21e',
+                                                fontSize: 13,
+                                                lineHeight: 16,
+                                            }
+                                        }
                                     }
                                 },
                                 graphic: [
@@ -1004,51 +1039,51 @@
                                             fill: '#ffd21e',
                                             font: '16px sans-serif'
                                         }
-                                    }, {
-                                        type: 'text',
-                                        id: 'sumLAIn',
-                                        left: '90%',
-                                        top: 40,
-                                        style: {
-                                            text: 'LA 入库汇总：' + formatNumber(summary.LA_in_total),
-                                            fill: '#d5270f',
-                                            font: '16px sans-serif'
-                                        }
                                     },
-                                    {
-                                        type: 'text',
-                                        id: 'sumLBIn',
-                                        left: '90%',
-                                        top: 70,
-                                        style: {
-                                            text: 'LB 入库汇总：' + formatNumber(summary.LB_in_total),
-                                            fill: '#33a02c',
-                                            font: '16px sans-serif'
-                                        }
-                                    },
-                                    {
-                                        type: 'text',
-                                        id: 'sumLAOut',
-                                        left: '90%',
-                                        top: 110,
-                                        style: {
-                                            text: 'LA 出库汇总：' + formatNumber(summary.LA_out_total),
-                                            fill: '#d5270f',
-                                            font: '16px sans-serif'
-                                        }
-                                    },
-
-                                    {
-                                        type: 'text',
-                                        id: 'sumLBOut',
-                                        left: '90%',
-                                        top: 140,
-                                        style: {
-                                            text: 'LB 出库汇总：' + formatNumber(summary.LB_out_total),
-                                            fill: '#33a02c',
-                                            font: '16px sans-serif'
-                                        }
-                                    }
+                                    // {
+                                    //     type: 'text',
+                                    //     id: 'sumLAIn',
+                                    //     left: '90%',
+                                    //     top: 40,
+                                    //     style: {
+                                    //         text: 'LA 入库汇总：' + formatNumber(summary.LA_in_total),
+                                    //         fill: '#d5270f',
+                                    //         font: '16px sans-serif'
+                                    //     }
+                                    // },
+                                    // {
+                                    //     type: 'text',
+                                    //     id: 'sumLBIn',
+                                    //     left: '90%',
+                                    //     top: 70,
+                                    //     style: {
+                                    //         text: 'LB 入库汇总：' + formatNumber(summary.LB_in_total),
+                                    //         fill: '#33a02c',
+                                    //         font: '16px sans-serif'
+                                    //     }
+                                    // },
+                                    // {
+                                    //     type: 'text',
+                                    //     id: 'sumLAOut',
+                                    //     left: '90%',
+                                    //     top: 110,
+                                    //     style: {
+                                    //         text: 'LA 出库汇总：' + formatNumber(summary.LA_out_total),
+                                    //         fill: '#d5270f',
+                                    //         font: '16px sans-serif'
+                                    //     }
+                                    // },
+                                    // {
+                                    //     type: 'text',
+                                    //     id: 'sumLBOut',
+                                    //     left: '90%',
+                                    //     top: 140,
+                                    //     style: {
+                                    //         text: 'LB 出库汇总：' + formatNumber(summary.LB_out_total),
+                                    //         fill: '#33a02c',
+                                    //         font: '16px sans-serif'
+                                    //     }
+                                    // }
                                 ],
                                 xAxis: {
                                     type: 'category',
@@ -1268,18 +1303,6 @@
                             // 添加图例切换事件监听，动态隐藏或显示 X 轴的“入库 出库 在库”文字
                             myChart.on('legendselectchanged', function (params) {
                                 const selected = params.selected;
-                                const showLAIn = selected['LA入库'];
-                                const showLAOut = selected['LA出库'];
-                                const showLBIn = selected['LB入库'];
-                                const showLBOut = selected['LB出库'];
-                                myChart.setOption({
-                                    graphic: [
-                                        { id: 'sumLAIn',  style: { opacity: showLAIn ? 1 : 0 } },
-                                        { id: 'sumLAOut', style: { opacity: showLAOut ? 1 : 0 } },
-                                        { id: 'sumLBIn',  style: { opacity: showLBIn ? 1 : 0 } },
-                                        { id: 'sumLBOut', style: { opacity: showLBOut ? 1 : 0 } }
-                                    ]
-                                });
                                 // 判断三种类型是否显示（只要某个系列名中包含该词且被选中）
                                 const showIn = Object.keys(selected).some(k => k.includes('入库') && selected[k]);
                                 const showOut = Object.keys(selected).some(k => k.includes('出库') && selected[k]);
