@@ -896,7 +896,18 @@
                 // 初始化 ECharts 实例
                 const myChart = echarts.init(chartContainer);
 
-                // 定义一个函数，用于获取数据并更新图表
+            let legendSelected = {
+                'LA入库': true,
+                'LB入库': true,
+                'LAB入库': true,
+                'LA出库': true,
+                'LB出库': true,
+                'LAB出库': true,
+                'LA库存': true,
+                'LB库存': true,
+                'LAB库存': true
+            };
+            // 定义一个函数，用于获取数据并更新图表
                 function updateChart() {
                     const selectedYear = yearSelector.value;
                     const selectedDepository = depositorySelect.value;
@@ -1040,50 +1051,6 @@
                                             font: '16px sans-serif'
                                         }
                                     },
-                                    // {
-                                    //     type: 'text',
-                                    //     id: 'sumLAIn',
-                                    //     left: '90%',
-                                    //     top: 40,
-                                    //     style: {
-                                    //         text: 'LA 入库汇总：' + formatNumber(summary.LA_in_total),
-                                    //         fill: '#d5270f',
-                                    //         font: '16px sans-serif'
-                                    //     }
-                                    // },
-                                    // {
-                                    //     type: 'text',
-                                    //     id: 'sumLBIn',
-                                    //     left: '90%',
-                                    //     top: 70,
-                                    //     style: {
-                                    //         text: 'LB 入库汇总：' + formatNumber(summary.LB_in_total),
-                                    //         fill: '#33a02c',
-                                    //         font: '16px sans-serif'
-                                    //     }
-                                    // },
-                                    // {
-                                    //     type: 'text',
-                                    //     id: 'sumLAOut',
-                                    //     left: '90%',
-                                    //     top: 110,
-                                    //     style: {
-                                    //         text: 'LA 出库汇总：' + formatNumber(summary.LA_out_total),
-                                    //         fill: '#d5270f',
-                                    //         font: '16px sans-serif'
-                                    //     }
-                                    // },
-                                    // {
-                                    //     type: 'text',
-                                    //     id: 'sumLBOut',
-                                    //     left: '90%',
-                                    //     top: 140,
-                                    //     style: {
-                                    //         text: 'LB 出库汇总：' + formatNumber(summary.LB_out_total),
-                                    //         fill: '#33a02c',
-                                    //         font: '16px sans-serif'
-                                    //     }
-                                    // }
                                 ],
                                 xAxis: {
                                     type: 'category',
@@ -1098,10 +1065,18 @@
                                                 color: '#FFFFFF' // 自定义标签的颜色
                                             }
                                         },
-                                        formatter: function (value, index) {
-                                            // Customize the labels based on the index
-                                            const labels = ['{largeFont|入库}  ', '{largeFont|出库}', '  {largeFont|在库}'];
-                                            return '\n'+labels.join(' ') + '\n'+'\n' + value;
+                                        formatter: function (value) {
+                                            const showIn  = Object.keys(legendSelected).some(k => k.includes('入库') && legendSelected[k]);
+                                            const showOut = Object.keys(legendSelected).some(k => k.includes('出库') && legendSelected[k]);
+                                            const showStock = Object.keys(legendSelected).some(k => k.includes('库存') && legendSelected[k]);
+
+                                            const labels = [];
+                                            if (showIn) labels.push('{largeFont|入库}');
+                                            if (showOut) labels.push('{largeFont|出库}');
+                                            if (showStock) labels.push('{largeFont|在库}');
+
+                                            if (labels.length === 0) return '\n' + value;
+                                            return '\n' + labels.join('  ') + '\n\n' + value;
                                         }
                                     },
                                     axisLine: {
@@ -1296,42 +1271,33 @@
                                     }
                                 ]
                             };
-
                             // 使用配置项显示图表
                             myChart.setOption(option);
-
-                            // 添加图例切换事件监听，动态隐藏或显示 X 轴的“入库 出库 在库”文字
+                            myChart.off('legendselectchanged');
                             myChart.on('legendselectchanged', function (params) {
-                                const selected = params.selected;
-                                // 判断三种类型是否显示（只要某个系列名中包含该词且被选中）
-                                const showIn = Object.keys(selected).some(k => k.includes('入库') && selected[k]);
-                                const showOut = Object.keys(selected).some(k => k.includes('出库') && selected[k]);
-                                const showStock = Object.keys(selected).some(k => k.includes('库存') && selected[k]);
+                                legendSelected = params.selected; // 记录状态
+                                // 只更新 X 轴，不动 option
+                                myChart.setOption({
+                                    xAxis: {
+                                        axisLabel: {
+                                            formatter: function (value) {
+                                                const showIn = Object.keys(legendSelected).some(k => k.includes('入库') && legendSelected[k]);
+                                                const showOut = Object.keys(legendSelected).some(k => k.includes('出库') && legendSelected[k]);
+                                                const showStock = Object.keys(legendSelected).some(k => k.includes('库存') && legendSelected[k]);
 
-                                // 生成要显示的标签数组
-                                const labels = [];
-                                if (showIn) labels.push('{largeFont|入库}');
-                                if (showOut) labels.push('{largeFont|出库}');
-                                if (showStock) labels.push('{largeFont|在库}');
+                                                const labels = [];
+                                                if (showIn) labels.push('{largeFont|入库}');
+                                                if (showOut) labels.push('{largeFont|出库}');
+                                                if (showStock) labels.push('{largeFont|在库}');
 
-                                // 修改 X 轴 formatter
-                                option.xAxis.axisLabel.formatter = function (value) {
-                                    if (labels.length === 0) {
-                                        // 全部隐藏时，只显示月份
-                                        return '\n' + value;
+                                                if (labels.length === 0) return '\n' + value;
+                                                return '\n' + labels.join('  ') + '\n\n' + value;
+                                            }
+                                        }
                                     }
-                                    // 否则显示选中的类型
-                                    return '\n' + labels.join('  ') + '\n\n' + value;
-                                };
+                                });
+                            });
 
-                                // 重新渲染
-                                myChart.setOption(option);
-                            });
-                            // 初始化时主动触发一次（保证初始显示正确）
-                            myChart.dispatchAction({
-                                type: 'legendselectchanged',
-                                selected: myChart.getOption().legend[0].selected
-                            });
 
                         })
                         .catch(error => {
