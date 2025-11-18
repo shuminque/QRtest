@@ -907,8 +907,19 @@
                 'LB库存': true,
                 'LAB库存': true
             };
+            let isUpdating = false; // 防止重复触发
+            function setFiltersDisabled(disabled) {
+                yearSelector.disabled = disabled;
+                depositorySelect.disabled = disabled;
+                stateSelect.disabled = disabled;
+                customerSelect.disabled = disabled;
+            }
+
             // 定义一个函数，用于获取数据并更新图表
                 function updateChart() {
+                    if (isUpdating) return; // 避免短时间多次快速触发
+                    isUpdating = true;      // 加锁
+                    setFiltersDisabled(true);  // 禁用下拉框
                     const selectedYear = yearSelector.value;
                     const selectedDepository = depositorySelect.value;
                     const selectedState = stateSelect.value;
@@ -1297,7 +1308,8 @@
                                     }
                                 });
                             });
-
+                            setFiltersDisabled(false); // 恢复控件
+                            isUpdating = false;        // 解锁
 
                         })
                         .catch(error => {
