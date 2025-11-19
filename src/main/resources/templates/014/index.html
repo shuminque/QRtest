@@ -967,18 +967,20 @@
                                 LB_in.push(item.LB_in || 0);
                                 LA_out.push(item.LA_out || 0);
                                 LB_out.push(item.LB_out || 0);
-                                // 当 LA_in 和 LA_out 都为零时，LA_quantity 为零，否则使用实际值
-                                if (item.LA_in === 0 && item.LA_out === 0) {
-                                    LA_quantity.push(0);
-                                } else {
-                                    LA_quantity.push(item.LA_quantity || 0);
-                                }
-                                // 当 LB_in 和 LB_out 都为零时，LB_quantity 为零，否则使用实际值
-                                if (item.LB_in === 0 && item.LB_out === 0) {
-                                    LB_quantity.push(0);
-                                } else {
-                                    LB_quantity.push(item.LB_quantity || 0);
-                                }
+                                // // 当 LA_in 和 LA_out 都为零时，LA_quantity 为零，否则使用实际值
+                                // if (item.LA_in === 0 && item.LA_out === 0) {
+                                //     LA_quantity.push(0);
+                                // } else {
+                                // }
+                                LA_quantity.push(item.LA_quantity || 0);
+                                //
+                                // // 当 LB_in 和 LB_out 都为零时，LB_quantity 为零，否则使用实际值
+                                // if (item.LB_in === 0 && item.LB_out === 0) {
+                                //     LB_quantity.push(0);
+                                // } else {
+                                // }
+                                LB_quantity.push(item.LB_quantity || 0);
+
                                 total_in.push((item.LA_in || 0) + (item.LB_in || 0));
                                 total_out.push((item.LA_out || 0) + (item.LB_out || 0));
                                 total_quantity.push((item.LA_quantity || 0) + (item.LB_quantity || 0));
