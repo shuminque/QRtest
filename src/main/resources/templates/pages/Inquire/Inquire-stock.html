@@ -201,24 +201,24 @@
                 },
                 totalRow: true, // 开启合计行
                 toolbar: ['filter', 'exports', 'print'],
-                cols: [ [ // 表头
-                    {field: 'boxText', title: '箱号' ,sort:true},
+                cols: [ [
+                    {field: 'boxText', title: '箱号', sort:true},
                     {field: 'boxNumber', title: '编号'},
                     {field: 'outerInnerRing', title: '内外轮'},
                     {field: 'model', title: '型号'},
                     {field: 'productCategory', title: '制品分类'},
-                    {field: 'steelType', title: '钢种'},
+                    {field: 'steelType', title: '钢种', totalRowText: '合计：'},
+                    // 这里：totalRowText 只是提示文字，真正的数值需要开启 totalRow: true
                     {field: 'steelGrade', title: '钢等',totalRowText: '箱数'},
-                    {field: 'size', title: '尺寸'},
+                    {field: 'size', title: '尺寸', totalRow: true}, // 开启自动计算（如果是数字）
                     {field: 'dissolve', title: '溶解号',totalRowText: '合计数'},
-                    {field: 'quantity', title: '数量', totalRowText: '合计'}, // 启用合计行文本
+                    {field: 'quantity', title: '数量', totalRow: true}, // 开启自动计算
                     {field: 'customer', title: '客户'},
                     {field: 'state', title: '状态'},
-                    {field: 'depository', title: '厂区',hide:true},
                     {field: 'currentDepository', title: '仓库'},
                     {field: 'lastRecordedTime', title: '最后入库时间', templet: function(d) {
                             return formatDate(d.lastRecordedTime);
-                    }},
+                        }},
                 ]],
                 done: function(res, curr, count) {
                     // 在这里计算合计值
