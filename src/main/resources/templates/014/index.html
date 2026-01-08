@@ -965,8 +965,10 @@
                                 months.push(item.month);
                                 LA_in.push(item.LA_in || 0);
                                 LB_in.push(item.LB_in || 0);
+                                LAB_in.push(item.LAB_in || 0);
                                 LA_out.push(item.LA_out || 0);
                                 LB_out.push(item.LB_out || 0);
+                                LAB_out.push(item.LAB_out || 0);
                                 // // 当 LA_in 和 LA_out 都为零时，LA_quantity 为零，否则使用实际值
                                 // if (item.LA_in === 0 && item.LA_out === 0) {
                                 //     LA_quantity.push(0);
@@ -980,6 +982,7 @@
                                 // } else {
                                 // }
                                 LB_quantity.push(item.LB_quantity || 0);
+                                LAB_quantity.push(item.LAB_quantity || 0);
 
                                 total_in.push((item.LA_in || 0) + (item.LB_in || 0));
                                 total_out.push((item.LA_out || 0) + (item.LB_out || 0));
@@ -1012,7 +1015,7 @@
                                     },
                                 },
                                 legend: {
-                                    data: ['LA入库', 'LB入库', 'LA出库', 'LB出库', 'LA库存', 'LB库存', 'LAB库存'],
+                                    data: ['LA入库', 'LB入库', 'LAB入库','LA出库', 'LB出库', 'LAB出库','LA库存', 'LB库存', 'LAB库存'],
                                     textStyle: {
                                         color: '#FFFFFF'
                                     },
@@ -1020,8 +1023,10 @@
                                         const map = {
                                             'LA入库': summary.LA_in_total,
                                             'LB入库': summary.LB_in_total,
+                                            'LAB入库': summary.LAB_in_total,
                                             'LA出库': summary.LA_out_total,
                                             'LB出库': summary.LB_out_total,
+                                            'LAB出库': summary.LAB_out_total,
                                             'LA库存': '',
                                             'LB库存': '',
                                             'LAB库存': ''
@@ -1173,7 +1178,7 @@
                                             position: 'top',
                                             color: '#FFFFFF',
                                             formatter: function(params) {
-                                                return params.value === 0 ? '' : formatNumber(LA_in[params.dataIndex]);
+                                                return params.value === 0 ? '' : formatNumber(LAB_in[params.dataIndex]);
                                             }
                                         },
                                         z:10
@@ -1226,7 +1231,7 @@
                                             position: 'insideTop',
                                             color: '#FFFFFF',
                                             formatter: function(params) {
-                                                return params.value === 0 ? '' : formatNumber(LB_out[params.dataIndex]);
+                                                return params.value === 0 ? '' : formatNumber(LAB_out[params.dataIndex]);
                                             }
                                         }
                                     },
@@ -1278,7 +1283,7 @@
                                             position: 'insideTop',
                                             color: '#FFFFFF',
                                             formatter: function(params) {
-                                                return params.value === 0 ? '' : formatNumber(LB_quantity[params.dataIndex]);
+                                                return params.value === 0 ? '' : formatNumber(LAB_quantity[params.dataIndex]);
                                             }
                                         }
                                     }
