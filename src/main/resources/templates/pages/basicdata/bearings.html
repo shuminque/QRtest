@@ -459,6 +459,14 @@
     </form>
 </script>
 <script>
+    function formatDate(dateStr) {
+        if (!dateStr) return '';
+        let date = new Date(dateStr);
+        let year = date.getFullYear();
+        let month = (date.getMonth() + 1).toString().padStart(2, '0');
+        let day = date.getDate().toString().padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    }
     var userReviewGroupId;var userAuthority;var userDepositoryId;var userDepository;var depositoryId;
     function getUserDepository() {
         $.ajax({
@@ -550,6 +558,9 @@
                 {field: 'state', title: '状态'},
                 {field: 'singleEight', title: '单重'},
                 {field: 'mode', title: '贸易方式'},
+                {field: 'createTime', title: '创建时间', templet: function(d) {
+                        return formatDate(d.createTime);
+                    }},
                 {
                     title: '操作',
                     templet: function(d){

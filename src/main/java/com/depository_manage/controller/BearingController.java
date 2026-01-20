@@ -1,11 +1,13 @@
 package com.depository_manage.controller;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.depository_manage.entity.Bearing;
 import com.depository_manage.entity.BearingRecord;
 import com.depository_manage.entity.ProductId;
 import com.depository_manage.entity.SteelGrade;
 import com.depository_manage.service.BearingService;
 import com.depository_manage.service.ProductIdService;
+import com.depository_manage.utils.Result;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +17,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/bearings")
@@ -304,5 +307,9 @@ public class BearingController {
             default: return "Unknown";
         }
     }
-
+    @GetMapping("/find-models")
+    public Result findModels(@RequestParam String customer, @RequestParam String ring) {
+        List<String> models = bearingService.getModels(customer, ring);
+        return Result.success(models);
+    }
 }

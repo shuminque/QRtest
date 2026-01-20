@@ -1,5 +1,6 @@
 package com.depository_manage.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.depository_manage.entity.Bearing;
 
 import java.util.List;
@@ -18,4 +19,6 @@ public interface BearingService {
     List<String> searchBoxText(String query, String depository);
 
     String getNextPairNumber();
+
+    List<String> getModels(String customer, String ring);
 }

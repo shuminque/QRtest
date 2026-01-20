@@ -2,6 +2,8 @@ package com.depository_manage.entity;
 
 import lombok.Data;
 
+import java.util.Date;
+
 @Data
 public class Bearing {
     private Integer id;
@@ -22,5 +24,7 @@ public class Bearing {
     private String currentDepository;
     private Double singleEight;
     private String  mode;
+    private Date createTime;
+    private Date updateTime;
     // Lombok 的 @Data 注解会自动生成构造函数、getter 和 setter 方法
 }

@@ -20,6 +20,9 @@
         <result property="currentDepository" column="current_depository"/>
         <result property="singleEight" column="single_eight"/>
         <result property="mode" column="mode"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+
     </resultMap>
 
     <select id="selectBearingByBoxTextAndDepository" resultMap="bearingMap">
@@ -175,6 +178,13 @@
     <select id="getMaxPairNumber" resultType="string">
         SELECT MAX(pair) FROM bearings
     </select>
-    <!-- Add additional SQL statements for update, delete, etc. as needed -->
-</mapper>
+
+    <select id="findModelsByCustomerAndRing" resultType="java.lang.String">
+        SELECT DISTINCT model
+        FROM bearings
+        WHERE customer = #{customer}
+          AND outer_inner_ring = #{ring}
+          AND model IS NOT NULL
+          AND model != ''
+    </select></mapper>
 

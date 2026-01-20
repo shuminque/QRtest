@@ -1,5 +1,6 @@
 package com.depository_manage.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.depository_manage.entity.Bearing;
 import com.depository_manage.entity.BearingRecord;
 import com.depository_manage.mapper.BearingMapper;
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class BearingServiceImpl implements BearingService {
@@ -62,5 +64,11 @@ public class BearingServiceImpl implements BearingService {
             // 如果数据库为空，则从某个值开始
             return "1001"; // 或其他适合你业务的起始值
         }
+    }
+
+    @Override
+    public List<String> getModels(String customer, String ring) {
+        // 直接调用原生 Mapper 方法
+        return bearingMapper.findModelsByCustomerAndRing(customer, ring);
     }
 }

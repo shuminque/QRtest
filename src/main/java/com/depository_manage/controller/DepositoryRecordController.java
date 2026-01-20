@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -209,6 +210,30 @@ public class DepositoryRecordController {
         return ResponseEntity.ok(typeAmounts);
     }
 
+    @GetMapping("/schedule/calendar")
+    @ResponseBody
+    public List<Map<String, Object>> calendar(
+            @RequestParam String start,
+            @RequestParam String end) {
+
+        List<Map<String, Object>> list = new ArrayList<>();
+
+        // 示例：你实际应该查排班表
+        Map<String, Object> d1 = new HashMap<>();
+        d1.put("title", "日班");
+        d1.put("start", "2025-12-18");
+        d1.put("color", "#1E9FFF");
+
+        Map<String, Object> d2 = new HashMap<>();
+        d2.put("title", "夜班");
+        d2.put("start", "2025-12-18");
+        d2.put("color", "#FF5722");
+
+        list.add(d1);
+        list.add(d2);
+
+        return list;
+    }
 
 
 }

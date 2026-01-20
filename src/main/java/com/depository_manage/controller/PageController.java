@@ -123,14 +123,7 @@ public class PageController {
     public ModelAndView Bearings() {
         ModelAndView mv = new ModelAndView();
         mv.setViewName("pages/basicdata/bearings");
-        mv.addObject("productCategorys", productCategoryService.findAll());
-        mv.addObject("steelGrades", steelGradeService.findAll());
-        mv.addObject("steelTypes", steelTypeService.findAll());
-        mv.addObject("customers", customerService.findAll());
-        mv.addObject("tradeModes", tradeModeService.findAll());
-        mv.addObject("steelSizes", steelSizeService.findAll());
-
-        return mv;
+        return getModelAndView(mv);
     }
     @GetMapping("/bearing-ids")
     public ModelAndView ProductIds() {
@@ -195,6 +188,22 @@ public class PageController {
         return mv;
     }
 
+    private ModelAndView getModelAndView(ModelAndView mv) {
+        mv.addObject("productCategorys", productCategoryService.findAll());
+        mv.addObject("steelGrades", steelGradeService.findAll());
+        mv.addObject("steelTypes", steelTypeService.findAll());
+        mv.addObject("customers", customerService.findAll());
+        mv.addObject("tradeModes", tradeModeService.findAll());
+        mv.addObject("steelSizes", steelSizeService.findAll());
+        return mv;
+    }
+
+    @GetMapping("/production_order_list")
+    public ModelAndView production_order_list() {
+        ModelAndView mv = new ModelAndView();
+        mv.setViewName("calendorder/production_order_list");
+        return getModelAndView(mv);
+    }
     @GetMapping("/welcome1")
     public ModelAndView welcome(HttpServletRequest request) {
         ModelAndView mv = new ModelAndView();
