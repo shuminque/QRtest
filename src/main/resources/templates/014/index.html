@@ -1364,12 +1364,20 @@
                                 return num.toString();  // 小于10000直接显示
                             }
                         }
+                        const today = new Date();
+                        today.setHours(0, 0, 0, 0); // 今天 00:00
+                        const filteredData = data.filter(item => {
+                            const itemDay = new Date(item.day);
+                            itemDay.setHours(0, 0, 0, 0);
+                            return itemDay <= today;
+                        });
+
                         // 处理返回的数据
                         const days = [];
                         const LA_quantity = [];
                         const LB_quantity = [];
                         const total_quantity = [];
-                        data.forEach(item => {
+                        filteredData.forEach(item => {
                             days.push(item.day);
                             LA_quantity.push(item.LA_quantity || 0);
                             LB_quantity.push(item.LB_quantity || 0);
