@@ -126,8 +126,8 @@
 </div>
 <div class="button-container">
     <div class="button-row">
-        <button class="inout" onclick="showModal('stockIn')">入库</button>
-        <button class="inout" onclick="showModal('stockOut')">出库</button>
+        <button id="stockInBtn" class="inout" onclick="showModal('stockIn')">入库</button>
+        <button id="stockOutBtn" class="inout" onclick="showModal('stockOut')">出库</button>
     </div>
     <div class="button-row">
         <button class="inout" onclick="showModal('return')">返库</button>
@@ -215,12 +215,95 @@
 </div>
 
 <div id="operation-result" style="display:none;"></div>
+<div id="offline-notice" style="display:none;position:fixed;top:0;left:0;right:0;z-index:2000;background:#d9534f;color:#fff;font-size:24px;text-align:center;padding:10px 12px;">
+    当前离线，禁止提交
+</div>
+<div id="last-submit-status" style="margin: 15px 10px;padding: 12px;border: 2px solid #5fb878;border-radius: 8px;font-size: 22px;background: #f6ffed;">
+    最后成功提交：暂无
+</div>
 <script src="/static/lib/layui-v2.8.17/layui.js" charset="utf-8"></script>
 
 <script>
+    const REQUEST_TIMEOUT_MS = 12000;
+
     document.addEventListener("DOMContentLoaded", function() {
         fetchUnrecordedProducts();
+        initializeNetworkStateListeners();
     });
+
+    function updateSubmitButtonsByNetworkState(isOnline) {
+        const stockInBtn = document.getElementById('stockInBtn');
+        const stockOutBtn = document.getElementById('stockOutBtn');
+        if (stockInBtn) stockInBtn.disabled = !isOnline;
+        if (stockOutBtn) stockOutBtn.disabled = !isOnline;
+    }
+
+    function initializeNetworkStateListeners() {
+        const offlineNotice = document.getElementById('offline-notice');
+        const renderState = (isOnline) => {
+            if (offlineNotice) {
+                offlineNotice.style.display = isOnline ? 'none' : 'block';
+            }
+            updateSubmitButtonsByNetworkState(isOnline);
+        };
+        renderState(navigator.onLine);
+
+        window.addEventListener("offline", function() {
+            renderState(false);
+            layer.alert("当前离线，禁止提交");
+        });
+
+        window.addEventListener("online", function() {
+            renderState(true);
+            layer.msg("网络已恢复", {icon: 6, time: 1500});
+        });
+    }
+
+    async function safeFetch(url, options = {}, config = {}) {
+        if (navigator.onLine === false) {
+            layer.alert("网络已断开，操作未提交");
+            throw new Error("offline");
+        }
+
+        const timeoutMs = config.timeout || REQUEST_TIMEOUT_MS;
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), timeoutMs);
+        try {
+            const response = await fetch(url, {
+                ...options,
+                signal: controller.signal
+            });
+            if (response.status >= 500) {
+                layer.alert("网络或服务异常，操作状态未知，请到操作记录核对");
+                throw new Error("server_error_" + response.status);
+            }
+            return response;
+        } catch (error) {
+            if (error.name === 'AbortError') {
+                layer.alert("请求超时，请勿重复扫码，先查询结果");
+            } else if ((error instanceof TypeError && (error.message || '').includes('Failed to fetch'))
+                || (error.message || '').includes('Failed to fetch')) {
+                layer.alert("网络或服务异常，操作状态未知，请到操作记录核对");
+            }
+            throw error;
+        } finally {
+            clearTimeout(timer);
+        }
+    }
+
+    function updateLastSubmitStatus(operationTypeChinese, boxText, boxNumber) {
+        const statusEle = document.getElementById("last-submit-status");
+        if (!statusEle) return;
+        const now = new Date();
+        const formattedNow = now.getFullYear() + "-" +
+            String(now.getMonth() + 1).padStart(2, '0') + "-" +
+            String(now.getDate()).padStart(2, '0') + " " +
+            String(now.getHours()).padStart(2, '0') + ":" +
+            String(now.getMinutes()).padStart(2, '0') + ":" +
+            String(now.getSeconds()).padStart(2, '0');
+        statusEle.innerHTML = "最后成功提交：" + formattedNow + " ｜ 操作：" + operationTypeChinese + " ｜ 单号：" + boxText + "-" + boxNumber;
+    }
+
     function fetchUnrecordedProducts() {
         fetch("/productIds/unrecorded")
             .then(response => response.json())
@@ -242,7 +325,10 @@
                     document.getElementById("unrecordedProductsContainer").style.display = "block";
                 }
             })
-            .catch(error => console.error("Error fetching unrecorded products:", error));
+            .catch(error => {
+                console.error("Error fetching unrecorded products:", error);
+                layer.alert("未入库清单获取失败，请稍后重试");
+            });
     }
 
     function closeUnrecordedProducts() {
@@ -518,6 +604,8 @@
                 // 记录不存在或者记录显示完成后执行二维码生成逻辑
             })
             .catch(error => {
+                console.error('查询预生成记录失败：', error);
+                layer.alert("查询记录失败，请稍后重试");
             });
     }
     function preGenerateQRCodeByBoxTextForZero() {
@@ -548,8 +636,8 @@
                 proceedToZeroGenerateQRCode(boxText);
             })
             .catch(error => {
-                // console.error('发生错误：', error);
-                // layer.alert("发生错误，请稍后再试");
+                console.error('查询零箱预生成记录失败：', error);
+                layer.alert("查询记录失败，请稍后重试");
             });
     }
     function proceedToGenerateQRCodeTwo(boxText,boxNumber) {
@@ -952,7 +1040,10 @@
                 updateProductQuantity(updatedData.boxText, updatedData.boxNumber, newQuantity, convertDepositoryIdToMath(updatedData.depository), updatedData.iter);
 
             })
-            .catch(error => console.error('Error updating QR code:', error));
+            .catch(error => {
+                console.error('Error updating QR code:', error);
+                layer.alert("修改数量失败，请到操作记录核对");
+            });
     }
     function updateQRCodeQuantity(newQuantity, isQuantityChanged) {
         fetch('/bearings/' + preGenerateData.boxText + '/' + preGenerateData.depositoryId + '/regenerate', {
@@ -974,7 +1065,10 @@
                 updateProductQuantity(updatedData.boxText, updatedData.boxNumber, newQuantity, convertDepositoryIdToMath(updatedData.depository), updatedData.iter);
 
             })
-            .catch(error => console.error('Error updating QR code:', error));
+            .catch(error => {
+                console.error('Error updating QR code:', error);
+                layer.alert("修改数量失败，请到操作记录核对");
+            });
     }
     function generateQRCode(data, isQuantityChanged) {
         var qrCodeElement = document.getElementById("qrcode");
@@ -1131,9 +1225,7 @@
             // layer.closeAll();
         } catch (error) {
             console.error('解析扫描数据时出错: ', error);
-            // 如果发生错误，可以选择是否关闭模态框或者只是显示错误信息
-            // layer.closeAll();
-            // 显示错误信息的逻辑
+            layer.alert("扫码数据格式异常，请重新扫码");
         }
     }
     function closeModal() {
@@ -1174,7 +1266,7 @@
             iter: iter
             // ... 其他必要字段 ...
         };
-        return fetch('/bearingRecords', {
+        return safeFetch('/bearingRecords', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(recordDto)
@@ -1191,7 +1283,7 @@
     function stockIn(data, operationType, depositoryId) {
         var depositoryName = convertDepositoryIdToText(depositoryId);
         var originalQuantity=data.quantity;
-        fetch(`/bearingRecords/checkSpecialRecord/${data.boxText}/${data.boxNumber}/${depositoryName}/${originalQuantity}/${data.iter}`)
+        safeFetch(`/bearingRecords/checkSpecialRecord/${data.boxText}/${data.boxNumber}/${depositoryName}/${originalQuantity}/${data.iter}`)
             .then(response => response.json())
             .then(outcome => {
                 if (!outcome.hasSpecial) {
@@ -1230,6 +1322,7 @@
             })
             .catch(error => {
                 console.error('检查特殊记录时出错:', error);
+                layer.alert("检查库存记录失败，请到操作记录核对");
             });
     }
 
@@ -1239,7 +1332,7 @@
 
         if (isQuantityChanged && isOriginallyWholeBox) {
             // 如果数量变化且原来是整箱，调用API生成新的零箱
-            fetch('/bearings/zero/' + data.boxText + '/' + depositoryId, {
+            safeFetch('/bearings/zero/' + data.boxText + '/' + depositoryId, {
                 body: JSON.stringify({
                     ...data,
                     quantity: newQuantity.toString()
@@ -1268,7 +1361,7 @@
                 })
                     .catch(error => {
                     console.error('生成新零箱或入库操作失败:', error);
-                    // 这里可以处理错误，比如显示提示信息
+                    layer.alert("生成新零箱或入库失败，请到操作记录核对");
                 });
         } else if (isQuantityChanged) {
             // 数量发生变化时更新数量和二维码，并显示图标
@@ -1283,15 +1376,20 @@
                 })
                 .catch(error => {
                     console.error('更新数量或入库操作失败，正在尝试回滚:', error);
+                    layer.alert("更新数量或入库失败，系统将尝试回滚，请核对操作记录");
                     return updateProductQuantity(data.boxText, data.boxNumber, originalQuantity, depositoryId, data.iter)
                         .catch(rollbackError => {
                             console.error('回滚更新数量时出错:', rollbackError);
+                            layer.alert("回滚失败，请立即联系管理员并核对操作记录");
                         });
                 });
         } else {
             // 数量未变化，直接执行入库操作
             proceedStockIn(data.boxText, data.boxNumber, originalQuantity, operationType, depositoryId, data.iter)
-                .catch(error => console.error('入库操作失败:', error));
+                .catch(error => {
+                    console.error('入库操作失败:', error);
+                    layer.alert("入库失败，请到操作记录核对");
+                });
         }
     }
 
@@ -1348,7 +1446,7 @@
     }
 
     function updateProductQuantity(boxText, boxNumber, newQuantity, depositoryId, iter) {
-        return fetch('/productIds/updateQuantity', {
+        return safeFetch('/productIds/updateQuantity', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -1384,7 +1482,7 @@
             iter: iter
         };
 
-        return fetch('/bearingInventory/stockIn', {
+        return safeFetch('/bearingInventory/stockIn', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(inventoryDto),
@@ -1412,6 +1510,7 @@
             .then(data => {
                 layer.msg("入库成功",{icon: 6, time:1000});
                 showResult(`${operationTypeChinese}成功: ` + JSON.stringify(data));
+                updateLastSubmitStatus(operationTypeChinese, boxText, boxNumber);
                 return addBearingRecord(operationTypeChinese, boxText, boxNumber, quantity, depositoryId, iter);
             });
     }
@@ -1429,7 +1528,7 @@
             depositoryId: depositoryId,
             iter: iter
         };
-        fetch('/bearingInventory/stockOut', {
+        safeFetch('/bearingInventory/stockOut', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -1456,10 +1555,12 @@
                 // 显示操作结果
                 layer.msg("出库成功",{icon: 6, time:1000});
                 showResult(`${operationTypeChinese}成功: ` + JSON.stringify(data));
+                updateLastSubmitStatus(operationTypeChinese, boxText, boxNumber);
                 return addBearingRecord(operationTypeChinese, boxText, boxNumber, quantity,depositoryId,iter);
             })
             .catch(error => {
                 console.error(`${operationTypeChinese}失败:`, error);
+                layer.alert(`${operationTypeChinese}失败，请到操作记录核对`);
             })
             .finally(() => {
                 resetScanner(false);
@@ -1502,7 +1603,7 @@
         console.log(boxNumber);
         console.log(depositoryId);
 
-        fetch(`/bearingInventory/panKu/${boxText}/${boxNumber}/${mathDepositoryId}`)
+        safeFetch(`/bearingInventory/panKu/${boxText}/${boxNumber}/${mathDepositoryId}`)
             .then(response => {
                 // 关闭加载指示器
                 layer.close(loadingIndex);
