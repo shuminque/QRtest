@@ -237,7 +237,7 @@
         const quantity = document.getElementById('quantity').value;
         // 检查数量是否已输入
         if (!quantity || quantity <= 0) {
-            toastr.error('请前往生成对应箱号和编号及其数量！');
+            toastr.error('零箱 请前往二维码生成编号与数量！');
             return; // 如果没有数量或数量为零，阻止表单提交
         }
         // 确定箱号类型并保存新的产品ID
@@ -247,10 +247,10 @@
                     // 如果已入库，直接提示用户
                     throw new Error('该箱号编号已入库');
                 } else if (boxNumber === latestBoxNumber || boxNumber>1000) {
+                // } else if (boxNumber === latestBoxNumber ) {
                     // 如果未入库且编号为预生成的最新，则尝试保存新的产品ID
                     return determineAndSaveProductId(boxText, boxNumber, depositoryId, quantity, newiter);
                 } else {
-                    // 如果未入库但编号不是预生成的最新，直接进行入库操作
                     return Promise.resolve();
                 }
             })

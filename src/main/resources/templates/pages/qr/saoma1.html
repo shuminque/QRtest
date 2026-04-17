@@ -130,12 +130,12 @@
         <button id="stockOutBtn" class="inout" onclick="showModal('stockOut')">出库</button>
     </div>
     <div class="button-row">
-        <button class="inout" onclick="showModal('return')">返库</button>
+        <button id="returnBtn" class="inout" onclick="showModal('return')">返库</button>
         <button class="inout" onclick="showModal('panKu')">盘库</button>
     </div>
     <div class="button-row">
-        <button class="inout" onclick="showModal('transferIn')">转入</button>
-        <button class="inout" onclick="showModal('transferOut')">转出</button>
+        <button id="transferInBtn" class="inout" onclick="showModal('transferIn')">转入</button>
+        <button id="transferOutBtn" class="inout" onclick="showModal('transferOut')">转出</button>
     </div>
 </div>
 <!-- 模态框的内容，放在页面的某个位置 -->
@@ -232,10 +232,19 @@
     });
 
     function updateSubmitButtonsByNetworkState(isOnline) {
-        const stockInBtn = document.getElementById('stockInBtn');
-        const stockOutBtn = document.getElementById('stockOutBtn');
-        if (stockInBtn) stockInBtn.disabled = !isOnline;
-        if (stockOutBtn) stockOutBtn.disabled = !isOnline;
+        const buttonIds = [
+            'stockInBtn',
+            'stockOutBtn',
+            'returnBtn',
+            'transferInBtn',
+            'transferOutBtn'
+        ];
+        buttonIds.forEach(id => {
+            const btn = document.getElementById(id);
+            if (btn) {
+                btn.disabled = !isOnline;
+            }
+        });
     }
 
     function initializeNetworkStateListeners() {
@@ -327,7 +336,6 @@
             })
             .catch(error => {
                 console.error("Error fetching unrecorded products:", error);
-                layer.alert("未入库清单获取失败，请稍后重试");
             });
     }
 
@@ -604,8 +612,6 @@
                 // 记录不存在或者记录显示完成后执行二维码生成逻辑
             })
             .catch(error => {
-                console.error('查询预生成记录失败：', error);
-                layer.alert("查询记录失败，请稍后重试");
             });
     }
     function preGenerateQRCodeByBoxTextForZero() {
@@ -636,8 +642,6 @@
                 proceedToZeroGenerateQRCode(boxText);
             })
             .catch(error => {
-                console.error('查询零箱预生成记录失败：', error);
-                layer.alert("查询记录失败，请稍后重试");
             });
     }
     function proceedToGenerateQRCodeTwo(boxText,boxNumber) {
@@ -1042,7 +1046,6 @@
             })
             .catch(error => {
                 console.error('Error updating QR code:', error);
-                layer.alert("修改数量失败，请到操作记录核对");
             });
     }
     function updateQRCodeQuantity(newQuantity, isQuantityChanged) {
@@ -1322,7 +1325,6 @@
             })
             .catch(error => {
                 console.error('检查特殊记录时出错:', error);
-                layer.alert("检查库存记录失败，请到操作记录核对");
             });
     }
 
@@ -1361,7 +1363,6 @@
                 })
                     .catch(error => {
                     console.error('生成新零箱或入库操作失败:', error);
-                    layer.alert("生成新零箱或入库失败，请到操作记录核对");
                 });
         } else if (isQuantityChanged) {
             // 数量发生变化时更新数量和二维码，并显示图标
@@ -1376,7 +1377,6 @@
                 })
                 .catch(error => {
                     console.error('更新数量或入库操作失败，正在尝试回滚:', error);
-                    layer.alert("更新数量或入库失败，系统将尝试回滚，请核对操作记录");
                     return updateProductQuantity(data.boxText, data.boxNumber, originalQuantity, depositoryId, data.iter)
                         .catch(rollbackError => {
                             console.error('回滚更新数量时出错:', rollbackError);
@@ -1388,7 +1388,6 @@
             proceedStockIn(data.boxText, data.boxNumber, originalQuantity, operationType, depositoryId, data.iter)
                 .catch(error => {
                     console.error('入库操作失败:', error);
-                    layer.alert("入库失败，请到操作记录核对");
                 });
         }
     }
@@ -1560,7 +1559,6 @@
             })
             .catch(error => {
                 console.error(`${operationTypeChinese}失败:`, error);
-                layer.alert(`${operationTypeChinese}失败，请到操作记录核对`);
             })
             .finally(() => {
                 resetScanner(false);
