@@ -43,7 +43,7 @@ public interface ProductIdService {
     ProductId getProductIdByBoxTextAndDepositoryId(String boxText, String boxNumber, int depositoryId);
 
     // 更新产品的入库状态
-    void updateStockedStatus(String boxText, String boxNumber, int depositoryId, int isStocked, int iter);
+    int updateStockedStatus(String boxText, String boxNumber, int depositoryId, int isStocked, int iter);
 
     // 检查产品是否已入库
     boolean isProductStocked(String boxText, String boxNumber, int depositoryId, int iter);

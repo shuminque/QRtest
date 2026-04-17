@@ -2,6 +2,7 @@ package com.depository_manage.controller;
 
 import com.depository_manage.entity.BearingInventory;
 import com.depository_manage.entity.InventoryInfo;
+import com.depository_manage.exception.InventoryOperationException;
 import com.depository_manage.exception.OperationAlreadyDoneException;
 import com.depository_manage.service.BearingInventoryService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +11,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/bearingInventory")
@@ -43,6 +46,13 @@ public class BearingInventoryController {
             return ResponseEntity
                     .status(HttpStatus.CONFLICT)
                     .body(Collections.singletonMap("message", e.getMessage()));
+        } catch (InventoryOperationException e) {
+            Map<String, Object> body = new HashMap<>();
+            body.put("message", e.getMessage());
+            body.put("transactionRolledBack", true);
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(body);
         }
     }
     @PostMapping("/stockTransferIn")
@@ -55,6 +65,13 @@ public class BearingInventoryController {
             return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
                     .body(Collections.singletonMap("message", e.getMessage()));
+        } catch (InventoryOperationException e) {
+            Map<String, Object> body = new HashMap<>();
+            body.put("message", e.getMessage());
+            body.put("transactionRolledBack", true);
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(body);
         }
     }
     @PostMapping("/stockOut")
@@ -67,6 +84,13 @@ public class BearingInventoryController {
             return ResponseEntity
                     .status(HttpStatus.CONFLICT)
                     .body(Collections.singletonMap("message", e.getMessage()));
+        } catch (InventoryOperationException e) {
+            Map<String, Object> body = new HashMap<>();
+            body.put("message", e.getMessage());
+            body.put("transactionRolledBack", true);
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(body);
         }
     }
     @PostMapping("/stockOutForPC")
@@ -79,6 +103,13 @@ public class BearingInventoryController {
             return ResponseEntity
                     .status(HttpStatus.CONFLICT)
                     .body(Collections.singletonMap("message", e.getMessage()));
+        } catch (InventoryOperationException e) {
+            Map<String, Object> body = new HashMap<>();
+            body.put("message", e.getMessage());
+            body.put("transactionRolledBack", true);
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(body);
         }
     }
     @GetMapping("/panKu/{boxText}/{boxNumber}/{depositoryId}")

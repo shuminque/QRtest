@@ -37,8 +37,8 @@ public class ProductIdServiceImpl implements ProductIdService {
 
     @Override
     public ProductId saveOrUpdateBoxNumber(ProductId boxNumber) {
-        productIdMapper.insertOrUpdateBoxNumber(boxNumber);
-        return boxNumber;
+        int affectedRows = productIdMapper.insertOrUpdateBoxNumber(boxNumber);
+        return affectedRows > 0 ? boxNumber : null;
     }
     public ProductId getLatestBoxNumberSharedAcrossDepositories(String boxText) {
         return productIdMapper.selectLatestBoxNumberSharedAcrossDepositories(boxText);
@@ -247,8 +247,8 @@ public class ProductIdServiceImpl implements ProductIdService {
     }
 
     @Override
-    public void updateStockedStatus(String boxText, String boxNumber, int depositoryId, int isStocked, int iter) {
-        productIdMapper.updateStockedStatus(boxText, boxNumber, depositoryId, isStocked, iter);
+    public int updateStockedStatus(String boxText, String boxNumber, int depositoryId, int isStocked, int iter) {
+        return productIdMapper.updateStockedStatus(boxText, boxNumber, depositoryId, isStocked, iter);
     }
     public boolean isProductStocked(String boxText, String boxNumber, int depositoryId, int iter) {
         Integer stockedStatus = productIdMapper.checkIfStocked(boxText, boxNumber, depositoryId, iter);
