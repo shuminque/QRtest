@@ -1491,6 +1491,9 @@
                     // 处理错误情况
                     return response.json().then(err => {
                         console.log(err);
+                        if (err.transactionRolledBack) {
+                            layer.alert("操作失败，后端事务已回滚，请核对扫码数据后重试", {icon: 2});
+                        }
                         // 根据错误信息显示不同的弹出消息
                         let errorMsg = "入库失败";
                         if (err.message === "产品已入库，不能再次入库") {
@@ -1539,6 +1542,9 @@
                     // 处理错误情况
                     return response.json().then(err => {
                         console.log(err);
+                        if (err.transactionRolledBack) {
+                            layer.alert("操作失败，后端事务已回滚，请核对扫码数据后重试", {icon: 2});
+                        }
                         // 定制错误消息
                         if (err.message === "产品未入库，不能出库") {
                             layer.alert("仓库里无该箱号产品，操作无效", {icon: 2});
