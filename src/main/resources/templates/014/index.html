@@ -956,12 +956,13 @@
                     }
                     const inventoryDuration = earlier ? diffYearMonth(earlier, endDate1) : '-';
                     return {
+                        库存时间: inventoryDuration,
                         客户: row.客户,
-                        型号_LA: row.型号_LA,
-                        型号_LB: row.型号_LB,
+                        配对号: row.pair,
+                        外轮: row.型号_LA,
+                        内轮: row.型号_LB,
                         在库_LA: row.在库_LA,
                         在库_LB: row.在库_LB,
-                        库存时间: inventoryDuration,
                         箱号: row.箱号
                     };
                 });
@@ -973,21 +974,22 @@
                     var customerCompare = String(a.客户 || '').localeCompare(String(b.客户 || ''), 'zh-Hans-CN');
                     if (customerCompare !== 0) return customerCompare;
 
-                    var modelLACompare = String(a.型号_LA || '').localeCompare(String(b.型号_LA || ''), 'zh-Hans-CN');
-                    if (modelLACompare !== 0) return modelLACompare;
+                    var outerCompare = String(a.外轮 || '').localeCompare(String(b.外轮 || ''), 'zh-Hans-CN');
+                    if (outerCompare !== 0) return outerCompare;
 
-                    return String(a.型号_LB || '').localeCompare(String(b.型号_LB || ''), 'zh-Hans-CN');
+                    return String(a.内轮 || '').localeCompare(String(b.内轮 || ''), 'zh-Hans-CN');
                 });
 
                 var workbook = new ExcelJS.Workbook();
                 var worksheet = workbook.addWorksheet('库存预警');
                 var exportColumns = [
+                    { header: '库存时间', key: '库存时间' },
                     { header: '客户', key: '客户' },
-                    { header: '型号_LA', key: '型号_LA' },
-                    { header: '型号_LB', key: '型号_LB' },
+                    { header: '配对号', key: '配对号' },
+                    { header: '外轮', key: '外轮' },
+                    { header: '内轮', key: '内轮' },
                     { header: '在库_LA', key: '在库_LA' },
                     { header: '在库_LB', key: '在库_LB' },
-                    { header: '库存时间', key: '库存时间' },
                     { header: '箱号', key: '箱号' }
                 ];
                 worksheet.addRow(exportColumns.map(function(column) { return column.header; }));
