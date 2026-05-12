@@ -945,6 +945,14 @@
                 var startDate1 = dates[0] || '';
                 var endDate1 = dates[1] || '';
 
+                function isWarningLA(row) {
+                    return row.入库_LA === 0 && row.出库_LA === 0 && row.在库_LA > 0;
+                }
+
+                function isWarningLB(row) {
+                    return row.入库_LB === 0 && row.出库_LB === 0 && row.在库_LB > 0;
+                }
+
                 var warningRowsForExport = warningRows.map(function(row) {
                     const la = row['LA最后记录时间'];
                     const lb = row['LB最后记录时间'];
@@ -955,14 +963,16 @@
                         earlier = la || lb;
                     }
                     const inventoryDuration = earlier ? diffYearMonth(earlier, endDate1) : '-';
+                    const laWarning = isWarningLA(row);
+                    const lbWarning = isWarningLB(row);
                     return {
                         库存时间: inventoryDuration,
                         客户: row.客户,
                         配对号: row.pair,
-                        外轮: row.型号_LA,
-                        内轮: row.型号_LB,
-                        在库_LA: row.在库_LA,
-                        在库_LB: row.在库_LB,
+                        外轮: laWarning ? row.型号_LA : '',
+                        内轮: lbWarning ? row.型号_LB : '',
+                        在库_LA: laWarning ? row.在库_LA : '',
+                        在库_LB: lbWarning ? row.在库_LB : '',
                         箱号: row.箱号
                     };
                 });
