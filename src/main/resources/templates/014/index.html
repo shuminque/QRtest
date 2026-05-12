@@ -992,20 +992,91 @@
 
                 var workbook = new ExcelJS.Workbook();
                 var worksheet = workbook.addWorksheet('库存预警');
-                var exportColumns = [
-                    { header: '库存时间', key: '库存时间' },
-                    { header: '客户', key: '客户' },
-                    { header: '配对号', key: '配对号' },
-                    { header: '外轮', key: '外轮' },
-                    { header: '内轮', key: '内轮' },
-                    { header: '在库_LA', key: '在库_LA' },
-                    { header: '在库_LB', key: '在库_LB' },
-                    { header: '箱号', key: '箱号' }
-                ];
-                worksheet.addRow(exportColumns.map(function(column) { return column.header; }));
 
-                warningRowsForExport.forEach(function(row) {
-                    worksheet.addRow(exportColumns.map(function(column) { return row[column.key]; }));
+                worksheet.columns = [
+                    { key: '库存时间', width: 14 },
+                    { key: '客户', width: 16 },
+                    { key: '配对号', width: 12 },
+                    { key: '外轮', width: 18 },
+                    { key: '内轮', width: 18 },
+                    { key: '在库_LA', width: 12 },
+                    { key: '在库_LB', width: 12 },
+                    { key: '箱号', width: 18 },
+                    { key: '原因', width: 18 },
+                    { key: '三个月以上', width: 12 },
+                    { key: '一年以上', width: 12 },
+                    { key: '二年以上', width: 12 },
+                    { key: '三年以上', width: 12 }
+                ];
+
+                worksheet.getCell('A1').value = '库存时间';
+                worksheet.getCell('B1').value = '客户';
+                worksheet.getCell('C1').value = '配对号';
+                worksheet.getCell('D1').value = '外轮';
+                worksheet.getCell('E1').value = '内轮';
+                worksheet.getCell('F1').value = '在库_LA';
+                worksheet.getCell('G1').value = '在库_LB';
+                worksheet.getCell('H1').value = '箱号';
+                worksheet.getCell('I1').value = '原因';
+                worksheet.getCell('J1').value = '在库时间';
+                worksheet.getCell('J2').value = '3个月以上';
+                worksheet.getCell('K2').value = '1年以上';
+                worksheet.getCell('L2').value = '2年以上';
+                worksheet.getCell('M2').value = '3年以上';
+
+                ['A','B','C','D','E','F','G','H','I'].forEach(function(col) {
+                    worksheet.mergeCells(col + '1:' + col + '2');
+                });
+                worksheet.mergeCells('J1:M1');
+
+                var headerStyle = {
+                    alignment: { horizontal: 'center', vertical: 'middle' },
+                    border: {
+                        top: { style: 'thin' },
+                        left: { style: 'thin' },
+                        bottom: { style: 'thin' },
+                        right: { style: 'thin' }
+                    },
+                    font: { bold: true }
+                };
+
+                [1, 2].forEach(function(rowNumber) {
+                    worksheet.getRow(rowNumber).height = 24;
+                    worksheet.getRow(rowNumber).eachCell(function(cell) {
+                        cell.alignment = headerStyle.alignment;
+                        cell.border = headerStyle.border;
+                        cell.font = headerStyle.font;
+                    });
+                });
+
+                warningRowsForExport.forEach(function(row, index) {
+                    var months = parseInventoryAgeToMonths(row.库存时间);
+                    var excelRow = worksheet.getRow(index + 3);
+                    excelRow.values = [
+                        null,
+                        row.库存时间,
+                        row.客户,
+                        row.配对号,
+                        row.外轮,
+                        row.内轮,
+                        row.在库_LA,
+                        row.在库_LB,
+                        row.箱号,
+                        '',
+                        months >= 3 ? '●' : '',
+                        months >= 12 ? '●' : '',
+                        months >= 24 ? '●' : '',
+                        months >= 36 ? '●' : ''
+                    ];
+                    excelRow.eachCell(function(cell) {
+                        cell.alignment = { horizontal: 'center', vertical: 'middle' };
+                        cell.border = {
+                            top: { style: 'thin' },
+                            left: { style: 'thin' },
+                            bottom: { style: 'thin' },
+                            right: { style: 'thin' }
+                        };
+                    });
                 });
 
                 const buffer = await workbook.xlsx.writeBuffer();
