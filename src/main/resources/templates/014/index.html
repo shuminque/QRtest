@@ -581,6 +581,33 @@
                 return sortedList;
             }
 
+
+            function parseInventoryAgeToMonths(value) {
+                if (value === null || value === undefined) return Infinity;
+                var normalized = String(value)
+                    .replace(/　/g, ' ')
+                    .replace(/\s+/g, '')
+                    .trim();
+                if (!normalized || normalized === '-') return Infinity;
+
+                var yearMonthMatch = normalized.match(/^(\d+)年(\d+)月$/);
+                if (yearMonthMatch) {
+                    return parseInt(yearMonthMatch[1], 10) * 12 + parseInt(yearMonthMatch[2], 10);
+                }
+
+                var yearMatch = normalized.match(/^(\d+)年$/);
+                if (yearMatch) {
+                    return parseInt(yearMatch[1], 10) * 12;
+                }
+
+                var monthMatch = normalized.match(/^(\d+)月$/);
+                if (monthMatch) {
+                    return parseInt(monthMatch[1], 10);
+                }
+
+                return Infinity;
+            }
+
             function loadReport() {
                 // 获取选择框和日期选择器的值
                 var dates = document.getElementById('date').value.split(' - ');
@@ -914,16 +941,11 @@
                     layer.msg('当前条件下无预警数据可导出');
                     return;
                 }
-                var sortedWarningRows = sortWithWarningPriority(warningRows);
                 var dates = document.getElementById('date').value.split(' - ');
                 var startDate1 = dates[0] || '';
                 var endDate1 = dates[1] || '';
 
-                var workbook = new ExcelJS.Workbook();
-                var worksheet = workbook.addWorksheet('库存预警');
-                worksheet.addRow(["客户", "Pair", "外轮", "内轮", "入库LA", "入库LB", "在库LA", "在库LB", "出库LA", "出库LB", "LA最后记录时间", "LB最后记录时间", "库存时间", "箱号"]);
-
-                sortedWarningRows.forEach(function(row) {
+                var warningRowsForExport = warningRows.map(function(row) {
                     const la = row['LA最后记录时间'];
                     const lb = row['LB最后记录时间'];
                     let earlier = null;
@@ -933,9 +955,34 @@
                         earlier = la || lb;
                     }
                     const inventoryDuration = earlier ? diffYearMonth(earlier, endDate1) : '-';
+                    return {
+                        row: row,
+                        inventoryDuration: inventoryDuration
+                    };
+                });
+
+                warningRowsForExport.sort(function(a, b) {
+                    var monthDiff = parseInventoryAgeToMonths(a.inventoryDuration) - parseInventoryAgeToMonths(b.inventoryDuration);
+                    if (monthDiff !== 0) return monthDiff;
+
+                    var customerCompare = String(a.row.客户 || '').localeCompare(String(b.row.客户 || ''), 'zh-Hans-CN');
+                    if (customerCompare !== 0) return customerCompare;
+
+                    var modelLACompare = String(a.row.型号_LA || '').localeCompare(String(b.row.型号_LA || ''), 'zh-Hans-CN');
+                    if (modelLACompare !== 0) return modelLACompare;
+
+                    return String(a.row.型号_LB || '').localeCompare(String(b.row.型号_LB || ''), 'zh-Hans-CN');
+                });
+
+                var workbook = new ExcelJS.Workbook();
+                var worksheet = workbook.addWorksheet('库存预警');
+                worksheet.addRow(["客户", "Pair", "外轮", "内轮", "入库LA", "入库LB", "在库LA", "在库LB", "出库LA", "出库LB", "LA最后记录时间", "LB最后记录时间", "库存时间", "箱号"]);
+
+                warningRowsForExport.forEach(function(item) {
+                    var row = item.row;
                     worksheet.addRow([
                         row.客户, row.pair, row.型号_LA, row.型号_LB, row.入库_LA, row.入库_LB, row.在库_LA, row.在库_LB, row.出库_LA, row.出库_LB,
-                        formatDate(row['LA最后记录时间']), formatDate(row['LB最后记录时间']), inventoryDuration, row.箱号
+                        formatDate(row['LA最后记录时间']), formatDate(row['LB最后记录时间']), item.inventoryDuration, row.箱号
                     ]);
                 });
 
