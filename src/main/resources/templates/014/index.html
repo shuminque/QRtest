@@ -928,6 +928,36 @@
                 document.body.removeChild(link);
             }
 
+            function formatSheetDate(dateStr) {
+                var d = new Date(dateStr);
+                if (isNaN(d.getTime())) {
+                    return dateStr;
+                }
+                var yy = String(d.getFullYear()).slice(-2);
+                var mm = String(d.getMonth() + 1).padStart(2, '0');
+                var dd = String(d.getDate()).padStart(2, '0');
+                return yy + '.' + mm + '.' + dd;
+            }
+
+            function getWarningFillByMonths(months) {
+                if (months <= 4) return 'FFFFFF00';
+                if (months < 12) return 'FF92D050';
+                if (months < 24) return 'FFFFC000';
+                return 'FFFF0000';
+            }
+
+            function getPreviousMonthSheetDateToken(dateStr) {
+                var d = new Date(dateStr);
+                if (isNaN(d.getTime())) {
+                    return formatSheetDate(dateStr);
+                }
+                d.setMonth(d.getMonth() - 1);
+                var yy = String(d.getFullYear()).slice(-2);
+                var mm = String(d.getMonth() + 1).padStart(2, '0');
+                var dd = String(d.getDate()).padStart(2, '0');
+                return yy + '.' + mm + '.' + dd;
+            }
+
             async function exportWarningRows() {
                 var data = table.cache['currentTableId'];
                 if (!data || data.length === 0) {
@@ -991,7 +1021,8 @@
                 });
 
                 var workbook = new ExcelJS.Workbook();
-                var worksheet = workbook.addWorksheet('库存预警');
+                var sheetDateToken = endDate1 ? formatSheetDate(endDate1) : '结束时间未知';
+                var worksheet = workbook.addWorksheet(sheetDateToken + '不流动成品明细');
 
                 worksheet.columns = [
                     { key: '库存时间', width: 14 },
@@ -1051,7 +1082,8 @@
 
                 warningRowsForExport.forEach(function(row, index) {
                     var months = parseInventoryAgeToMonths(row.库存时间);
-                    var excelRow = worksheet.getRow(index + 3);
+                    var excelRowNum = index + 3;
+                    var excelRow = worksheet.getRow(excelRowNum);
                     var mark3m = '';
                     var mark1y = '';
                     var mark2y = '';
@@ -1081,6 +1113,11 @@
                         mark2y,
                         mark3y
                     ];
+                    var reasonLookupSheet = getPreviousMonthSheetDateToken(endDate1) + '不流动成品明细.';
+                    excelRow.getCell(9).value = {
+                        formula: "VLOOKUP(C" + excelRowNum + ", '" + reasonLookupSheet + "'!C:I, 7, FALSE)"
+                    };
+                    var fillColor = getWarningFillByMonths(months);
                     excelRow.eachCell(function(cell) {
                         cell.alignment = { horizontal: 'center', vertical: 'middle' };
                         cell.border = {
@@ -1088,6 +1125,11 @@
                             left: { style: 'thin' },
                             bottom: { style: 'thin' },
                             right: { style: 'thin' }
+                        };
+                        cell.fill = {
+                            type: 'pattern',
+                            pattern: 'solid',
+                            fgColor: { argb: fillColor }
                         };
                     });
                 });
