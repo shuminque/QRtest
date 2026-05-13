@@ -1022,7 +1022,7 @@
 
                 var workbook = new ExcelJS.Workbook();
                 var sheetDateToken = endDate1 ? formatSheetDate(endDate1) : '结束时间未知';
-                var worksheet = workbook.addWorksheet(sheetDateToken + '不流动成品明细');
+                var worksheet = workbook.addWorksheet(sheetDateToken + '不流动成品明细.');
 
                 worksheet.columns = [
                     { key: '库存时间', width: 14 },
