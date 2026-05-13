@@ -978,7 +978,7 @@
                 });
 
                 warningRowsForExport.sort(function(a, b) {
-                    var monthDiff = parseInventoryAgeToMonths(b.库存时间) - parseInventoryAgeToMonths(a.库存时间);
+                    var monthDiff = parseInventoryAgeToMonths(a.库存时间) - parseInventoryAgeToMonths(b.库存时间);
                     if (monthDiff !== 0) return monthDiff;
 
                     var customerCompare = String(a.客户 || '').localeCompare(String(b.客户 || ''), 'zh-Hans-CN');
