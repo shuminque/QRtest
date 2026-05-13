@@ -978,7 +978,7 @@
                 });
 
                 warningRowsForExport.sort(function(a, b) {
-                    var monthDiff = parseInventoryAgeToMonths(a.库存时间) - parseInventoryAgeToMonths(b.库存时间);
+                    var monthDiff = parseInventoryAgeToMonths(b.库存时间) - parseInventoryAgeToMonths(a.库存时间);
                     if (monthDiff !== 0) return monthDiff;
 
                     var customerCompare = String(a.客户 || '').localeCompare(String(b.客户 || ''), 'zh-Hans-CN');
@@ -1052,8 +1052,21 @@
                 warningRowsForExport.forEach(function(row, index) {
                     var months = parseInventoryAgeToMonths(row.库存时间);
                     var excelRow = worksheet.getRow(index + 3);
+                    var mark3m = '';
+                    var mark1y = '';
+                    var mark2y = '';
+                    var mark3y = '';
+                    if (months >= 36) {
+                        mark3y = '●';
+                    } else if (months >= 24) {
+                        mark2y = '●';
+                    } else if (months >= 12) {
+                        mark1y = '●';
+                    } else if (months >= 3) {
+                        mark3m = '●';
+                    }
+
                     excelRow.values = [
-                        null,
                         row.库存时间,
                         row.客户,
                         row.配对号,
@@ -1063,10 +1076,10 @@
                         row.在库_LB,
                         row.箱号,
                         '',
-                        months >= 3 ? '●' : '',
-                        months >= 12 ? '●' : '',
-                        months >= 24 ? '●' : '',
-                        months >= 36 ? '●' : ''
+                        mark3m,
+                        mark1y,
+                        mark2y,
+                        mark3y
                     ];
                     excelRow.eachCell(function(cell) {
                         cell.alignment = { horizontal: 'center', vertical: 'middle' };
