@@ -1115,7 +1115,7 @@
                     ];
                     var reasonLookupSheet = getPreviousMonthSheetDateToken(endDate1) + '不流动成品明细.';
                     excelRow.getCell(9).value = {
-                        formula: "VLOOKUP(C" + excelRowNum + ", '" + reasonLookupSheet + "'!C:I, 7, FALSE)"
+                        formula: "VLOOKUP(C" + excelRowNum + ", INDIRECT(\"'" + reasonLookupSheet + "'!C:I\"), 7, FALSE)"
                     };
                     var fillColor = getWarningFillByMonths(months);
                     excelRow.eachCell(function(cell) {
