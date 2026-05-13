@@ -946,6 +946,18 @@
                 return 'FFFF0000';
             }
 
+            function getPreviousMonthSheetDateToken(dateStr) {
+                var d = new Date(dateStr);
+                if (isNaN(d.getTime())) {
+                    return formatSheetDate(dateStr);
+                }
+                d.setMonth(d.getMonth() - 1);
+                var yy = String(d.getFullYear()).slice(-2);
+                var mm = String(d.getMonth() + 1).padStart(2, '0');
+                var dd = String(d.getDate()).padStart(2, '0');
+                return yy + '.' + mm + '.' + dd;
+            }
+
             async function exportWarningRows() {
                 var data = table.cache['currentTableId'];
                 if (!data || data.length === 0) {
@@ -1101,7 +1113,7 @@
                         mark2y,
                         mark3y
                     ];
-                    var reasonLookupSheet = sheetDateToken + '不流动成品明细.';
+                    var reasonLookupSheet = getPreviousMonthSheetDateToken(endDate1) + '不流动成品明细.';
                     excelRow.getCell(9).value = {
                         formula: "VLOOKUP(C" + excelRowNum + ", '" + reasonLookupSheet + "'!C:I, 7, FALSE)"
                     };
