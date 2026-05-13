@@ -1070,7 +1070,8 @@
 
                 warningRowsForExport.forEach(function(row, index) {
                     var months = parseInventoryAgeToMonths(row.库存时间);
-                    var excelRow = worksheet.getRow(index + 3);
+                    var excelRowNum = index + 3;
+                    var excelRow = worksheet.getRow(excelRowNum);
                     var mark3m = '';
                     var mark1y = '';
                     var mark2y = '';
@@ -1100,6 +1101,10 @@
                         mark2y,
                         mark3y
                     ];
+                    var reasonLookupSheet = sheetDateToken + '不流动成品明细.';
+                    excelRow.getCell(9).value = {
+                        formula: "VLOOKUP(C" + excelRowNum + ", '" + reasonLookupSheet + "'!C:I, 7, FALSE)"
+                    };
                     var fillColor = getWarningFillByMonths(months);
                     excelRow.eachCell(function(cell) {
                         cell.alignment = { horizontal: 'center', vertical: 'middle' };
