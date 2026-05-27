@@ -495,6 +495,8 @@
         <if test="state != null and state != 'ALL'">
             br.state = #{state} AND
         </if>
+        br.transaction_type != '返库'
+        AND
         br.time &lt; DATE_ADD(#{EndDate}, INTERVAL 1 DAY)
         GROUP BY
         b.pair, br.outer_inner_ring, br.model
