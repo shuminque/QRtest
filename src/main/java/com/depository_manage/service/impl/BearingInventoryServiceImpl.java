@@ -98,82 +98,76 @@ public class BearingInventoryServiceImpl implements BearingInventoryService {
         }
     }
     @Override
-    @Transactional(rollbackFor = Exception.class)
     public void tranIn(BearingInventory inventory) throws OperationAlreadyDoneException, IllegalStateException {
-        log.info("tranIn start, boxText={}, boxNumber={}, iter={}, depositoryId={}, operationType={}",
-                inventory.getBoxText(), inventory.getBoxNumber(), inventory.getIter(),
-                inventory.getDepositoryId(), inventory.getOperationType());
-        try {
-            String adjustedBoxText = adjustBoxText(inventory.getBoxText());
-            int targetDepositoryId = inventory.getDepositoryId() == 1 ? 2 : 1;
-            boolean isStocked = productIdService.isProductStocked(
-                    inventory.getBoxText(), inventory.getBoxNumber(), targetDepositoryId, inventory.getIter()
-            );
-            if (isStocked) {
-                throw new OperationAlreadyDoneException("产品已入库，不能再次入库");
-            }
-            boolean hasTransferOut = bearingRecordService.checkForTransferOut(
-                    adjustedBoxText,
-                    inventory.getBoxNumber(),
-                    inventory.getIter());
-            if (!hasTransferOut) {
-                throw new IllegalStateException("没有找到对应的转出记录，无法进行转入操作");
-            }
-            if ("转入".equals(inventory.getOperationType())) {
-                inventory.setDepositoryId(targetDepositoryId);
-            }
-            BearingInventory existingInventory = bearingInventoryMapper.selectBearingInventoryByBoxTextAndDepositoryId(
-                    inventory.getBoxText(), inventory.getDepositoryId());
-            if (existingInventory != null) {
-                int newQuantity = existingInventory.getQuantityInStock() + inventory.getQuantityInStock();
-                existingInventory.setQuantityInStock(newQuantity);
-                existingInventory.setTotalBoxes(existingInventory.getTotalBoxes() + 1);
-                bearingInventoryMapper.updateBearingInventory(existingInventory);
-            } else {
-                inventory.setTotalBoxes(1);
-                bearingInventoryMapper.insertBearingInventory(inventory);
-            }
-            int stockedRows = productIdService.updateStockedStatus(
-                    inventory.getBoxText(), inventory.getBoxNumber(),
-                    inventory.getDepositoryId(), 1, inventory.getIter()
-            );
-            if (stockedRows <= 0) {
-                throw new InventoryOperationException("更新转入状态失败，事务将回滚");
-            }
-            if ("转入".equals(inventory.getOperationType())) {
-                ProductId existingProductId = productIdService.findProductId(
-                        inventory.getBoxText(),
-                        inventory.getBoxNumber(),
-                        targetDepositoryId,
-                        inventory.getIter()
-                );
-                ProductId savedProductId;
-                if (existingProductId == null) {
-                    ProductId newProductId = new ProductId();
-                    newProductId.setBoxText(inventory.getBoxText());
-                    newProductId.setBoxNumber(inventory.getBoxNumber());
-                    newProductId.setQuantity(inventory.getQuantityInStock());
-                    newProductId.setDepositoryId(targetDepositoryId);
-                    newProductId.setIsStocked(1);
-                    newProductId.setIter(inventory.getIter());
-                    savedProductId = productIdService.saveOrUpdateBoxNumber(newProductId);
-                } else {
-                    existingProductId.setIsStocked(1);
-                    existingProductId.setQuantity(inventory.getQuantityInStock());
-                    savedProductId = productIdService.saveOrUpdateBoxNumber(existingProductId);
-                }
-                if (savedProductId == null) {
-                    throw new InventoryOperationException("保存转入箱号失败，事务将回滚");
-                }
-            }
-        } catch (OperationAlreadyDoneException | IllegalStateException e) {
-            throw e;
-        } catch (Exception e) {
-            log.error("tranIn failed, boxText={}, boxNumber={}, iter={}, depositoryId={}, operationType={}",
-                    inventory.getBoxText(), inventory.getBoxNumber(), inventory.getIter(),
-                    inventory.getDepositoryId(), inventory.getOperationType(), e);
-            throw new InventoryOperationException("转入失败，事务已回滚", e);
+        String adjustedBoxText = adjustBoxText(inventory.getBoxText());
+        // 确定目标仓库ID
+        int targetDepositoryId = inventory.getDepositoryId() == 1 ? 2 : 1;
+        // 检查是否已经入库
+        boolean isStocked = productIdService.isProductStocked(
+                inventory.getBoxText(), inventory.getBoxNumber(), targetDepositoryId, inventory.getIter()
+        );
+        if (isStocked) {
+            throw new OperationAlreadyDoneException("产品已入库，不能再次入库");
         }
+        // 检查是否存在对应的转出记录
+        boolean hasTransferOut = bearingRecordService.checkForTransferOut(
+                adjustedBoxText,
+                inventory.getBoxNumber(),
+                inventory.getIter());
+        if (!hasTransferOut) {
+            throw new IllegalStateException("没有找到对应的转出记录，无法进行转入操作");
+        }
+
+        // 如果是转入操作，更新仓库ID
+        if ("转入".equals(inventory.getOperationType())) {
+            inventory.setDepositoryId(targetDepositoryId);
+        }
+        // 执行入库操作
+        BearingInventory existingInventory = bearingInventoryMapper.selectBearingInventoryByBoxTextAndDepositoryId(
+                inventory.getBoxText(), inventory.getDepositoryId());
+        // 更新库存信息
+        if (existingInventory != null) {
+            int newQuantity = existingInventory.getQuantityInStock() + inventory.getQuantityInStock();
+            existingInventory.setQuantityInStock(newQuantity);
+            // 假设总箱数字段叫做 totalBoxes
+            existingInventory.setTotalBoxes(existingInventory.getTotalBoxes() + 1); // 增加总箱数
+            bearingInventoryMapper.updateBearingInventory(existingInventory);
+        } else {
+            // 第一次入库时，总箱数设置为 1
+            inventory.setTotalBoxes(1);
+            bearingInventoryMapper.insertBearingInventory(inventory);
+        }
+        // 更新状态为已入库
+        System.out.println(inventory);
+        productIdService.updateStockedStatus(
+                inventory.getBoxText(), inventory.getBoxNumber(),
+                inventory.getDepositoryId(),  1, inventory.getIter()
+        );
+        if ("转入".equals(inventory.getOperationType())) {
+            ProductId existingProductId = productIdService.findProductId(
+                    inventory.getBoxText(),
+                    inventory.getBoxNumber(),
+                    targetDepositoryId,
+                    inventory.getIter()
+            );
+            if (existingProductId == null) {
+                // 如果没有找到现有记录，创建新的 ProductId 记录
+                ProductId newProductId = new ProductId();
+                newProductId.setBoxText(inventory.getBoxText());
+                newProductId.setBoxNumber(inventory.getBoxNumber());
+                newProductId.setQuantity(inventory.getQuantityInStock());
+                newProductId.setDepositoryId(targetDepositoryId);
+                newProductId.setIsStocked(1);
+                newProductId.setIter(inventory.getIter());
+                productIdService.saveOrUpdateBoxNumber(newProductId);
+            } else {
+                // 如果找到了现有记录，更新状态为已入库
+                existingProductId.setIsStocked(1);
+                existingProductId.setQuantity(inventory.getQuantityInStock()); // 根据业务需求决定是否更新数量
+                productIdService.saveOrUpdateBoxNumber(existingProductId);
+            }
+        }
+
     }
     @Override
     @Transactional(rollbackFor = Exception.class)
