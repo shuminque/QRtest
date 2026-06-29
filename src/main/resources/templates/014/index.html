@@ -135,6 +135,59 @@
             var laydate = layui.laydate;
             var table = layui.table;
             tableInstance = table;  // 将table对象赋值给全局变量
+            var warningDateAutoRangeState = {
+                applied: false,
+                reloading: false
+            };
+
+            function padWarningDatePart(value) {
+                return value < 10 ? '0' + value : '' + value;
+            }
+
+            function formatWarningDate(date) {
+                return date.getFullYear() + '-' + padWarningDatePart(date.getMonth() + 1) + '-' + padWarningDatePart(date.getDate());
+            }
+
+            function buildWarningAutoRangeValue(ymd) {
+                var parts = (ymd || '').split('-');
+                if (parts.length !== 3) return '';
+
+                var year = parseInt(parts[0], 10);
+                var month = parseInt(parts[1], 10);
+                var day = parseInt(parts[2], 10);
+                var endDate = new Date(year, month - 1, day);
+                if (isNaN(endDate.getTime())) return '';
+
+                var startDate = new Date(endDate.getFullYear(), endDate.getMonth() - 3, 1);
+                return formatWarningDate(startDate) + ' - ' + formatWarningDate(endDate);
+            }
+
+            function bindWarningDateAutoRange(laydate) {
+                var picker = document.querySelector('.layui-laydate');
+                if (!picker) return;
+
+                var dateCells = picker.querySelectorAll('td[lay-ymd]');
+                Array.prototype.forEach.call(dateCells, function(cell) {
+                    cell.addEventListener('click', function() {
+                        if (warningDateAutoRangeState.applied || warningDateAutoRangeState.reloading) return;
+                        if ((' ' + this.className + ' ').indexOf(' laydate-disabled ') !== -1) return;
+
+                        var rangeValue = buildWarningAutoRangeValue(this.getAttribute('lay-ymd'));
+                        if (!rangeValue) return;
+
+                        warningDateAutoRangeState.applied = true;
+                        warningDateAutoRangeState.reloading = true;
+
+                        setTimeout(function() {
+                            laydate.reload('warningDateRange', {
+                                value: rangeValue,
+                                isInitValue: true,
+                                show: true
+                            });
+                        }, 0);
+                    });
+                });
+            }
             // 初始化日期选择器
             laydate.render({
                 elem: '#startDatePicker'
@@ -144,8 +197,23 @@
             });
             laydate.render({
                 elem: '#date'
+                , id: 'warningDateRange'
                 , range: true,
                 rangeLinked: true,
+                ready: function() {
+                    if (warningDateAutoRangeState.reloading) {
+                        warningDateAutoRangeState.reloading = false;
+                        this.show = false;
+                    } else {
+                        warningDateAutoRangeState.applied = false;
+                    }
+                    bindWarningDateAutoRange(laydate);
+                },
+                close: function() {
+                    if (!warningDateAutoRangeState.reloading) {
+                        warningDateAutoRangeState.applied = false;
+                    }
+                },
                 done: function(value, date, endDate) {
                     loadReport();
                 }
