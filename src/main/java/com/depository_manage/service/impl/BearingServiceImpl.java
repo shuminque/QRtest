@@ -7,6 +7,7 @@ import com.depository_manage.mapper.BearingMapper;
 import com.depository_manage.service.BearingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
@@ -27,8 +28,59 @@ public class BearingServiceImpl implements BearingService {
         return bearingMapper.selectAllBearings(params);
     }
     @Override
+    @Transactional
     public void updateBearing(Bearing bearing) {
         bearingMapper.updateBearing(bearing);
+        updatePairedBearing(bearing);
+    }
+
+    private void updatePairedBearing(Bearing source) {
+        if (source == null || source.getBoxText() == null || source.getDepository() == null) {
+            return;
+        }
+
+        String pairedBoxText = getPairedBoxText(source.getBoxText());
+        String pairedDepository = getPairedDepository(source.getDepository());
+        if (pairedBoxText == null || pairedDepository == null) {
+            return;
+        }
+
+        Bearing pairedBearing = bearingMapper.selectBearingByBoxTextAndDepository(pairedBoxText, pairedDepository);
+        if (pairedBearing == null || pairedBearing.getId() == null) {
+            return;
+        }
+
+        Bearing update = new Bearing();
+        update.setId(pairedBearing.getId());
+        update.setOuterInnerRing(source.getOuterInnerRing());
+        update.setCustomer(source.getCustomer());
+        update.setModel(source.getModel());
+        update.setProductCategory(source.getProductCategory());
+        update.setSteelType(source.getSteelType());
+        update.setSteelGrade(source.getSteelGrade());
+        update.setQuantity(source.getQuantity());
+        update.setSize(source.getSize());
+        update.setPair(source.getPair());
+        update.setSingleEight(source.getSingleEight());
+        update.setMode(source.getMode());
+        bearingMapper.updateBearing(update);
+    }
+
+    private String getPairedBoxText(String boxText) {
+        if (boxText.startsWith("Z")) {
+            return boxText.substring(1);
+        }
+        return "Z" + boxText;
+    }
+
+    private String getPairedDepository(String depository) {
+        if ("SAB".equals(depository)) {
+            return "ZAB";
+        }
+        if ("ZAB".equals(depository)) {
+            return "SAB";
+        }
+        return null;
     }
     @Override
     public Bearing getLatestBearingByBoxText(String boxText) {
