@@ -1167,6 +1167,10 @@
         var scannedData = document.getElementById('modalScanInput').value;
         console.log(scannedData);
         var depositoryQRid;
+        if (userDepository !== 'SAB' && userDepository !== 'ZAB') {
+            layer.alert('正在获取当前账号的仓库信息，请稍后重试', {icon: 2});
+            return;
+        }
         try {
             var correctedJson = scannedData.replace(/(\w+:)|(\w+ :)/g, function (matchedString) {
                 return '"' + matchedString.substring(0, matchedString.length - 1) + '":';
@@ -1195,25 +1199,19 @@
                     stockIn(data, currentOperation, depositoryQRid);
                     break;
                 case 'stockOut':
-                    if(userDepository === 'SAB' && data.depository !== 'SAB') {
-                        data.boxText = data.boxText.substring(1); // 如果目标是SAB且来源不是SAB，去掉箱号开头的'Z'
-                    } else if (userDepository === 'ZAB' && data.depository !== 'ZAB'){
-                        data.boxText = "Z" + data.boxText; // 如果目标是ZAB且来源不是ZAB，加上箱号开头的'Z'
-                    }
+                    normalizeBoxTextForCurrentDepository(data);
                     stockOut(data.boxText, data.boxNumber, data.quantity, currentOperation, depositoryQRid, data.iter);
                     break;
                 case 'transferIn':
-                    if(userDepository === 'SAB' && data.depository !== 'SAB') {
-                        data.boxText = data.boxText.substring(1); // 如果目标是SAB且来源不是SAB，去掉箱号开头的'Z'
-                    } else if (userDepository === 'ZAB' && data.depository !== 'ZAB'){
-                        data.boxText = "Z" + data.boxText; // 如果目标是ZAB且来源不是ZAB，加上箱号开头的'Z'
-                    }
+                    normalizeBoxTextForCurrentDepository(data);
                     stockIn(data, currentOperation, depositoryQRid);
                     break;
                 case 'transferOut':
+                    normalizeBoxTextForCurrentDepository(data);
                     stockOut(data.boxText, data.boxNumber, data.quantity, currentOperation, depositoryQRid, data.iter);
                     break;
                 case 'return':
+                    normalizeBoxTextForCurrentDepository(data);
                     stockOut(data.boxText, data.boxNumber, data.quantity, currentOperation, depositoryQRid, data.iter);
                     break;
                 case 'panKu':
@@ -1229,6 +1227,13 @@
         } catch (error) {
             console.error('解析扫描数据时出错: ', error);
             layer.alert("扫码数据格式异常，请重新扫码");
+        }
+    }
+    function normalizeBoxTextForCurrentDepository(data) {
+        if (userDepository === 'SAB' && data.depository !== 'SAB') {
+            data.boxText = data.boxText.replace(/^Z/, '');
+        } else if (userDepository === 'ZAB' && data.depository !== 'ZAB' && !data.boxText.startsWith('Z')) {
+            data.boxText = "Z" + data.boxText;
         }
     }
     function closeModal() {
@@ -1286,6 +1291,13 @@
     function stockIn(data, operationType, depositoryId) {
         var depositoryName = convertDepositoryIdToText(depositoryId);
         var originalQuantity=data.quantity;
+        // 调拨只移动二维码所代表的原箱，不在转入时触发数量调整、拆零或重打二维码。
+        if (operationType === 'transferIn') {
+            return proceedStockIn(
+                data.boxText, data.boxNumber, originalQuantity,
+                operationType, depositoryId, data.iter
+            );
+        }
         safeFetch(`/bearingRecords/checkSpecialRecord/${data.boxText}/${data.boxNumber}/${depositoryName}/${originalQuantity}/${data.iter}`)
             .then(response => response.json())
             .then(outcome => {
@@ -1510,7 +1522,7 @@
                 return response.json();
             })
             .then(data => {
-                layer.msg("入库成功",{icon: 6, time:1000});
+                layer.msg(`${operationTypeChinese}成功`, {icon: 6, time:1000});
                 showResult(`${operationTypeChinese}成功: ` + JSON.stringify(data));
                 updateLastSubmitStatus(operationTypeChinese, boxText, boxNumber);
                 return addBearingRecord(operationTypeChinese, boxText, boxNumber, quantity, depositoryId, iter);

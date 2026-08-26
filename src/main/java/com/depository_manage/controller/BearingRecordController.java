@@ -36,7 +36,10 @@ public class BearingRecordController {
         String currentDepository = record.getDepository(); // 使用记录中的原始仓库信息
         // 检查是否存在转入记录
         boolean hasTransferIn = bearingRecordService.hasTransferInRecord(record.getBoxText(), record.getBoxNumber(), record.getIter());
-        if ("转入".equals(record.getTransactionType()) || ("出库".equals(record.getTransactionType()) && hasTransferIn)) {
+        if ("转入".equals(record.getTransactionType())
+                || "转出".equals(record.getTransactionType())
+                || "返库".equals(record.getTransactionType())
+                || ("出库".equals(record.getTransactionType()) && hasTransferIn)) {
             boolean isFromZABToSAB = "SAB".equals(currentDepository) && adjustedBoxText.startsWith("Z");
             boolean isFromSABToZAB = "ZAB".equals(currentDepository) && !adjustedBoxText.startsWith("Z");
             if (isFromZABToSAB) {

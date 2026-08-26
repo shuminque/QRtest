@@ -4,12 +4,14 @@ import com.depository_manage.entity.BearingInventory;
 import com.depository_manage.entity.InventoryInfo;
 import com.depository_manage.exception.InventoryOperationException;
 import com.depository_manage.exception.OperationAlreadyDoneException;
+import com.depository_manage.security.bean.UserToken;
 import com.depository_manage.service.BearingInventoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -37,7 +39,11 @@ public class BearingInventoryController {
         }
     }
     @PostMapping("/stockIn")
-    public ResponseEntity<?> stockIn(@RequestBody BearingInventory inventory) {
+    public ResponseEntity<?> stockIn(@RequestBody BearingInventory inventory, HttpServletRequest request) {
+        ResponseEntity<?> depositoryValidation = bindLoggedInDepository(inventory, request);
+        if (depositoryValidation != null) {
+            return depositoryValidation;
+        }
         try {
             bearingInventoryService.stockIn(inventory);
             return ResponseEntity.ok(Collections.singletonMap("message", "Stock-in successful"));
@@ -75,7 +81,11 @@ public class BearingInventoryController {
         }
     }
     @PostMapping("/stockOut")
-    public ResponseEntity<?> stockOut(@RequestBody BearingInventory inventory) {
+    public ResponseEntity<?> stockOut(@RequestBody BearingInventory inventory, HttpServletRequest request) {
+        ResponseEntity<?> depositoryValidation = bindLoggedInDepository(inventory, request);
+        if (depositoryValidation != null) {
+            return depositoryValidation;
+        }
         try {
             bearingInventoryService.stockOut(inventory);
             return ResponseEntity.ok(Collections.singletonMap("message", "Stock-out successful"));
@@ -92,6 +102,25 @@ public class BearingInventoryController {
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(body);
         }
+    }
+
+    /**
+     * 库存操作必须以登录账号所属仓库为准。请求体中的 depositoryId 属于客户端输入，
+     * 不能决定库存落库仓；扫码页仍可用它保留二维码的来源仓记录。
+     */
+    private ResponseEntity<?> bindLoggedInDepository(BearingInventory inventory, HttpServletRequest request) {
+        UserToken userToken = (UserToken) request.getAttribute("userToken");
+        if (userToken == null || userToken.getUser() == null || userToken.getUser().getDepositoryId() == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Collections.singletonMap("message", "未获取到登录账号的仓库信息"));
+        }
+        int depositoryId = userToken.getUser().getDepositoryId();
+        if (depositoryId != 1 && depositoryId != 2) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Collections.singletonMap("message", "当前账号未绑定可操作仓库"));
+        }
+        inventory.setDepositoryId(depositoryId);
+        return null;
     }
     @PostMapping("/stockOutForPC")
     public ResponseEntity<?> stockOutForPC(@RequestBody BearingInventory inventory) {

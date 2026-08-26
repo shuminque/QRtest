@@ -47,15 +47,16 @@ public class BearingInventoryServiceImpl implements BearingInventoryService {
                 inventory.getBoxText(), inventory.getBoxNumber(), inventory.getIter(),
                 inventory.getDepositoryId(), inventory.getOperationType());
         try {
+            boolean isTransferIn = "转入".equals(inventory.getOperationType());
+            // depositoryId 表示当前登录账号实际操作的仓库，而不是二维码生成时写入的仓库。
+            // 二维码是不可变凭证；跨仓时仅转换箱号显示，库存必须落在当前操作仓。
+            int targetDepositoryId = inventory.getDepositoryId();
+
             boolean isStocked = productIdService.isProductStocked(
-                    inventory.getBoxText(), inventory.getBoxNumber(), inventory.getDepositoryId(), inventory.getIter()
+                    inventory.getBoxText(), inventory.getBoxNumber(), targetDepositoryId, inventory.getIter()
             );
             if (isStocked) {
                 throw new OperationAlreadyDoneException("产品已入库，不能再次入库");
-            }
-            int targetDepositoryId = inventory.getDepositoryId() == 1 ? 2 : 1;
-            if ("转入".equals(inventory.getOperationType())) {
-                inventory.setDepositoryId(targetDepositoryId);
             }
             BearingInventory existingInventory = bearingInventoryMapper.selectBearingInventoryByBoxTextAndDepositoryId(
                     inventory.getBoxText(), inventory.getDepositoryId());
@@ -68,13 +69,22 @@ public class BearingInventoryServiceImpl implements BearingInventoryService {
                 inventory.setTotalBoxes(1);
                 bearingInventoryMapper.insertBearingInventory(inventory);
             }
-            int stockedRows = productIdService.updateStockedStatus(
+            ProductId existingInTarget = productIdService.findProductId(
                     inventory.getBoxText(), inventory.getBoxNumber(),
-                    inventory.getDepositoryId(), 1, inventory.getIter()
-            );
-            if (stockedRows <= 0) {
-                throw new InventoryOperationException("更新入库状态失败，事务将回滚");
+                    targetDepositoryId, inventory.getIter());
+            if (!isTransferIn || existingInTarget != null) {
+                // 普通入库：目标仓库必须已有记录（生成二维码时创建），UPDATE 0 行视为数据异常
+                // 转入且目标仓库已有残留记录：UPDATE 置为已入库
+                int stockedRows = productIdService.updateStockedStatus(
+                        inventory.getBoxText(), inventory.getBoxNumber(),
+                        inventory.getDepositoryId(), 1, inventory.getIter()
+                );
+                if (stockedRows <= 0) {
+                    throw new InventoryOperationException("更新入库状态失败，事务将回滚");
+                }
             }
+            // 转入且目标仓库尚无记录（转入首例的常规情况）：跳过 UPDATE，
+            // 由下方转入分支 saveOrUpdateBoxNumber 在目标仓库新建记录
             if ("转入".equals(inventory.getOperationType())) {
                 ProductId newProductId = new ProductId();
                 newProductId.setBoxText(inventory.getBoxText());
@@ -83,6 +93,7 @@ public class BearingInventoryServiceImpl implements BearingInventoryService {
                 newProductId.setDepositoryId(targetDepositoryId);
                 newProductId.setIsStocked(1);
                 newProductId.setIter(inventory.getIter());
+                newProductId.setCreationTime(new java.util.Date());
                 ProductId savedProductId = productIdService.saveOrUpdateBoxNumber(newProductId);
                 if (savedProductId == null) {
                     throw new InventoryOperationException("保存转入箱号失败，事务将回滚");
@@ -176,7 +187,8 @@ public class BearingInventoryServiceImpl implements BearingInventoryService {
                 inventory.getBoxText(), inventory.getBoxNumber(), inventory.getIter(),
                 inventory.getDepositoryId(), inventory.getOperationType());
         try {
-            int adjustedDepositoryId = adjustDepositoryIdBasedOnTransferIn(inventory);
+            // 出库仓由当前登录账号决定，不能通过二维码生成仓或历史转入记录反推。
+            int adjustedDepositoryId = inventory.getDepositoryId();
             boolean isStocked = productIdService.isProductStocked(
                     inventory.getBoxText(), inventory.getBoxNumber(), adjustedDepositoryId, inventory.getIter());
             if (!isStocked) {
@@ -206,14 +218,6 @@ public class BearingInventoryServiceImpl implements BearingInventoryService {
                     inventory.getDepositoryId(), inventory.getOperationType(), e);
             throw new InventoryOperationException("出库失败，事务已回滚", e);
         }
-    }
-    private int adjustDepositoryIdBasedOnTransferIn(BearingInventory inventory) {
-        boolean hasTransferIn = bearingRecordService.hasTransferInRecord(
-                inventory.getBoxText(), inventory.getBoxNumber(), inventory.getIter());
-        if (hasTransferIn) {
-            return inventory.getDepositoryId() == 1 ? 2 : 1;
-        }
-        return inventory.getDepositoryId();
     }
     private String adjustBoxText(String boxText) {
         if (boxText.startsWith("Z")) {
