@@ -6,6 +6,7 @@ import com.depository_manage.exception.InventoryOperationException;
 import com.depository_manage.exception.OperationAlreadyDoneException;
 import com.depository_manage.security.bean.UserToken;
 import com.depository_manage.service.BearingInventoryService;
+import com.depository_manage.service.InventoryOperationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +23,8 @@ public class BearingInventoryController {
 
     @Autowired
     private BearingInventoryService bearingInventoryService;
+    @Autowired
+    private InventoryOperationService inventoryOperationService;
 
     // API端点，例如获取库存、更新库存等
     @PostMapping("/add")
@@ -49,6 +52,36 @@ public class BearingInventoryController {
             return ResponseEntity.ok(Collections.singletonMap("message", "Stock-in successful"));
         } catch (OperationAlreadyDoneException e) {
             // 返回一个错误响应
+            return ResponseEntity
+                    .status(HttpStatus.CONFLICT)
+                    .body(Collections.singletonMap("message", e.getMessage()));
+        } catch (InventoryOperationException e) {
+            Map<String, Object> body = new HashMap<>();
+            body.put("message", e.getMessage());
+            body.put("transactionRolledBack", true);
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(body);
+        }
+    }
+    /**
+     * The scanner uses this endpoint so that inventory, product_ids and the
+     * operation record are committed as one unit.
+     */
+    @PostMapping("/stockInWithRecord")
+    public ResponseEntity<?> stockInWithRecord(@RequestBody BearingInventory inventory, HttpServletRequest request) {
+        ResponseEntity<?> depositoryValidation = bindLoggedInDepository(inventory, request);
+        if (depositoryValidation != null) {
+            return depositoryValidation;
+        }
+        if (!"入库".equals(inventory.getOperationType())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Collections.singletonMap("message", "该接口仅支持普通入库操作"));
+        }
+        try {
+            inventoryOperationService.stockInAndCreateRecord(inventory);
+            return ResponseEntity.ok(Collections.singletonMap("message", "Stock-in successful"));
+        } catch (OperationAlreadyDoneException e) {
             return ResponseEntity
                     .status(HttpStatus.CONFLICT)
                     .body(Collections.singletonMap("message", e.getMessage()));

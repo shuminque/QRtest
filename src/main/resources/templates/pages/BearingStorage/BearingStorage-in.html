@@ -314,7 +314,7 @@
             iter:newiter
         };
         console.log(inventoryDto);
-        fetch('/bearingInventory/stockIn', {
+        fetch('/bearingInventory/stockInWithRecord', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(inventoryDto),
@@ -330,7 +330,7 @@
                     console.log("入库成功", data);
                     toastr.success('入库操作成功');
                     clearForm(); // 清空表单
-                    return addBearingRecord(operationTypeChinese, boxText, boxNumber, quantity, depositoryId,newiter);
+                    return data;
                 })
             .catch(error => {
                 console.error('入库操作失败:', error);

@@ -1484,6 +1484,9 @@
     }
     function proceedStockIn(boxText, boxNumber, quantity, operationType, depositoryId, iter) {
         const operationTypeChinese = getOperationTypeInChinese(operationType);
+        const stockInUrl = operationType === 'stockIn'
+            ? '/bearingInventory/stockInWithRecord'
+            : '/bearingInventory/stockIn';
         var inventoryDto = {
             boxText: boxText,
             boxNumber: boxNumber,
@@ -1493,7 +1496,7 @@
             iter: iter
         };
 
-        return safeFetch('/bearingInventory/stockIn', {
+        return safeFetch(stockInUrl, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(inventoryDto),
@@ -1525,7 +1528,9 @@
                 layer.msg(`${operationTypeChinese}成功`, {icon: 6, time:1000});
                 showResult(`${operationTypeChinese}成功: ` + JSON.stringify(data));
                 updateLastSubmitStatus(operationTypeChinese, boxText, boxNumber);
-                return addBearingRecord(operationTypeChinese, boxText, boxNumber, quantity, depositoryId, iter);
+                return operationType === 'stockIn'
+                    ? data
+                    : addBearingRecord(operationTypeChinese, boxText, boxNumber, quantity, depositoryId, iter);
             });
     }
 

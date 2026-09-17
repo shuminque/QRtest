@@ -68,7 +68,7 @@ public class BearingRecordController {
             record.setStorageLocation(bearing.getStorageLocation());
             record.setOuterInnerRing(bearing.getOuterInnerRing());
             record.setSize(bearing.getSize());
-            record.setPair(bearing.getPair());
+            record.setPair(bearing.getPair() == null ? 0 : bearing.getPair());
             record.setState(currentState); // 使用当前状态而不是bearing的状态
             record.setCurrentDepository(currentDepository); // 设置当前仓库为bearing的当前仓库
             record.setSingleEight(bearing.getSingleEight());
@@ -120,7 +120,7 @@ public class BearingRecordController {
             record.setStorageLocation(bearing.getStorageLocation());
             record.setOuterInnerRing(bearing.getOuterInnerRing());
             record.setSize(bearing.getSize());
-            record.setPair(bearing.getPair());
+            record.setPair(bearing.getPair() == null ? 0 : bearing.getPair());
             record.setState(currentState); // 使用当前状态而不是bearing的状态
             record.setCurrentDepository(currentDepository); // 设置当前仓库为bearing的当前仓库
             record.setSingleEight(bearing.getSingleEight());
