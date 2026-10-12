@@ -916,6 +916,41 @@
             LIMIT 1
     </select>
 
+    <!-- 按当前仓库及箱号类型提示全部待复用编号，只保留该轮次最新的返库记录。 -->
+    <select id="findReusableRecords" resultMap="bearingRecordMap">
+        SELECT br1.*
+        FROM bearing_records br1
+        WHERE br1.box_text = #{boxText}
+          AND br1.transaction_type = '返库'
+          AND COALESCE(br1.current_depository, br1.depository) = #{depository}
+        <choose>
+            <when test="boxType == 'zero'">
+                AND CAST(br1.box_number AS UNSIGNED) BETWEEN 1001 AND 1999
+            </when>
+            <otherwise>
+                AND CAST(br1.box_number AS UNSIGNED) BETWEEN 1 AND 999
+            </otherwise>
+        </choose>
+          AND EXISTS (
+            SELECT 1 FROM product_ids p
+            WHERE p.box_text = br1.box_text
+              AND p.box_number = br1.box_number
+              AND p.iter = br1.iter
+              AND p.depository_id = #{depositoryId}
+              AND p.is_stocked = 0
+        )
+          AND NOT EXISTS (
+            SELECT 1 FROM bearing_records later
+            WHERE later.box_text = br1.box_text
+              AND later.box_number = br1.box_number
+              AND later.iter = br1.iter
+              AND COALESCE(later.current_depository, later.depository) = #{depository}
+              AND later.transaction_type IN ('入库', '转入', '出库', '转出', '返库')
+              AND (later.time > br1.time OR (later.time = br1.time AND later.id > br1.id))
+        )
+        ORDER BY CAST(br1.box_number AS UNSIGNED), br1.iter
+    </select>
+
     <!-- PC转入操作时按照顺序转入 -->
     <select id="selectBearingRecordsByBoxTextAndDepositoryId"
             resultType="com.depository_manage.entity.BearingRecord">

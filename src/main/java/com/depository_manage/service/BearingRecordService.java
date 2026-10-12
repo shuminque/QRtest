@@ -31,6 +31,7 @@ public interface BearingRecordService {
     Map<String, Object> getCountsByDateAndDepository(Date date, String depository, Integer depositoryId);
     String getCurrentState(String boxText, String boxNumber);
     BearingRecord findRecordWithNoOutstockAfterRestock(String boxText);
+    List<BearingRecord> findReusableRecords(String boxText, String boxType, int depositoryId);
 
     BearingRecord selectBearingRecordsByBoxTextAndDepositoryId(String boxText, int depositoryId);
     List<Map<String, Object>> getMonthlyInventory(String customer,String depository, String state, String year);

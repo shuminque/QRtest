@@ -10,6 +10,7 @@
     <script type="text/javascript" src="/static/js/http_unpkg.com_html5-qrcode.js" charset="utf-8"></script>
     <script type="text/javascript" src="/static/js/jquery-2.1.0.js" charset="utf-8"></script>
     <script type="text/javascript" src="/static/js/jquery.qrcode.js" charset="utf-8"></script>
+    <script src="/static/js/qr-returned-boxes.js" charset="utf-8"></script>
     <script src="/static/js/http_cdnjs.cloudflare.com_ajax_libs_bootstrap-3-typeahead_4.0.2_bootstrap3-typeahead.js"></script>
 </head>
 <style>
@@ -581,68 +582,20 @@
         document.getElementById('printSection').style.display = 'block';
     }
     function preGenerateQRCodeByBoxText() {
-        var boxText = document.getElementById("boxTextInput").value;
+        var boxText = document.getElementById("boxTextInput").value.trim();
         if (!boxText) {
             alert("请输入箱号");
             return;
         }
-        // 调用 find-record 端点检查记录
-        fetch('/bearingRecords/find-record?boxText=' + encodeURIComponent(boxText))
-            .then(response => {
-                if (response.ok) {
-                    return response.json();
-                } else if (response.status === 404) {
-                    // 记录不存在，直接继续下一步
-                    proceedToGenerateQRCode(boxText);
-                    return null; // 防止进入后续的 .then(data => { } 逻辑
-                } else {
-                    throw new Error('Network response was not ok');
-                }
-            })
-            .then(data => {
-                if (data.boxNumber<1000) {
-                    // 记录存在，显示记录信息
-                    layer.alert("优先使用产品编号"+data.boxNumber);
-                    // finalBoxNumber = data.boxNumber; // 这里你可以替换成其他值
-                    // proceedToGenerateQRCodeTwo(boxText,finalBoxNumber);
-                    proceedToGenerateQRCode(boxText);
-
-                } else
-                    proceedToGenerateQRCode(boxText);
-                // 记录不存在或者记录显示完成后执行二维码生成逻辑
-            })
-            .catch(error => {
-            });
+        return preGenerateWithReturnedBoxes(boxText, 'whole', depositoryId, proceedToGenerateQRCode);
     }
     function preGenerateQRCodeByBoxTextForZero() {
-        var boxText = document.getElementById("boxTextInput").value;
+        var boxText = document.getElementById("boxTextInput").value.trim();
         if (!boxText) {
             alert("请输入箱号");
             return;
         }
-        // 调用 find-record 端点检查记录
-        fetch('/bearingRecords/find-record?boxText=' + encodeURIComponent(boxText))
-            .then(response => {
-                if (response.ok) {
-                    return response.json();
-                } else if (response.status === 404) {
-                    // 记录不存在，直接继续下一步
-                    proceedToZeroGenerateQRCode(boxText);
-                    return null; // 防止进入后续的 .then(data => { } 逻辑
-                } else {
-                    throw new Error('Network response was not ok');
-                }
-            })
-            .then(data => {
-                if (data.boxNumber>1000) {
-                    // 记录存在，显示记录信息
-                    layer.alert("优先使用产品编号"+data.boxNumber);
-                }
-                // 记录不存在或者记录显示完成后执行二维码生成逻辑
-                proceedToZeroGenerateQRCode(boxText);
-            })
-            .catch(error => {
-            });
+        return preGenerateWithReturnedBoxes(boxText, 'zero', depositoryId, proceedToZeroGenerateQRCode);
     }
     function proceedToGenerateQRCodeTwo(boxText,boxNumber) {
         var url = '/bearings/preGenerate/' + boxText + '/' + depositoryId;

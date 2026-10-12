@@ -77,6 +77,10 @@ public interface BearingRecordMapper {
     boolean findTransferOutRecord(@Param("boxText") String boxText, @Param("boxNumber") String boxNumber, @Param("iter") int iter);
     String getCurrentState(@Param("boxText") String boxText, @Param("boxNumber") String boxNumber);
     BearingRecord findRecordWithNoOutstockAfterRestock(@Param("boxText") String boxText);
+    List<BearingRecord> findReusableRecords(@Param("boxText") String boxText,
+                                           @Param("boxType") String boxType,
+                                           @Param("depositoryId") int depositoryId,
+                                           @Param("depository") String depository);
     BearingRecord selectBearingRecordsByBoxTextAndDepositoryId(@Param("boxText") String boxText, @Param("depositoryId") int depositoryId);
     List<Map<String, Object>> selectMonthlyInventory(
             @Param("customer") String customer,

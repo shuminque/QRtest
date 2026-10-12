@@ -195,6 +195,12 @@ public class BearingRecordServiceImpl implements BearingRecordService {
     }
 
     @Override
+    public List<BearingRecord> findReusableRecords(String boxText, String boxType, int depositoryId) {
+        String depository = depositoryId == 1 ? "SAB" : "ZAB";
+        return bearingRecordMapper.findReusableRecords(boxText, boxType, depositoryId, depository);
+    }
+
+    @Override
     public BearingRecord selectBearingRecordsByBoxTextAndDepositoryId(String boxText, int depositoryId) {
         return bearingRecordMapper.selectBearingRecordsByBoxTextAndDepositoryId(boxText, depositoryId);
     }

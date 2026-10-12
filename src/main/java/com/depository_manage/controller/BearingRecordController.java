@@ -326,6 +326,19 @@ public class BearingRecordController {
         Map<String, Object> counts = bearingRecordService.getCountsByDateAndDepository(date, depository,depositoryId);
         return ResponseEntity.ok(counts);
     }
+    @GetMapping("/reusable-records")
+    public ResponseEntity<?> findReusableRecords(@RequestParam("boxText") String boxText,
+                                                 @RequestParam("boxType") String boxType,
+                                                 @RequestParam("depositoryId") int depositoryId) {
+        if (boxText.trim().isEmpty()
+                || (!"whole".equals(boxType) && !"zero".equals(boxType))
+                || (depositoryId != 1 && depositoryId != 2)) {
+            return ResponseEntity.badRequest()
+                    .body(Collections.singletonMap("message", "请指定箱号、整箱或零箱类型及有效仓库"));
+        }
+        return ResponseEntity.ok(bearingRecordService.findReusableRecords(boxText.trim(), boxType, depositoryId));
+    }
+
     @GetMapping("/find-record")
     public ResponseEntity<BearingRecord> findRecordWithNoOutstockAfterRestock(@RequestParam("boxText") String boxText) {
         BearingRecord record = bearingRecordService.findRecordWithNoOutstockAfterRestock(boxText);
