@@ -20,6 +20,16 @@ public class ProductIdController {
     @Autowired
     private ProductIdService productIdService;
 
+    @GetMapping("/single-number-gaps")
+    public ResponseEntity<?> getSingleNumberGaps(@RequestParam("boxText") String boxText,
+                                                @RequestParam("boxType") String boxType) {
+        if (boxText.trim().isEmpty() || (!"whole".equals(boxType) && !"zero".equals(boxType))) {
+            return ResponseEntity.badRequest()
+                    .body(Collections.singletonMap("message", "请指定箱号及整箱或零箱类型"));
+        }
+        return ResponseEntity.ok(productIdService.getSingleNumberGaps(boxText.trim(), boxType));
+    }
+
     @GetMapping("/")
     public ResponseEntity<ProductId> getBoxNumberByBoxTextAndDepositoryId(
             @RequestParam String boxText,

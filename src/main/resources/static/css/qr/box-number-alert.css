@@ -1,0 +1,49 @@
+.layui-layer.qr-box-number-alert {
+    max-width: calc(100vw - 32px);
+    box-sizing: border-box;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.layui-layer.qr-box-number-alert .layui-layer-title {
+    height: 60px;
+    padding: 0 48px 0 20px;
+    font-size: 26px;
+    line-height: 60px;
+    text-align: center;
+}
+
+.layui-layer.qr-box-number-alert .layui-layer-content {
+    max-height: calc(100vh - 210px);
+    padding: 20px 24px;
+    font-size: 22px;
+    line-height: 1.65;
+    overflow-y: auto;
+    overflow-wrap: break-word;
+}
+
+.layui-layer.qr-box-number-alert .layui-layer-btn {
+    display: flex;
+    justify-content: center;
+    padding: 12px 24px 20px;
+}
+
+.layui-layer.qr-box-number-alert .layui-layer-btn a {
+    box-sizing: border-box;
+    width: auto;
+    min-width: 120px;
+    height: 52px;
+    margin: 0;
+    padding: 0 24px;
+    font-size: 24px;
+    line-height: 50px;
+    text-align: center;
+    white-space: nowrap;
+    word-break: keep-all;
+    writing-mode: horizontal-tb;
+}
+
+.layui-layer.qr-box-number-alert .layui-layer-setwin {
+    top: 22px;
+    right: 18px;
+}

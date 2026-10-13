@@ -916,13 +916,14 @@
             LIMIT 1
     </select>
 
-    <!-- 按当前仓库及箱号类型提示全部待复用编号，只保留该轮次最新的返库记录。 -->
+    <!-- 保留原返库条件：同箱号同轮次曾入库且没有任何出库或转出，按仓库和箱型分别提示。 -->
     <select id="findReusableRecords" resultMap="bearingRecordMap">
         SELECT br1.*
         FROM bearing_records br1
         WHERE br1.box_text = #{boxText}
           AND br1.transaction_type = '返库'
           AND COALESCE(br1.current_depository, br1.depository) = #{depository}
+          AND br1.box_number REGEXP '^[0-9]+$'
         <choose>
             <when test="boxType == 'zero'">
                 AND CAST(br1.box_number AS UNSIGNED) BETWEEN 1001 AND 1999
@@ -931,6 +932,20 @@
                 AND CAST(br1.box_number AS UNSIGNED) BETWEEN 1 AND 999
             </otherwise>
         </choose>
+          AND EXISTS (
+            SELECT 1 FROM bearing_records inbound
+            WHERE inbound.box_text = br1.box_text
+              AND inbound.box_number = br1.box_number
+              AND inbound.iter = br1.iter
+              AND inbound.transaction_type = '入库'
+        )
+          AND NOT EXISTS (
+            SELECT 1 FROM bearing_records outbound
+            WHERE outbound.box_text = br1.box_text
+              AND outbound.box_number = br1.box_number
+              AND outbound.iter = br1.iter
+              AND outbound.transaction_type IN ('出库', '转出')
+        )
           AND EXISTS (
             SELECT 1 FROM product_ids p
             WHERE p.box_text = br1.box_text

@@ -41,6 +41,51 @@
             LIMIT 1
     </select>
 
+    <sql id="singleGapNumberScope">
+        REPLACE(box_text, 'Z', '') = REPLACE(#{boxText}, 'Z', '')
+        AND box_number REGEXP '^[0-9]+$'
+        AND iter > 0
+        <choose>
+            <when test="boxType == 'zero'">
+                AND CAST(box_number AS UNSIGNED) BETWEEN 1001 AND 1999
+            </when>
+            <otherwise>
+                AND CAST(box_number AS UNSIGNED) BETWEEN 1 AND 999
+            </otherwise>
+        </choose>
+    </sql>
+
+    <!-- 按最新轮次检查全部已生成箱号，只提醒缺号落在当前在库箱号范围内的单号断档。 -->
+    <select id="selectSingleNumberGaps" resultType="com.depository_manage.entity.BoxNumberGap">
+        SELECT a.iter,
+               LPAD(a.num, CASE WHEN #{boxType} = 'zero' THEN 4 ELSE 3 END, '0') AS beforeNumber,
+               LPAD(a.next_num, CASE WHEN #{boxType} = 'zero' THEN 4 ELSE 3 END, '0') AS afterNumber,
+               LPAD(a.num + 1, CASE WHEN #{boxType} = 'zero' THEN 4 ELSE 3 END, '0') AS missingNumber
+        FROM (
+            SELECT n.iter, n.num, LEAD(n.num) OVER (ORDER BY n.num) AS next_num
+            FROM (
+                SELECT DISTINCT iter, CAST(box_number AS UNSIGNED) AS num
+                FROM product_ids
+                WHERE <include refid="singleGapNumberScope"/>
+                  AND iter = (
+                    SELECT MAX(iter) FROM product_ids
+                    WHERE <include refid="singleGapNumberScope"/>
+                )
+            ) n
+        ) a
+        JOIN (
+            SELECT iter, MIN(CAST(box_number AS UNSIGNED)) AS min_stocked,
+                   MAX(CAST(box_number AS UNSIGNED)) AS max_stocked
+            FROM product_ids
+            WHERE <include refid="singleGapNumberScope"/>
+              AND is_stocked = 1
+            GROUP BY iter
+        ) stocked ON stocked.iter = a.iter
+        WHERE a.next_num = a.num + 2
+          AND a.num + 1 BETWEEN stocked.min_stocked AND stocked.max_stocked
+        ORDER BY a.num
+    </select>
+
     <select id="selectOldBoxNumberByBoxTextAndDepositoryId" resultType="com.depository_manage.entity.ProductId">
         SELECT * FROM product_ids
         WHERE box_text = #{boxText} AND depository_id = #{depositoryId} AND is_stocked =1

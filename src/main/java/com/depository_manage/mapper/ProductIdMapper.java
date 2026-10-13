@@ -1,6 +1,7 @@
 package com.depository_manage.mapper;
 
 import com.depository_manage.entity.BearingRecord;
+import com.depository_manage.entity.BoxNumberGap;
 import com.depository_manage.entity.ProductId;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -23,6 +24,8 @@ public interface ProductIdMapper {
             @Param("depositoryId") int depositoryId
     );
     List<ProductId> selectAllBoxNumbers();
+    List<BoxNumberGap> selectSingleNumberGaps(@Param("boxText") String boxText,
+                                             @Param("boxType") String boxType);
     int insertOrUpdateBoxNumber(ProductId productId);
     ProductId selectProductIdByBoxTextAndDepositoryId(@Param("boxText") String boxText, @Param("boxNumber") String boxNumber, @Param("depositoryId") int depositoryId);
     int updateStockedStatus(@Param("boxText") String boxText,

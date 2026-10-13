@@ -1,6 +1,7 @@
 package com.depository_manage.service;
 
 import com.depository_manage.entity.ProductId;
+import com.depository_manage.entity.BoxNumberGap;
 
 import java.util.List;
 import java.util.Map;
@@ -10,6 +11,7 @@ public interface ProductIdService {
     ProductId getLatestZeroBoxNumberByBoxTextAndDepositoryId(String boxText, int depositoryId);
     ProductId getOldBoxNumberByBoxTextAndDepositoryId(String boxText, int depositoryId);
     List<ProductId> getAllBoxNumbers();
+    List<BoxNumberGap> getSingleNumberGaps(String boxText, String boxType);
     ProductId saveOrUpdateBoxNumber(ProductId boxNumber);
 
     void saveOrUpdateBoxNumber(String boxText, int depositoryId, int quantity, String boxNumber);

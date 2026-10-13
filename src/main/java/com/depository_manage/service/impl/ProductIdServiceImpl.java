@@ -1,6 +1,7 @@
 package com.depository_manage.service.impl;
 
 import com.depository_manage.entity.ProductId;
+import com.depository_manage.entity.BoxNumberGap;
 import com.depository_manage.mapper.ProductIdMapper;
 import com.depository_manage.service.ProductIdService;
 import com.depository_manage.utils.ObjectFormatUtil;
@@ -33,6 +34,11 @@ public class ProductIdServiceImpl implements ProductIdService {
     @Override
     public List<ProductId> getAllBoxNumbers() {
         return productIdMapper.selectAllBoxNumbers();
+    }
+
+    @Override
+    public List<BoxNumberGap> getSingleNumberGaps(String boxText, String boxType) {
+        return productIdMapper.selectSingleNumberGaps(boxText, boxType);
     }
 
     @Override
