@@ -8,9 +8,14 @@ import com.depository_manage.entity.SteelGrade;
 import com.depository_manage.service.BearingService;
 import com.depository_manage.service.ProductIdService;
 import com.depository_manage.utils.Result;
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
@@ -21,6 +26,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/bearings")
+@Slf4j
 public class BearingController {
 
     @Autowired
@@ -39,8 +45,15 @@ public class BearingController {
     }
     @PostMapping("/add")
     public ResponseEntity<?> addBearing(@RequestBody Bearing bearing) {
-        bearingService.saveBearing(bearing);
-        return ResponseEntity.ok().build();
+        try {
+            bearingService.saveBearing(bearing);
+            return ResponseEntity.ok().build();
+        } catch (DuplicateKeyException e) {
+            return duplicateBearingResponse("添加", bearing);
+        } catch (DataAccessException e) {
+            log.error("添加成品失败，厂区={}，箱号={}", bearing.getDepository(), bearing.getBoxText(), e);
+            return bearingSaveError("添加");
+        }
     }
     @DeleteMapping("delete/{id}")
     public ResponseEntity<?> deleteBearing(@PathVariable Integer id) {
@@ -51,8 +64,61 @@ public class BearingController {
     @PutMapping("/{id}")
     public ResponseEntity<?> updateBearing(@PathVariable int id, @RequestBody Bearing bearing) {
         bearing.setId(id);
-        bearingService.updateBearing(bearing);
-        return ResponseEntity.ok().build();
+        try {
+            bearingService.updateBearing(bearing);
+            return ResponseEntity.ok().build();
+        } catch (DuplicateKeyException e) {
+            return duplicateBearingResponse("更新", bearing);
+        } catch (DataAccessException e) {
+            log.error("更新成品失败，ID={}，厂区={}，箱号={}", id, bearing.getDepository(), bearing.getBoxText(), e);
+            return bearingSaveError("更新");
+        }
+    }
+
+    private ResponseEntity<?> duplicateBearingResponse(String action, Bearing bearing) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("code", "BEARING_ALREADY_EXISTS");
+        body.put("message", action + "失败：厂区【" + bearing.getDepository() + "】的箱号【"
+                + bearing.getBoxText() + "】已存在，请在成品信息中查询或编辑已有记录。");
+        body.put("depository", bearing.getDepository());
+        body.put("boxText", bearing.getBoxText());
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(body);
+    }
+
+    private ResponseEntity<?> bearingSaveError(String action) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("code", "BEARING_SAVE_FAILED");
+        body.put("message", action + "失败：暂时无法保存成品信息，请稍后重试；如仍失败，请联系管理员查看日志。");
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(body);
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<?> handleInvalidBearingData(HttpMessageNotReadableException exception) {
+        String field = null;
+        Throwable cause = exception;
+        while (cause != null) {
+            if (cause instanceof InvalidFormatException) {
+                InvalidFormatException formatException = (InvalidFormatException) cause;
+                if (!formatException.getPath().isEmpty()) {
+                    field = formatException.getPath().get(formatException.getPath().size() - 1).getFieldName();
+                }
+                break;
+            }
+            cause = cause.getCause();
+        }
+        String message = "提交的数据格式不正确，请检查后重试。";
+        if ("quantity".equals(field)) {
+            message = "装箱数格式不正确，请输入整数。";
+        } else if ("pair".equals(field)) {
+            message = "配对号格式不正确，请输入整数。";
+        } else if ("singleEight".equals(field)) {
+            message = "单重格式不正确，请输入数字。";
+        }
+        Map<String, Object> body = new HashMap<>();
+        body.put("code", "INVALID_BEARING_DATA");
+        body.put("message", message);
+        body.put("field", field);
+        return ResponseEntity.badRequest().body(body);
     }
     @GetMapping("/nextPairNumber")
     public ResponseEntity<?> getNextPairNumber() {

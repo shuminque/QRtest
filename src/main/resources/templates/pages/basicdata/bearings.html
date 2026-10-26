@@ -659,6 +659,38 @@
                 }
             });
         });
+        function escapeBearingMessage(message) {
+            return $('<div>').text(message).html();
+        }
+
+        function bearingErrorMessage(xhr, fallback) {
+            if (xhr.responseJSON && typeof xhr.responseJSON.message === 'string' && xhr.responseJSON.message) {
+                return xhr.responseJSON.message;
+            }
+            if (xhr.status === 0) {
+                return fallback + '：网络连接中断，无法确认是否已保存。请先查询对应厂区和箱号，再决定是否重试。';
+            }
+            if (xhr.status === 401 || xhr.status === 403) {
+                return fallback + '：登录已失效或没有操作权限，请重新登录并确认权限。';
+            }
+            if (xhr.status === 400) {
+                return fallback + '：提交的数据格式不正确，请检查装箱数、配对号和单重等字段。';
+            }
+            if (xhr.status >= 500) {
+                return fallback + '：服务器处理异常，请先查询对应厂区和箱号；如仍有问题，请联系管理员查看日志。';
+            }
+            return fallback + '，请稍后重试；如仍失败，请联系管理员。';
+        }
+
+        function showBearingError(xhr, fallback, context) {
+            var message = (context ? context + '\n' : '') + bearingErrorMessage(xhr, fallback);
+            layer.alert(escapeBearingMessage(message).replace(/\n/g, '<br>'), {
+                icon: 2,
+                title: fallback,
+                area: '440px'
+            });
+        }
+
         // 处理添加表单的提交事件
         form.on('submit(submitAddForm)', function(data) {
             var formData = data.field; // 获取表单数据
@@ -672,13 +704,13 @@
                 contentType: 'application/json',
                 data: JSON.stringify(formData),
                 success: function(response) {
-                    layer.msg('添加成功');
                     table.reload('recordTable'); // 重新加载表格
-                    layer.closeAll(); // 关闭弹出层
+                    layer.closeAll('page'); // 关闭添加表单
                     addSecondBearing(formData);
                 },
-                error: function() {
-                    layer.msg('添加失败');
+                error: function(xhr) {
+                    showBearingError(xhr, '添加失败',
+                        '厂区【' + formData.depository + '】箱号【' + formData.boxText + '】');
                 }
             });
             return false; // 阻止表单默认提交
@@ -700,12 +732,13 @@
                 contentType: 'application/json',
                 data: JSON.stringify(secondFormData),
                 success: function(response) {
-                    layer.msg('第二个轴承添加成功');
                     table.reload('recordTable'); // 重新加载表格
-                    layer.closeAll(); // 关闭所有弹出层
+                    layer.msg('两个厂区的成品信息均已添加成功', {icon: 1});
                 },
-                error: function() {
-                    layer.msg('第二个轴承添加失败');
+                error: function(xhr) {
+                    showBearingError(xhr, '自动添加另一厂区记录未完成',
+                        '厂区【' + originalFormData.depository + '】箱号【' + originalFormData.boxText + '】已添加成功。\n'
+                        + '自动添加厂区【' + secondFormData.depository + '】箱号【' + secondFormData.boxText + '】时遇到问题：');
                 }
             });
         }
@@ -828,8 +861,9 @@
                     table.reload('recordTable'); // 重新加载表格数据
                     layer.closeAll(); // 关闭弹出层
                 },
-                error: function(){
-                    layer.msg('更新失败');
+                error: function(xhr){
+                    showBearingError(xhr, '更新失败',
+                        '厂区【' + formData.depository + '】箱号【' + formData.boxText + '】');
                 }
             });
 
