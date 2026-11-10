@@ -77,6 +77,7 @@
 <script src="/static/js/bootstrap@5.1.0_dist_js_bootstrap.bundle.js"></script>
 <script>
     var userReviewGroupId;var userAuthority;var userDepositoryId;var userDepository;var depositoryId;var newiter;let latestBoxNumber = ''; // 预先定义一个变量来存储预生成的最新箱号编号
+    let stockInSubmitting = false;
     function formatDate(isoString) {
         let date = new Date(isoString);
         let yyyy = date.getFullYear();
@@ -230,42 +231,73 @@
         document.getElementById('quantity').readOnly = !isZeroBox;
     });
 
-    document.getElementById('stockInForm').addEventListener('submit', function(event) {
+    document.getElementById('stockInForm').addEventListener('submit', async function(event) {
         event.preventDefault();
-        const boxText = document.getElementById('boxText').value.toUpperCase();
-        const boxNumber = document.getElementById('boxNumber').value;
+        if (stockInSubmitting) return;
+        const boxText = document.getElementById('boxText').value.trim().toUpperCase();
+        const boxNumber = document.getElementById('boxNumber').value.trim();
         const quantity = document.getElementById('quantity').value;
         // 检查数量是否已输入
         if (!quantity || quantity <= 0) {
-            toastr.error('零箱 请前往二维码生成编号与数量！');
+            toastr.error('请输入大于 0 的入库数量');
             return; // 如果没有数量或数量为零，阻止表单提交
         }
-        // 确定箱号类型并保存新的产品ID
-        checkIfStocked(boxText, boxNumber, depositoryId,newiter)
-            .then(isStocked => {
-                if (isStocked) {
-                    // 如果已入库，直接提示用户
-                    throw new Error('该箱号编号已入库');
-                } else if (boxNumber === latestBoxNumber) {
-                    // 仅为预览中的新整箱生成编号；已有零箱入库不能递增生成另一个零箱号。
-                    return determineAndSaveProductId(boxText, boxNumber, depositoryId, quantity, newiter);
-                } else {
-                    return Promise.resolve();
-                }
-            })
-            .then(() => {
-                // 保存成功后进行入库操作
-                return stockIn(boxText, boxNumber, quantity, '入库', depositoryId, newiter);
-            })
-            .catch(error => {
-                console.error('编号生成失败:', error);
-                toastr.error(`编号生成失败: ${error.message}`);
-            });
-        // stockIn(boxText, boxNumber, quantity, '入库', depositoryId, newiter);
+        stockInSubmitting = true;
+        const submitButton = document.querySelector('#stockInForm button[type="submit"]');
+        if (submitButton) submitButton.disabled = true;
+        try {
+            const product = await prepareProductForStockIn(boxText, boxNumber, depositoryId, quantity, newiter);
+            // 新号必须使用生成接口实际返回的编号和轮次，已有号则复用查询结果。
+            document.getElementById('boxNumber').value = product.boxNumber;
+            newiter = product.iter;
+            if (await checkIfStocked(boxText, product.boxNumber, depositoryId, product.iter)) {
+                throw new Error('该箱号编号已入库');
+            }
+            await stockIn(boxText, product.boxNumber, quantity, '入库', depositoryId, product.iter);
+        } catch (error) {
+            console.error('入库失败:', error);
+            toastr.error(`入库失败: ${error.message}`);
+        } finally {
+            stockInSubmitting = false;
+            if (submitButton) submitButton.disabled = false;
+        }
     });
+
+    async function prepareProductForStockIn(boxText, boxNumber, depositoryId, quantity, iter) {
+        const params = new URLSearchParams({ boxText: boxText, boxNumber: boxNumber, depositoryId: depositoryId });
+        const response = await fetch('/productIds/quantity?' + params.toString());
+        let existing = null;
+        if (response.ok) {
+            existing = await response.json();
+            if (!Number.isInteger(Number(existing.iter)) || Number(existing.iter) <= 0) {
+                throw new Error('箱号轮次异常，请刷新后重试');
+            }
+        } else if (response.status !== 404) {
+            // 查询失败不能当作“编号不存在”，否则可能误生成新号。
+            throw new Error('查询箱号失败，请稍后重试');
+        }
+
+        const isZeroBox = /^1\d{3}$/.test(boxNumber) && Number(boxNumber) >= 1001;
+        const isPreviewedWhole = boxNumber === latestBoxNumber && /^\d{3}$/.test(boxNumber)
+            && Number(boxNumber) >= 1;
+        // 整箱从 999 循环到 001 时，预览轮次可能高于同编号的历史记录。
+        const isNewWholeIteration = isPreviewedWhole && existing && Number(iter) > Number(existing.iter);
+        if (existing && !isNewWholeIteration) {
+            return { boxNumber: boxNumber, iter: Number(existing.iter) };
+        }
+        if (isZeroBox || isPreviewedWhole) {
+            return determineAndSaveProductId(boxText, boxNumber, depositoryId, quantity, iter);
+        }
+        throw new Error('箱号尚未生成，请选择预览的新整箱编号或输入新零箱编号');
+    }
+
     function checkIfStocked(boxText, boxNumber, depositoryId, iter) {
-        return fetch(`/productIds/checkStocked?boxText=${boxText}&boxNumber=${boxNumber}&depositoryId=${depositoryId}&iter=${iter}`)
-            .then(response => response.json())
+        const params = new URLSearchParams({ boxText: boxText, boxNumber: boxNumber, depositoryId: depositoryId, iter: iter });
+        return fetch('/productIds/checkStocked?' + params.toString())
+            .then(response => {
+                if (!response.ok) throw new Error('检查入库状态失败');
+                return response.json();
+            })
             .then(data => data.isStocked)
             .catch(error => {
                 console.error('检查入库状态失败:', error);
@@ -287,18 +319,16 @@
         })
             .then(response => {
                 if (!response.ok) {
-                    return response.json().then(err => { throw new Error(err.message); });
+                    return response.json().then(err => { throw new Error(err.message || err.error || '编号生成失败'); });
                 }
                 return response.json();
             })
-            .catch(error => {
-                // 如果是因为非该仓库箱号导致的错误
-                    toastr.error('编号生成失败:非该仓库箱号，请确认');
-                throw error; // 重新抛出，以便后续的catch可以处理
-            })
             .then(data => {
                 console.log("产品ID保存成功", data);
-                // 可以在这里根据需要执行更多操作
+                if (!data.boxNumber || !Number.isInteger(Number(data.iter)) || Number(data.iter) <= 0) {
+                    throw new Error('生成结果缺少有效箱号或轮次，请核对后重试');
+                }
+                return { boxNumber: data.boxNumber, iter: Number(data.iter) };
             });
     }
 
@@ -313,7 +343,7 @@
             iter:newiter
         };
         console.log(inventoryDto);
-        fetch('/bearingInventory/stockInWithRecord', {
+        return fetch('/bearingInventory/stockInWithRecord', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(inventoryDto),
@@ -327,14 +357,10 @@
             .then(
                 data => {
                     console.log("入库成功", data);
-                    toastr.success('入库操作成功');
+                    toastr.success(`入库操作成功：${boxText} / ${boxNumber}`);
                     clearForm(); // 清空表单
                     return data;
-                })
-            .catch(error => {
-                console.error('入库操作失败:', error);
-                toastr.error(`入库操作失败: ${error.message}`);
-            });
+                });
     }
     function addBearingRecord(transactionType, boxText, boxNumber, quantity, depositoryId,newiter) {
         var depositoryText = convertDepositoryIdToText(depositoryId);
