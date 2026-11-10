@@ -246,9 +246,8 @@
                 if (isStocked) {
                     // 如果已入库，直接提示用户
                     throw new Error('该箱号编号已入库');
-                } else if (boxNumber === latestBoxNumber || boxNumber>1000) {
-                // } else if (boxNumber === latestBoxNumber ) {
-                    // 如果未入库且编号为预生成的最新，则尝试保存新的产品ID
+                } else if (boxNumber === latestBoxNumber) {
+                    // 仅为预览中的新整箱生成编号；已有零箱入库不能递增生成另一个零箱号。
                     return determineAndSaveProductId(boxText, boxNumber, depositoryId, quantity, newiter);
                 } else {
                     return Promise.resolve();
